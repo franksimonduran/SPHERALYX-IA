@@ -1,3 +1,4 @@
+import { createMotionViewer } from './motion-viewer.js';
 export function initClassificationLab(parent) {
   const section = document.createElement('section');
   section.id = 'classification-lab';
@@ -20,10 +21,9 @@ export function initClassificationLab(parent) {
   parent.append(section);
   const form = section.querySelector('form'), output = section.querySelector('.classification-output');
   const status = section.querySelector('[role=status]'), progress = section.querySelector('progress');
-  const fmt = v => v == null ? '—' : Number(v).toFixed(3);
+  const fmt = v => typeof v === 'number' && Number.isFinite(v) ? v.toFixed(3) : 'No disponible';
   const text = (tag, content) => { const n = document.createElement(tag); n.textContent = content; return n; };
   const names = {stationary:'Estacionaria compatible', possibly_moving:'Posiblemente móvil', ambiguous:'Ambigua', insufficient:'Insuficiente evidencia'};
-  const colors = {stationary:'#70dcff', possibly_moving:'#ffad5b', ambiguous:'#ff6c83', insufficient:'#c4cad4'};
   form.addEventListener('submit', async event => {
     event.preventDefault(); output.replaceChildren(); progress.hidden = false; form.querySelector('button').disabled = true;
     status.textContent = 'Calculando épocas, registro y clasificación…';
@@ -32,7 +32,8 @@ export function initClassificationLab(parent) {
     try {
       const response = await fetch('/api/experimental/classification', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params),signal:AbortSignal.timeout(120000)});
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json(), m = data.metrics, c = m.classification;
+      const data = await response.json(), viewer=createMotionViewer(data), m = data.metrics, c = m.classification;
+      output.append(viewer);
       output.append(text('p', `Asociación VP/FP/FN: ${m.association.tp}/${m.association.fp}/${m.association.fn} · precisión ${fmt(m.association.precision)} · recuperación ${fmt(m.association.recall)}.`));
       output.append(text('p', `Clasificación móvil VP/FP/FN: ${c.tp}/${c.fp}/${c.fn} · precisión ${fmt(c.precision)} · recuperación ${fmt(c.recall)} · F1 ${fmt(c.f1)} · falsos movimientos ${fmt(c.false_motion_rate)} · ambigüedad ${fmt(c.ambiguity_rate)}.`));
       for (const [key,label] of [['faint','Débiles (pico < 80)'],['bright','Brillantes (pico ≥ 80)']]) {const b=c.by_brightness[key];output.append(text('p',`${label}: ${b.sources} fuentes, VP/FP/FN ${b.tp}/${b.fp}/${b.fn}, recuperación ${fmt(b.recall)}; excluye alertas sin identidad verificable.`));}
@@ -43,21 +44,14 @@ export function initClassificationLab(parent) {
         if(c[key]!=null){const meter=document.createElement('meter');meter.min=0;meter.max=1;meter.value=c[key];meter.setAttribute('aria-label',label);row.append(meter);}else row.append(text('span','Sin datos'));chart.append(row);
       }
       output.append(chart);
-      const matrix = document.createElement('div'); matrix.className = 'validation-scroll';
+      const matrix = document.createElement('div'); matrix.className = 'validation-scroll';matrix.tabIndex=0;matrix.setAttribute('role','region');matrix.setAttribute('aria-label','Tabla desplazable de matriz de clasificación');
       const table = document.createElement('table'); table.innerHTML='<caption>Matriz: verdad × clasificación (incluye fuentes no detectadas)</caption><thead><tr><th>Verdad</th><th>Estacionaria</th><th>Posiblemente móvil</th><th>Ambigua</th><th>Insuficiente</th></tr></thead>';
       const body=document.createElement('tbody');for(const key of ['stationary','moving']){const row=document.createElement('tr');row.append(text('th',key==='moving'?'Móvil':'Estacionaria'));for(const pred of ['stationary','possibly_moving','ambiguous','insufficient'])row.append(text('td',c.confusion[key][pred]));body.append(row);}table.append(body);matrix.append(table);output.append(matrix);
-      const frames=document.createElement('div');frames.className='classification-frames';
-      data.images.forEach((url,epoch)=>{const card=document.createElement('figure'), frame=document.createElement('div');frame.className='classification-frame';const img=document.createElement('img');img.src=url;img.alt=`Imagen FITS sintética, época ${epoch+1}`;frame.append(img);
-        const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 128 128');svg.setAttribute('aria-hidden','true');
-        const shift=data.registration[epoch].shift_px;
-        if(shift) for(const track of data.tracks){const point=track.points.find(p=>p.epoch===epoch);if(!point)continue;const circle=document.createElementNS(svg.namespaceURI,'circle');circle.setAttribute('cx',point.x+shift[0]);circle.setAttribute('cy',point.y+shift[1]);circle.setAttribute('r','2');circle.setAttribute('fill','none');circle.setAttribute('stroke',colors[track.class]);circle.setAttribute('stroke-width','.8');svg.append(circle);
-          const path=track.points.filter(p=>p.epoch<=epoch).map(p=>`${p.x+shift[0]},${p.y+shift[1]}`).join(' ');const line=document.createElementNS(svg.namespaceURI,'polyline');line.setAttribute('points',path);line.setAttribute('fill','none');line.setAttribute('stroke',colors[track.class]);line.setAttribute('stroke-width','.6');svg.append(line);}
-        frame.append(svg);card.append(frame,text('figcaption',`Época ${epoch+1} · registro ${shift?shift.map(fmt).join(', '):'no disponible'} px`));frames.append(card);});output.append(frames);
       output.append(text('p','Azul: compatible con reposo · naranja: posiblemente móvil · rojo: ambigua · gris: evidencia insuficiente.'));
-      const scroll=document.createElement('div');scroll.className='validation-scroll';const measurements=document.createElement('table');measurements.innerHTML='<caption>Trayectorias detectadas: valores ajustados este/norte</caption><thead><tr><th>ID</th><th>Clase</th><th>Épocas</th><th>Δ (arcsec)</th><th>Velocidad (arcsec/día)</th><th>σ velocidad por eje</th><th>Residuo reducido</th></tr></thead>';const rows=document.createElement('tbody');
-      for(const track of data.tracks){const row=document.createElement('tr');for(const value of [track.id,names[track.class],track.points.length,track.displacement_east_north_arcsec?.map(fmt).join(', ')??'—',track.velocity_east_north_arcsec_day?.map(fmt).join(', ')??'—',fmt(track.velocity_sigma_per_axis_arcsec_day),fmt(track.reduced_residual_heuristic)])row.append(text('td',value));rows.append(row);}measurements.append(rows);scroll.append(measurements);output.append(scroll);
+      const scroll=document.createElement('div');scroll.className='validation-scroll';scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','Tabla desplazable de trayectorias sintéticas');const measurements=document.createElement('table');measurements.innerHTML='<caption>Trayectorias detectadas: valores ajustados este/norte</caption><thead><tr><th>ID</th><th>Clase</th><th>Épocas</th><th>Δ (arcsec)</th><th>Velocidad (arcsec/día)</th><th>σ velocidad por eje</th><th>Residuo reducido</th></tr></thead>';const rows=document.createElement('tbody');
+      for(const track of data.tracks.slice(0,200)){const row=document.createElement('tr');for(const value of [track.id,names[track.class],track.points.length,track.displacement_east_north_arcsec?.map(fmt).join(', ')??'No disponible',track.velocity_east_north_arcsec_day?.map(fmt).join(', ')??'No disponible',fmt(track.velocity_sigma_per_axis_arcsec_day),fmt(track.reduced_residual_heuristic)])row.append(text('td',value));rows.append(row);}measurements.append(rows);scroll.append(measurements);output.append(scroll);if(data.tracks.length>200)output.append(text('p','Tabla limitada a 200 filas; todas las trayectorias están disponibles en el selector.'));
       data.warnings.forEach(w=>output.append(text('p',w)));status.textContent='Clasificación sintética completada.';
-    } catch(error) {status.textContent=`No se pudo clasificar: ${error.message}`;}
+    } catch(error) {output.replaceChildren();status.textContent=`No se pudo clasificar: ${error.message}`;}
     finally {progress.hidden=true;form.querySelector('button').disabled=false;}
   });
 }

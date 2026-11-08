@@ -52,6 +52,26 @@ Los IDs de publicación, URLs de productos, hashes de los recortes recuperados, 
 
 ## Pruebas y siguiente fase
 
+**Estabilización posterior:** el auditor ahora permite reanudar ejecuciones propias mediante puntos de control atómicos; véase [metodología](fase91-metodologia.md). La tabla anterior sigue describiendo exclusivamente la ejecución real histórica de 19:04–19:11 UTC, no predice ejecuciones nuevas ni convierte sus resultados en un archivo FITS conservado.
+
+En la revisión local de estabilización, `python -m pytest tests -q` obtuvo **87 aprobadas, 4 omitidas, 1 advertencia**; se ensayaron interrupción, terminación brusca de proceso, reanudación, fallo de reemplazo, bloqueo concurrente, respuesta vacía, fallo de red y posible truncamiento. `pip check` y `node frontend/tests/audit.mjs` pasaron. El frontend usa mocks: no demuestra disponibilidad IRSA ni accesibilidad completa.
+
+### Repetición real de estabilización
+
+Una segunda ejecución de los diez casos tuvo lugar el 8 de noviembre de 2026, de **19:25:21 a 19:29:54 UTC**, sin manifiesto de calibración. Los diez conteos y los identificadores de las observaciones seleccionadas coincidieron con la tabla anterior: ocho búsquedas devolvieron 100 productos, WISE 0855 QR3 y R Dra QR3 devolvieron cero. Se recuperaron 16 recortes, 16 vistas individuales y ocho pares alineados A/B; **ocho pares rechazados y ninguna diferencia**. En ε Indi B QR2, IRSA respondió HTTP 503 dos veces y el cliente continuó tras reintentar; el resultado final de esa búsqueda fue satisfactorio. No se observaron errores terminales de búsqueda o descarga en esta ejecución.
+
+La [salida completa de metadatos de la repetición](../data/samples/irsa-fase91-20261108-estabilizacion.json) conserva los productos normalizados y los puntos de control, no las respuestas SIA originales ni los bytes FITS/PNG. Esta ejecución fue iniciada con una versión intermedia del guardado incremental, antes de añadir la huella del código y la captura estructurada de avisos: los reintentos se registraron en la salida de consola, no en su JSON. No se deben atribuir retrospectivamente campos ausentes en el archivo.
+
+La implementación final se comprobó además con [una ejecución real independiente de Barnard](../data/samples/irsa-fase91-20261108-barnard-final.json), 19:29:32–19:30:53 UTC. QR2 y QR3 devolvieron 100 productos cada una, dos recortes por colección y dos pares rechazados sin diferencias; el JSON sí contiene las huellas de siete módulos y una advertencia HTTP 503 recuperada por reintento en cada colección. Esta comprobación final abarcó solo Barnard; los demás campos se registraron en la ejecución anterior.
+
+### Auditoría adicional de los cinco campos
+
+El 8 de noviembre de 2026, **19:34:57–19:39:45 UTC**, se repitieron las diez búsquedas con guardado incremental. La [salida documental completa](../data/samples/irsa-fase91-20261108-auditoria-revision.json) registra parámetros, metadatos, hashes y estados. Los resultados coincidieron con la matriz: ocho consultas de 100 productos normalizados, dos de cero, 16 recortes y ocho pares A/B rechazados; ningún par produjo diferencia. No se registraron advertencias de red ni errores terminales en esta ejecución. Los conteos están sujetos al límite y a los mismos límites de cobertura e identificación explicados arriba.
+
+Esta ejecución terminó antes de una corrección posterior que separa un fallo al guardar un aviso de red de un error del producto FITS. Su identidad de código figura en el JSON; la corrección posterior se probó de forma automatizada, sin atribuirle esta ejecución retrospectivamente. Las respuestas originales y los bytes FITS/PNG no se conservan.
+
+Tras esa corrección, `.venv312\Scripts\python -m pytest tests -q` dio **89 aprobadas, 4 omitidas, 1 advertencia** de Starlette/TestClient, y `pip check` no detectó conflictos. Se añadieron pruebas de errores de almacenamiento tanto al guardar una descarga como al registrar un reintento de red. No se modificó el frontend ni se volvió a ejecutar su auditoría en esta revisión.
+
 - Backend local: **78 aprobadas, 4 omitidas, 1 advertencia** de Starlette/TestClient. Las cuatro omitidas requieren variables `SPHERALYX_LIVE_*`; esta exploración IRSA es independiente de esas pruebas.
 - Auditoría frontend: aprobada con respuestas API simuladas. `pip check`: sin incompatibilidades.
 - Los algoritmos y bloqueos científicos existentes no se modificaron. No se ha demostrado movimiento real ni descubrimiento de Planet X.

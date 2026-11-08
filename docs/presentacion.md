@@ -20,7 +20,7 @@ Contenido propuesto; requiere diseño y revisión manual antes de presentarse. N
 ## 4. Control científico antes de comparar
 - La misma banda no garantiza igual longitud de onda por píxel.
 - Se requiere evidencia de calibración CWAVE/CBAND y se bloquea la diferencia cuando falta.
-- En seis pares documentados, ninguno fue aceptado; la búsqueda no fue exhaustiva.
+- En la fase 9.1 se evaluaron ocho pares reales con recortes; ninguno autorizó diferencia calibrada por falta de CWAVE/CBAND verificados. Es un sondeo limitado, no exhaustivo.
 
 ## 5. AstroMotion y Validation Lab
 - Generación FITS sintética con ruido, PSF, fuentes y movimiento inyectado.
@@ -31,6 +31,7 @@ Contenido propuesto; requiere diseño y revisión manual antes de presentarse. N
 - En el escenario sintético de semilla 42: 8 VP, 0 FP, 0 FN de asociación; un caso idealizado, no una tasa universal.
 - Demostración ejecutable localmente sin IRSA; el servidor Python sigue siendo necesario.
 - La clasificación sintética no valida movimiento en datos SPHEREx.
+- En QA posterior un intento de comparación real agotó 120 segundos; no se presenta como un flujo en vivo garantizado.
 
 ## 7. Impacto y próximos pasos
 - Impacto propuesto: alfabetización científica y visualización transparente de límites y errores.

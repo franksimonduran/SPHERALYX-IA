@@ -1,10 +1,10 @@
-/* Mission Workspace — presentation-only DOM composition.
-   Reuses all existing forms, IDs and event listeners. No API changes. */
+/* Reutiliza los controles existentes sin duplicar IDs ni alterar sus eventos. */
+import { initRealViewer } from './real-viewer.js';
 export function initMissionWorkspace(){
   const panel=document.querySelector('.real-panel');
   if(!panel || panel.querySelector('.real-workspace-grid'))return;
   const heading=panel.querySelector(':scope > .panel-title');
-  const intro=panel.querySelector(':scope > p');
+  const intro=panel.querySelector('#real-intro');
   const offline=panel.querySelector('#offline-mode')?.closest('label');
   const documentary=panel.querySelector(':scope > details');
   const form=panel.querySelector('#real-search');
@@ -13,11 +13,12 @@ export function initMissionWorkspace(){
   const preview=panel.querySelector('#real-preview');
   const metadata=panel.querySelector('#real-metadata');
   const compare=panel.querySelector('.real-compare');
-  if(!heading || !form || !status || !observations || !preview || !compare)return;
+  const coordinates=document.querySelector('#coordinates-form');
+  if(!heading || !form || !status || !observations || !preview || !compare || !coordinates)return;
   panel.classList.add('mission-real-workspace');
   const grid=document.createElement('div');grid.className='real-workspace-grid';
   const makeColumn=(name,kicker,title)=>{
-    const col=document.createElement('div');col.className='mission-workspace-column '+name;
+    const col=document.createElement('section');col.className='mission-workspace-column '+name;
     const label=document.createElement('div');label.className='workspace-column-head';
     const eyebrow=document.createElement('span');eyebrow.textContent=kicker;
     const h=document.createElement('h4');h.textContent=title;
@@ -26,7 +27,10 @@ export function initMissionWorkspace(){
   const controls=makeColumn('real-workspace-controls','01 / CONFIGURACIÓN','Consulta científica');
   const image=makeColumn('real-workspace-image','02 / VISUALIZACIÓN','Visor FITS / PNG');
   const results=makeColumn('real-workspace-results','03 / RESULTADOS','Observaciones IRSA');
-  [intro,offline,documentary,form,status].filter(Boolean).forEach(el=>controls.append(el));
+  [intro,coordinates,form,offline,status,documentary].filter(Boolean).forEach(el=>controls.append(el));
+  coordinates.classList.add('real-coordinate-form');
+  const updateDemo=coordinates.querySelector('button[type="submit"]');
+  if(updateDemo?.firstChild)updateDemo.firstChild.textContent='Actualizar campo simulado ';
   const viewport=document.createElement('div');viewport.className='real-image-viewport';
   const label=document.createElement('div');label.className='real-image-empty';
   const graphic=document.createElement('span');graphic.setAttribute('aria-hidden','true');graphic.className='image-empty-graphic';graphic.textContent='⊕';
@@ -40,6 +44,7 @@ export function initMissionWorkspace(){
   results.append(resultsHelp,observations);
   grid.append(controls,image,results);
   heading.insertAdjacentElement('afterend',grid);
+  initRealViewer({viewport, image:preview, column:image, status, coordinates});
   compare.classList.add('mission-compare-workspace');
   // Navigation closes over existing anchors, including Validation Lab injected by initAnalysis.
   const nav=document.querySelector('.mission-rail-nav');

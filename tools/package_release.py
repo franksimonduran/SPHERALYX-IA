@@ -16,6 +16,9 @@ PATTERNS = (
     'tests/*.py', 'docs/*.md', 'data/samples/astromotion-seed42.json',
     'data/samples/campos-spherex-fase91.json',
     'data/samples/irsa-fase91-20261108-resumen.json',
+    'data/samples/irsa-fase91-20261108-estabilizacion.json',
+    'data/samples/irsa-fase91-20261108-barnard-final.json',
+    'data/samples/irsa-fase91-20261108-auditoria-revision.json',
     'tools/package_release.py', 'tools/auditoria_irsa_fase91.py',
 )
 

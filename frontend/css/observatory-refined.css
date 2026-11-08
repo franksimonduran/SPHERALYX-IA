@@ -1,4 +1,6 @@
 /* Observatorio de precisión: presentación, sin cambios científicos. */
+.portal-independence{margin-top:14px;color:#c3d4e3;font-size:.82rem}.portal-guide{padding:24px 0 10px}.portal-guide h2{font-size:clamp(1.5rem,2.5vw,2.3rem);margin:8px 0}.portal-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.portal-links a{display:grid;gap:8px;min-width:0;padding:20px;border:1px solid rgba(130,181,221,.24);border-radius:10px;background:#101b32}.portal-links a:hover,.portal-links a:focus-visible{border-color:#40cbf5}.portal-links span{color:#83dff7;font-size:.7rem;letter-spacing:.08em}.portal-links strong{color:#f2f6ff}.portal-links small{color:#c1cfde;line-height:1.5}.portal-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding-left:24px;color:#c4d5e4;font-size:.85rem}.catalog-provenance{margin:0 0 18px;padding:14px;border-left:3px solid #40cbf5;background:#101b32;font-size:.86rem}.catalog-provenance a{color:#8ae4fa;text-decoration:underline}.catalog-search{display:grid;gap:6px;margin:12px 0;color:#d4e4f0;font-size:.82rem}.catalog-search input{width:100%;min-width:0}#candidate-search-status{font-size:.75rem;color:#b6c8d9;margin:8px 0}.candidate-panel .candidate-row{border:1px solid rgba(130,181,221,.22);border-radius:8px;margin:8px 0}.candidate-panel .candidate-row.selected{border-color:#40cbf5;background:rgba(64,203,245,.1)}
+@media(max-width:760px){.portal-links,.portal-steps{grid-template-columns:minmax(0,1fr)}.portal-steps{gap:8px}}
 :root {
   --bg: #070c18;
   --panel: #101b2e;
@@ -28,17 +30,18 @@ body:before { opacity: .35; }
 .feature-grid { gap: 14px; }
 .feature { min-height: 210px; background: #101b2e; border-color: var(--border)!important; border-radius: var(--radius); box-shadow: none; }
 .feature:hover { transform: none; border-color: rgba(85,208,241,.45)!important; }
-.panel, .mission-workspace-column, .mission-compare-workspace { background: #101b2e; border-color: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
-.mission-workspace-column, .mission-compare-workspace { background: #0b1729; box-shadow: none; }
-.mission-real-workspace { padding: clamp(20px, 2.5vw, 30px); }
-.real-workspace-grid { gap: 12px; }
-.real-image-viewport { background: #050b17; border-color: rgba(133,183,216,.22); }
-.real-image-viewport:after { content: 'NASA/IPAC IRSA · VISTA REAL'; color: #b2cbdd; font-size: .65rem; }
-.workspace-column-head span, .eyebrow, .kicker { font-size: .7rem; letter-spacing: .11em; }
-.workspace-column-head h4 { font-size: 1rem; }
-.real-workspace-controls>p, .workspace-results-help, .real-workspace-controls .real-status, .real-image-empty p { font-size: .82rem; }
-.real-workspace-controls>.check { font-size: .8rem; }
+.panel { background: #101b2e; border-color: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.mission-compare-workspace { background: #0b1729; box-shadow: none; }
+.eyebrow, .kicker { font-size: .7rem; letter-spacing: .11em; }
+.real-image-empty p { font-size: .82rem; }
 .real-observations button { text-align: left; line-height: 1.5; }
+.observation-filters { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-bottom:12px; }
+.observation-filters label { display:grid; gap:5px; min-width:0; font-size:.75rem; color:#d5e2f0; }
+.observation-filters select { width:100%; min-width:0; font-size:.78rem; }
+.observation-filter-message, .observation-date-heading { font-size:.76rem; color:#c0d0de; margin:8px 0; }
+.observation-rows { display:grid; gap:8px; }
+.real-observation-row { width:100%; overflow-wrap:anywhere; }
+.real-observation-row[aria-pressed="true"] { border-color:#82def5; background:rgba(85,208,241,.12); }
 .controls input[type=number], .real-form input[type=number], .viewer-coords, .real-metadata { font-variant-numeric: tabular-nums; }
 .viewer-coords, .real-metadata { font-family: ui-monospace, Consolas, monospace; }
 .button { border-radius: 8px; }
@@ -51,13 +54,10 @@ body:before { opacity: .35; }
 .control-help, .fine-print, .muted { font-size: .8rem; }
 .real-status { color: #d1e8f4!important; }
 .footer { width: calc(100% - var(--rail-width) - 54px); margin-left: calc(var(--rail-width) + 27px); }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid #a4efff; outline-offset: 3px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 3px solid #a4efff; outline-offset: 3px; }
 @media(max-width: 760px) {
   .hero h1 { font-size: clamp(2.6rem, 10vw, 4rem); }
   .mission-rail { display: none; }
-  .real-workspace-grid { grid-template-columns: minmax(0, 1fr); }
-  .real-workspace-results { grid-column: auto; }
-  .mission-workspace-column { padding: 16px; }
   .playback { flex-wrap: wrap; gap: 14px; }
   .playback label { max-width: 100%; }
   .footer { width: calc(100% - 34px); margin-left: 17px; }
@@ -65,4 +65,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media(prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *:before, *:after { transition-duration: .01ms!important; animation-duration: .01ms!important; animation-iteration-count: 1!important; }
+  .feature:hover,.candidate-row:hover,.button:hover { transform:none; }
 }

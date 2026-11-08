@@ -22,6 +22,9 @@ La identificación `0.3.0-rc1` corresponde a una candidata de demostración. Req
 - [Informe de pruebas](docs/informe-pruebas.md)
 - [Paquete e inventario](docs/paquete-entrega.md) · [Licencias y atribuciones pendientes](docs/licencias-atribuciones.md)
 - [Fase 9.1: metodología y visor temporal](docs/fase91-metodologia.md) · [Disponibilidad SPHEREx](docs/fase91-disponibilidad.md)
+- [Lista cronológica REAL y filtros](docs/lista-cronologica-real.md)
+- [Interfaz Cosmic Explorer y límites visuales](docs/cosmic-explorer-interfaz.md)
+- [Preparación de entrega y despliegue local](docs/entrega-space-apps-2026.md) · [QA de integración y bloqueo temporal](docs/informe-qa-integracion.md) · [Borrador de notas de release](docs/notas-release-borrador.md)
 
 AstroMotion incluye además un **EXPERIMENTO SINTÉTICO** independiente: genera FITS artificiales y mide asociaciones y desplazamientos con un detector tradicional. No son observaciones SPHEREx ni descubrimientos NASA. Véase [metodología y limitaciones](docs/astromotion-sintetico.md).
 
@@ -42,7 +45,7 @@ python -m pip install -r backend/requirements-lock-win-py312.txt
 python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 
-En macOS/Linux: `python3.12 -m venv .venv312`, `source .venv312/bin/activate` y los mismos comandos `pip` y `uvicorn`. La aplicación sirve el frontend sin compilación ni npm en <http://127.0.0.1:8000/>; no abras el HTML directamente con `file://`. Documentación interactiva de la API: <http://127.0.0.1:8000/docs>.
+En macOS/Linux: `python3.12 -m venv .venv312`, `source .venv312/bin/activate`, `python -m pip install -r backend/requirements.txt` y el mismo comando `uvicorn`. Esa resolución no está fijada ni verificada en esta auditoría. La aplicación sirve el frontend sin compilación ni npm en <http://127.0.0.1:8000/>; no abras el HTML directamente con `file://`. Documentación interactiva de la API: <http://127.0.0.1:8000/docs>.
 
 Las dependencias se instalan exclusivamente en el entorno virtual. `backend/requirements-lock-win-py312.txt` es una instantánea de versiones verificadas en Windows x64 y CPython 3.12.0; incluye transitivas y paquetes adicionales, pero no hashes. Para otra plataforma usa `backend/requirements.txt`, resuelve y verifica sus propias versiones. El lock no garantiza bit a bit resultados entre arquitecturas ni disponibilidad futura de paquetes.
 

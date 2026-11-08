@@ -16,7 +16,7 @@ Duración orientativa; requiere ensayo y cronometraje. Mostrar rótulos visibles
 
 ## 0:55–1:25 — Comparación responsable
 
-**Voz:** «Comparar dos imágenes requiere comprobar calidad, cobertura y compatibilidad espectral. La longitud de onda varía por píxel, por eso bloqueamos la diferencia cuando falta evidencia de calibración. En seis pares documentados no se aceptó ninguno; eso no demuestra que no existan pares compatibles.»
+**Voz:** «Comparar dos imágenes requiere comprobar calidad, cobertura y compatibilidad espectral. La longitud de onda varía por píxel, por eso bloqueamos la diferencia cuando falta evidencia de calibración. En un sondeo limitado de ocho pares ninguno autorizó diferencia calibrada; eso no demuestra que no existan pares compatibles.»
 
 **Pantalla:** motivos de rechazo y referencia al bloqueo, sin fabricar un resultado en vivo.
 
@@ -28,7 +28,7 @@ Duración orientativa; requiere ensayo y cronometraje. Mostrar rótulos visibles
 
 ## 2:10–2:40 — Validation Lab
 
-**Voz:** «El laboratorio permite cambiar las condiciones, observar ambigüedades y comparar estrategias. Su módulo multiepoca clasifica trayectorias sintéticas como compatibles con reposo, posiblemente móviles o insuficientes. Las incertidumbres son aproximadas y no se ha entrenado una red neuronal.»
+**Voz:** «El laboratorio permite cambiar las condiciones, observar ambigüedades y comparar estrategias. Su módulo multiepoca clasifica trayectorias sintéticas como compatibles con reposo, posiblemente móviles, ambiguas o con evidencia insuficiente. Las incertidumbres son aproximadas y no se ha entrenado una red neuronal.»
 
 **Pantalla:** parámetros, matriz y trayectorias sintéticas.
 
