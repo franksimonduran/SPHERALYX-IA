@@ -26,4 +26,5 @@ build/
 !/data/samples/
 /data/samples/*
 !/data/samples/astromotion-seed42.json
+!/data/samples/campos-spherex-fase91.json
 *.zip

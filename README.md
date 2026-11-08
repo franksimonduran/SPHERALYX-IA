@@ -21,6 +21,7 @@ La identificación `0.3.0-rc1` corresponde a una candidata de demostración. Req
 - [Presentación de siete diapositivas](docs/presentacion.md) · [Guion de vídeo](docs/guion-video.md) · [Lista de verificación](docs/lista-verificacion.md)
 - [Informe de pruebas](docs/informe-pruebas.md)
 - [Paquete e inventario](docs/paquete-entrega.md) · [Licencias y atribuciones pendientes](docs/licencias-atribuciones.md)
+- [Fase 9.1: metodología y visor temporal](docs/fase91-metodologia.md) · [Disponibilidad SPHEREx](docs/fase91-disponibilidad.md)
 
 AstroMotion incluye además un **EXPERIMENTO SINTÉTICO** independiente: genera FITS artificiales y mide asociaciones y desplazamientos con un detector tradicional. No son observaciones SPHEREx ni descubrimientos NASA. Véase [metodología y limitaciones](docs/astromotion-sintetico.md).
 

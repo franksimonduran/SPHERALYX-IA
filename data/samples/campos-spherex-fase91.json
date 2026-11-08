@@ -1,0 +1,13 @@
+{
+  "provenance": "Centros exploratorios derivados de catálogos y publicaciones; NO son detecciones SPHEREx.",
+  "target_epoch_jyear": 2026.0,
+  "radius_deg": 0.1,
+  "note": "Propagación angular aproximada sin paralaje ni velocidad radial; no es una efeméride ni prueba de que el objeto esté en un FITS. La colección SIA puede truncarse a 100 filas.",
+  "fields": [
+    {"name":"Barnard's Star", "ra_hms":"17 57 48.4984700685", "dec_dms":"+04 41 36.113879676", "epoch_jyear":2000.0, "pm_ra_cosdec_masyr":-801.551, "pm_dec_masyr":10362.394, "reference":"https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Barnard%27s+Star", "note":"Posición ICRS SIMBAD en J2000; movimiento propio Gaia. Desplazamiento alto."},
+    {"name":"Epsilon Indi B", "ra_hms":"22 04 10.517", "dec_dms":"-56 46 57.78", "epoch_jyear":1999.855, "pm_ra_cosdec_masyr":4131.0, "pm_dec_masyr":-2489.0, "reference":"https://arxiv.org/html/astro-ph/0212487v1", "note":"Tabla 1, 2MASS J; sistema B, no la estrella primaria A. Solución histórica aproximada; paralaje y órbita no incluidos."},
+    {"name":"WISE 0855", "ra_hms":"08 55 03.51", "dec_dms":"-07 14 33.47", "epoch_jyear":2023.917, "pm_ra_cosdec_masyr":-8118.0, "pm_dec_masyr":680.0, "reference":"https://google.iopscience.iop.org/article/10.3847/1538-3881/ae17ca/pdf", "note":"Posición de observación JWST 2023-12-02 redondeada; referencia angular aproximada, paralaje importante omitido."},
+    {"name":"RW Aurigae", "ra_hms":"05 07 49.5662483", "dec_dms":"+30 24 05.177426", "epoch_jyear":2000.0, "pm_ra_cosdec_masyr":null, "pm_dec_masyr":null, "reference":"https://simbad.u-strasbg.fr/simbad/sim-id?Ident=rw+aurigae", "note":"SIMBAD sistema RW Aur; sin propagación en este caso. Distinguir RW Aur A/B."},
+    {"name":"R Draconis", "ra_hms":"16 32 40.2265999080", "dec_dms":"+66 45 17.925901992", "epoch_jyear":2000.0, "pm_ra_cosdec_masyr":null, "pm_dec_masyr":null, "reference":"https://simbad.u-strasbg.fr/simbad/sim-id?Ident=R+Dra", "note":"SIMBAD R Dra, ICRS J2000; sin propagación en este caso."}
+  ]
+}
