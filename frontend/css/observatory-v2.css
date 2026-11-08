@@ -192,3 +192,11 @@ input[type=range]{accent-color:#64d8f6}
 @media(prefers-reduced-motion:reduce){
  .feature:hover,.candidate-row:hover,.button:hover{transform:none}
 }
+
+.temporal-context{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px;padding:20px 24px;border-radius:16px;background:linear-gradient(120deg,rgba(15,40,64,.9),rgba(12,27,48,.9));border:1px solid rgba(84,190,226,.26)}
+.temporal-context .kicker{flex:0 0 100%;margin-bottom:-10px}
+.temporal-context p{flex:1 1 380px;font-size:.82rem;color:#bbd1e5}
+.temporal-context p strong{color:#e3f6ff}
+.temporal-real-link{flex:0 0 auto;background:rgba(75,196,233,.09);border-color:rgba(90,210,248,.3);color:#b4eefe}
+.temporal-real-link:hover{background:rgba(75,196,233,.19)}
+@media(max-width:760px){.temporal-context{padding:20px}.temporal-real-link{width:100%;justify-content:center}}
