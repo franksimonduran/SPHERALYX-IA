@@ -1,0 +1,11 @@
+# AstroMotion: experimento sintético
+
+Este experimento independiente genera dos FITS en memoria, no usa IRSA y no representa observaciones SPHEREx ni descubrimientos. No utiliza redes neuronales. Ejecutar `POST /api/experimental/motion` con JSON, por ejemplo `{"seed":42,"tolerance":6,"threshold":5}`. Los límites están en el esquema OpenAPI; la tolerancia se expresa en píxeles y el umbral en múltiplos del ruido estimado.
+
+El generador utiliza una WCS TAN artificial con escala nominal de 1 arcsec/píxel, dos épocas separadas 10 días, PSF gaussiana FWHM 3 píxeles, ruido gaussiano independiente y ocho fuentes (seis fijas y dos móviles). La semilla controla el ruido. DAOStarFinder detecta centroides tras estimar fondo y ruido con sigma clipping. Se asocian centroides en píxeles sobre la misma rejilla WCS artificial: solo se acepta una pareja si cada extremo tiene un único vecino dentro de la tolerancia. Se rechazan todas las aristas ambiguas, no se resuelve una asignación global.
+
+Astropy calcula la separación angular de los centroides; la velocidad es su módulo dividido entre la separación temporal. La incertidumbre heurística de cada centroide es `max(0.03, FWHM/(2.355*SNR_pico))` píxeles, combinada en cuadratura y convertida usando la escala nominal. No incluye errores sistemáticos, covarianza, ajuste de PSF ni calibración estadística; no es una significancia de movimiento. La velocidad no tiene dirección y dos épocas no permiten confirmar una trayectoria física.
+
+La verdad solo se utiliza después de la detección y asociación. Una pareja es VP si ambos centroides tienen correspondencia única dentro de 1.5 píxeles con la misma fuente inyectada. FP son parejas aceptadas que no cumplen esto; FN son fuentes inyectadas sin pareja correcta. Precisión = VP/(VP+FP); recuperación = VP/(VP+FN). Si el denominador es cero se informa `null`. El error medio absoluto compara los módulos angulares medidos y verdaderos solo para VP; no estima falsos negativos de clasificación de movimiento. Se cuentan aristas ambiguas, no fuentes ambiguas.
+
+La simulación es idealizada: WCS idéntica, PSF fija, fuentes aisladas y brillantes, sin artefactos ni contaminación espectral. Sus métricas no validan el desempeño sobre el cielo real. El flujo temporal real y su bloqueo de calibración permanecen separados.

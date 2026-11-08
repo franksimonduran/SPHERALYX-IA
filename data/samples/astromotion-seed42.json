@@ -1,0 +1,15 @@
+{
+  "provenance": "EXPERIMENTO SINTÉTICO; no es una observación NASA/SPHEREx",
+  "method": "POST /api/experimental/motion",
+  "parameters": {"seed": 42, "tolerance": 6.0, "threshold": 5.0},
+  "environment": "Windows x64, CPython 3.12.0; backend/requirements-lock-win-py312.txt",
+  "metrics": {
+    "true_positive": 8,
+    "false_positive": 0,
+    "false_negative": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "mean_absolute_displacement_error_arcsec": 0.016271720462905384
+  },
+  "note": "Métricas de asociación del escenario controlado; el error numérico puede variar entre plataformas."
+}

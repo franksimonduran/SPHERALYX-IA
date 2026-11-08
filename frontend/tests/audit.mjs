@@ -1,0 +1,110 @@
+// Prueba de integración sin dependencias: node frontend/tests/audit.mjs
+// Requiere Chrome o Edge; CHROME_PATH permite especificar el ejecutable.
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:http';
+import { readFile, mkdtemp, rm } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, resolve, extname, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const browser = [process.env.CHROME_PATH, 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(p => p && existsSync(p));
+if (!browser) throw new Error('No se encontró Chrome o Edge. Define CHROME_PATH.');
+const mime = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.png':'image/png' };
+const server = createServer(async (req,res) => {
+  if(req.url==='/api/experimental/classification' && req.method==='POST'){
+    const group={sources:1,tp:1,fp:0,fn:0,recall:1},row={stationary:0,possibly_moving:1,ambiguous:0,insufficient:0};
+    const classification={tp:1,fp:0,fn:0,precision:1,recall:1,f1:1,false_motion_rate:0,ambiguity_rate:0,confusion:{stationary:{...row,possibly_moving:0},moving:row},by_brightness:{faint:group,bright:group}};
+    const track={id:1,class:'possibly_moving',points:[{epoch:0,x:20,y:20},{epoch:1,x:22,y:20},{epoch:2,x:24,y:20}],displacement_east_north_arcsec:[-4,0],velocity_east_north_arcsec_day:[-.2,0],velocity_sigma_per_axis_arcsec_day:.01,reduced_residual_heuristic:.1};
+    const image='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/aAAAAABJRU5ErkJggg==';
+    res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({metrics:{classification,association:{tp:2,fp:0,fn:0,precision:1,recall:1},mean_vector_error_arcsec:.1,mean_velocity_error_arcsec_day:.01,error_sample_count:1},images:[image,image,image],registration:[{shift_px:[0,0]},{shift_px:[0,0]},{shift_px:[0,0]}],tracks:[track],warnings:['Solo sintético']}));return;
+  }
+  if(req.url==='/api/experimental/validation' && req.method==='POST'){
+    let body='';for await (const chunk of req) body+=chunk;
+    const params=JSON.parse(body), metrics={tp:3,fp:1,fn:2,precision:.75,recall:.6,f1:2/3,mean_error_arcsec:.1,bootstrap_95:{precision:[.5,1],recall:[.3,.8],f1:[.4,.9]},error_distribution_arcsec:{count:3,p50:.08,p90:.2}};
+    res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({scenarios:[{seed:params.seed,detections:[4,4],conservative:metrics,baseline:metrics,elapsed_seconds:.1}],methods:{conservative:metrics,baseline:metrics},ambiguity:{ambiguous_edges:1,candidate_edges:4,rate:.25},elapsed_seconds:.2,warnings:['Solo campos sintéticos']}));return;
+  }
+  if(req.url==='/api/experimental/motion' && req.method==='POST'){
+    const a={x:20,y:30,sigma_pixel:.03},b={x:23,y:32,sigma_pixel:.03};
+    res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({size:128,detections:[[a],[b]],measurements:[{a,b,displacement_arcsec:3.6,uncertainty_arcsec:.04,velocity_arcsec_day:.36,uncertainty_velocity_arcsec_day:.004}],metrics:{true_positive:1,false_positive:0,false_negative:0,precision:1,recall:1,mean_absolute_displacement_error_arcsec:.01},ambiguous_edges:0,warnings:['Datos sintéticos']}));return;
+  }
+  if(req.url==='/api/temporal/pairs' && req.method==='POST'){
+    let requestBody='';for await(const chunk of req)requestBody+=chunk;
+    if(JSON.parse(requestBody).ra===12.34) await new Promise(resolve=>setTimeout(resolve,500));
+    const a={id:'a'.repeat(64),observation_id:'TEST-A',band:'D2',time_start_mjd:60000},b={id:'b'.repeat(64),observation_id:'TEST-B',band:'D2',time_start_mjd:60001};
+    res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({evaluated_count:1,candidates_prefiltered:1,accepted_count:0,notice:'simulado',pairs:[{a,b,detector:'D2',release:'qr2',status:'rechazado',reasons:['Calibración no verificada'],coverage_fraction:.7,spectral_match_fraction:.2,spectral_status:'aproximada_no_verificada'}]}));return;
+  }
+  if(req.url==='/api/temporal/compare' && req.method==='POST'){
+    const img='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/aAAAAABJRU5ErkJggg==';
+    const observation={observation_id:'TEST-IRSA',band:'D2',time_start_mjd:60000,release:'qr2'};
+    res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({mode:'real',compatible:true,reasons:[],coverage_fraction:.8,warning:'Exploratorio',a:observation,b:observation,fits_a:{date_obs:'2025-01-01'},fits_b:{date_obs:'2025-02-01'},views:{a:img,b:img,coverage:img,difference:img}}));return;
+  }
+  // Respuestas de API controladas para verificar integración sin depender de IRSA.
+  if (req.url.startsWith('/api/observations')) {
+    if(req.url.includes('ra=12.34')) await new Promise(resolve=>setTimeout(resolve,500));
+    if(req.url.includes('ra=22.34')){res.writeHead(503,{'content-type':'application/json'});res.end(JSON.stringify({detail:'IRSA no disponible'}));return;}
+    const id='a'.repeat(64), item={id,mode:'real',observation_id:'TEST-IRSA',band:'D2',time_start_mjd:60000,collection:'spherex_qr2',reference_url:'https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/example.fits'};
+    if(req.url===`/api/observations/${id}/preview`){res.writeHead(200,{'content-type':'image/png','X-Flagged-Pixels':'3'});res.end(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/aAAAAABJRU5ErkJggg==','base64'));return;}
+    res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify(req.url===`/api/observations/${id}`?item:{mode:'real',limit:100,observations:[item,{...item,id:'b'.repeat(64),observation_id:'TEST-IRSA-2',time_start_mjd:60001}]}));return;
+  }
+  try { const path=resolve(root, '.' + decodeURIComponent(new URL(req.url,'http://localhost').pathname === '/' ? '/index.html' : new URL(req.url,'http://localhost').pathname)); if(path!==root&&!path.startsWith(root+sep)) throw Error('ruta'); const data=await readFile(path);res.writeHead(200,{'content-type':mime[extname(path)]||'application/octet-stream'});res.end(data); }
+  catch { res.writeHead(404);res.end(); }
+});
+await new Promise(r=>server.listen(0,'127.0.0.1',r));
+const port=server.address().port, profile=await mkdtemp(resolve(tmpdir(),'spheralyx-audit-'));
+const child=spawn(browser,['--headless=new','--disable-gpu','--no-sandbox','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
+let stderr='';child.stderr.on('data',x=>stderr+=x);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+let socket;
+try {
+  let endpoint;
+  for(let i=0;i<100&&!endpoint;i++){await wait(100);endpoint=stderr.match(/DevTools listening on (ws:\/\/\S+)/)?.[1];}
+  if(!endpoint)throw Error('Chrome no inició el protocolo de depuración');
+  const debugPort=new URL(endpoint).port;
+  const target=await (await fetch(`http://127.0.0.1:${debugPort}/json/new?about:blank`,{method:'PUT'})).json();
+  socket=new WebSocket(target.webSocketDebuggerUrl);await new Promise((r,j)=>{socket.onopen=r;socket.onerror=j;});
+  let id=0;const pending=new Map(),errors=[];
+  socket.onmessage=event=>{const msg=JSON.parse(event.data);if(msg.id){const p=pending.get(msg.id);pending.delete(msg.id);msg.error?p.reject(Error(msg.error.message)):p.resolve(msg.result);}else if(msg.method==='Runtime.exceptionThrown')errors.push(msg.params.exceptionDetails.exception?.description||msg.params.exceptionDetails.text);else if(msg.method==='Runtime.consoleAPICalled'&&msg.params.type==='error')errors.push('console.error: '+msg.params.args.map(x=>x.value||x.description).join(' '));};
+  const send=(method,params={})=>new Promise((resolve,reject)=>{const request=++id;pending.set(request,{resolve,reject});socket.send(JSON.stringify({id:request,method,params}));});
+  await send('Runtime.enable');await send('Page.enable');
+  await send('Page.navigate',{url:`http://127.0.0.1:${port}/`});
+  const evaluate=async expression=>{const result=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(result.exceptionDetails)throw Error(result.exceptionDetails.exception?.description||result.exceptionDetails.text);return result.result.value;};
+  let ready=false;
+  for(let i=0;i<150;i++){
+    ready=await evaluate(`location.href.startsWith('http://127.0.0.1:${port}/') && document.readyState === 'complete' && document.querySelectorAll('#observation option').length === 8`);
+    if(ready)break;
+    await wait(100);
+  }
+  if(!ready)throw Error('Inicialización incompleta: '+JSON.stringify({state:await evaluate("({url:location.href,readyState:document.readyState,options:document.querySelectorAll('#observation option').length})"),errors}));
+  async function check(name, expression){if(!await evaluate(expression))throw Error(`FALLO: ${name}`);console.log('OK:',name);}
+  await check('módulos y cinco secciones',"['inicio','explorador','simulacion','analisis','descubrimientos'].every(id=>!!document.getElementById(id)) && document.querySelectorAll('#observation option').length===8");
+  await check('imagen de marca o alternativa según dimensiones',"(()=>{const img=document.querySelector('.brand-logo'),fallback=document.querySelector('.brand-symbol'),usable=img.naturalWidth>1&&img.naturalHeight>1;return img.complete && img.hidden===!usable && fallback.hidden===usable})()");
+  await check('logo utilizable y error conservan alternativa',"(()=>{const img=document.querySelector('.brand-logo'),fallback=document.querySelector('.brand-symbol');Object.defineProperties(img,{naturalWidth:{configurable:true,value:120},naturalHeight:{configurable:true,value:80}});img.dispatchEvent(new Event('load'));const shown=!img.hidden&&fallback.hidden;Object.defineProperties(img,{naturalWidth:{configurable:true,value:0},naturalHeight:{configurable:true,value:0}});img.dispatchEvent(new Event('error'));const failed=img.hidden&&!fallback.hidden;delete img.naturalWidth;delete img.naturalHeight;img.dispatchEvent(new Event('load'));return shown&&failed})()");
+  for(const width of [375,768,1024,1440]){await send('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:false});await wait(150);await check(`sin desbordamiento horizontal a ${width}px`,"document.documentElement.scrollWidth <= innerWidth");}
+  await send('Emulation.setDeviceMetricsOverride',{width:375,height:812,deviceScaleFactor:1,mobile:false});
+  await wait(200);
+  await check('menú móvil y navegación',"(async()=>{const b=document.querySelector('.menu-toggle');b.click();const open=b.getAttribute('aria-expanded')==='true';document.querySelector('#navigation a[href=\"#explorador\"]').click();await new Promise(r=>setTimeout(r,50));return open && b.getAttribute('aria-expanded')==='false' && location.hash==='#explorador'})()");
+  for(const section of ['inicio','explorador','simulacion','analisis','descubrimientos']) await check(`navegación ${section}`,`(async()=>{document.querySelector('#navigation a[href="#${section}"]').click();await new Promise(r=>setTimeout(r,50));return location.hash==='#${section}'})()`);
+  await check('límites RA/Dec y errores accesibles',`(()=>{let ra=document.querySelector('#ra'),dec=document.querySelector('#dec'),form=document.querySelector('#coordinates-form');const test=(a,d,valid)=>{ra.value=a;dec.value=d;form.requestSubmit();return (document.querySelector('#coordinates-error').textContent==='')===valid};return test('0','-90',true)&&test('359.9999999','90',true)&&test('360','0',false)&&ra.getAttribute('aria-invalid')==='true'&&test('-1','0',false)&&test('1','91',false)&&dec.getAttribute('aria-invalid')==='true'&&test('1','-91',false)&&test('','0',false)&&test('83.8221','-5.3911',true)})()`);
+  await check('zoom y controles de visualización',`(()=>{document.querySelector('#zoom-in').click();let ok=document.querySelector('#zoom-level').textContent==='125%';document.querySelector('#zoom-out').click();ok&&=document.querySelector('#zoom-level').textContent==='100%';document.querySelector('#zoom-in').click();document.querySelector('#zoom-reset').click();ok&&=document.querySelector('#zoom-level').textContent==='100%';for(const id of ['show-grid','show-labels','show-candidates']){let x=document.getElementById(id);x.click();ok&&=!x.checked;x.click();ok&&=x.checked}return ok})()`);
+  await check('selección de marcador en el visor',`(()=>{let c=document.querySelector('#sky'),r=c.getBoundingClientRect();c.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:r.left+r.width*.38,clientY:r.top+r.height*.43}));return document.querySelector('#viewer-selection').textContent.includes('SIM-001')&&document.querySelector('#candidate-detail').textContent.includes('SIM-001')})()`);
+  await check('observaciones, avance, retroceso y reinicio',`(()=>{let s=document.querySelector('#observation');s.value='3';s.dispatchEvent(new Event('change'));let ok=document.querySelector('#timeline-range').value==='3';document.querySelector('#next').click();ok&&=s.value==='4';document.querySelector('#previous').click();ok&&=s.value==='3';document.querySelector('#reset-timeline').click();return ok&&s.value==='0'})()`);
+  await check('reproducción, velocidad y pausa',`(async()=>{let p=document.querySelector('#play'),s=document.querySelector('#speed'),r=document.querySelector('#timeline-range');s.value='375';s.dispatchEvent(new Event('change'));p.click();await new Promise(r=>setTimeout(r,500));let advanced=+r.value>=1;p.click();let v=r.value;await new Promise(r=>setTimeout(r,500));return advanced&&r.value===v&&p.getAttribute('aria-pressed')==='false'})()`);
+  await check('reinicio pausa y evita temporizadores duplicados',`(async()=>{let p=document.querySelector('#play'),r=document.querySelector('#timeline-range');p.click();document.querySelector('#reset-timeline').click();p.click();await new Promise(r=>setTimeout(r,500));p.click();return r.value==='1'})()`);
+  await check('pausa al navegar fuera de la simulación',`(async()=>{let p=document.querySelector('#play'),r=document.querySelector('#timeline-range');p.click();document.querySelector('#navigation a[href="#analisis"]').click();let v=r.value;await new Promise(r=>setTimeout(r,500));return r.value===v&&p.getAttribute('aria-pressed')==='false'})()`);
+  await check('análisis simulado',"(()=>{document.querySelector('#run-analysis').click();return document.querySelectorAll('#analysis-output .analysis-item').length===3 && document.querySelector('#analysis-output').textContent.includes('SIMULADO')})()");
+  await check('experimento sintético con API simulada',`(async()=>{const panel=document.querySelector('#single-motion-experiment');panel.querySelector('button').click();for(let i=0;i<30&&!panel.querySelector('tbody tr');i++)await new Promise(r=>setTimeout(r,50));return !!panel.querySelector('svg line')&&panel.querySelectorAll('svg circle').length===2&&panel.textContent.includes('3.600')&&panel.textContent.includes('VP 1')&&panel.textContent.includes('Datos sintéticos')})()`);
+  await check('Validation Lab con API simulada',`(async()=>{const panel=document.querySelector('#validation-lab');panel.querySelector('#validation-form [name=seed]').value='77';panel.querySelector('#validation-form [name=density]').value='dense';panel.querySelector('#validation-form').requestSubmit();const result=panel.querySelector('.validation-results');for(let i=0;i<30&&!result.querySelector('tbody tr');i++)await new Promise(r=>setTimeout(r,50));return result.textContent.includes('semillas 77')&&result.textContent.includes('0.750')&&result.textContent.includes('Solo campos sintéticos')&&result.querySelectorAll('meter').length===6&&result.querySelectorAll('tbody tr').length===2&&panel.querySelector('progress').hidden})()`);
+  await check('clasificación multiepoca con API simulada',`(async()=>{const panel=document.querySelector('#classification-lab');panel.querySelector('form').requestSubmit();for(let i=0;i<30&&!panel.querySelector('.classification-frames img');i++)await new Promise(r=>setTimeout(r,50));return panel.querySelectorAll('.classification-frames img').length===3&&panel.querySelectorAll('svg circle').length===3&&panel.textContent.includes('Posiblemente móvil')&&panel.textContent.includes('VP/FP/FN: 1/0/0')&&panel.textContent.includes('Solo sintético')})()`);
+  await check('filtro, selección y conservación del foco',`(()=>{let f=document.querySelector('#candidate-filter');f.value='variabilidad';f.dispatchEvent(new Event('change'));let row=document.querySelector('.candidate-row');row.focus();row.click();let ok=document.querySelectorAll('.candidate-row').length===1&&document.querySelector('#candidate-detail').textContent.includes('SIM-003')&&document.activeElement===row;document.querySelector('#next').click();ok&&=document.activeElement===row;f.value='all';f.dispatchEvent(new Event('change'));return ok&&document.querySelectorAll('.candidate-row').length===3})()`);
+  await check('enlaces y controles accesibles por teclado',`(()=>{const items=['.skip-link','.menu-toggle','#ra','#dec','#observation','#zoom-in','#play','#reset-timeline','#candidate-filter','.candidate-row'];return items.every(selector=>{let el=document.querySelector(selector);return el&&el.tabIndex>=0})})()`);
+  await check('integración REAL simulada sin alterar DEMO',`(async()=>{document.querySelector('#real-search').requestSubmit();for(let i=0;i<30&&!document.querySelector('#real-observations button');i++)await new Promise(r=>setTimeout(r,50));const button=document.querySelector('#real-observations button');if(!button)return false;button.click();for(let i=0;i<30&&document.querySelector('#real-preview').hidden;i++)await new Promise(r=>setTimeout(r,50));return !document.querySelector('#real-preview').hidden&&document.querySelector('#real-status').textContent.includes('REAL')&&document.querySelector('#real-metadata').textContent.includes('TEST-IRSA')&&document.querySelector('#sky-epoch').textContent.includes('ÉPOCA')&&document.querySelector('#analysis-output').textContent.includes('SIMULADO')})()`);
+  await check('comparación REAL con API simulada y animación separada',`(async()=>{const a=document.querySelector('#real-a'),b=document.querySelector('#real-b');a.value='a'.repeat(64);b.value='b'.repeat(64);document.querySelector('#compare-real-form').requestSubmit();for(let i=0;i<40&&document.querySelector('#compare-real-views').hidden;i++)await new Promise(r=>setTimeout(r,50));const select=document.querySelector('#compare-view'),play=document.querySelector('#compare-play');if(document.querySelector('#compare-real-views').hidden||!Array.from(select.options).some(o=>o.value==='difference'))return false;select.value='overlay';select.dispatchEvent(new Event('change'));const overlay=!document.querySelector('#compare-real-overlay').hidden;play.click();const playing=play.getAttribute('aria-pressed')==='true';play.click();return overlay&&playing&&play.getAttribute('aria-pressed')==='false'&&document.querySelector('#compare-real-status').textContent.includes('APROXIMADA')})()`);
+  await check('búsqueda de pares y explicación de rechazo',`(async()=>{document.querySelector('#find-pairs').click();for(let i=0;i<40&&!document.querySelector('#pair-results button');i++)await new Promise(r=>setTimeout(r,50));const area=document.querySelector('#pair-results'),button=area.querySelector('button');if(!button)return false;button.click();return area.textContent.includes('Calibración no verificada')&&area.textContent.includes('70.0%')&&document.querySelector('#real-a').value==='a'.repeat(64)&&document.querySelector('#real-b').value==='b'.repeat(64)})()`);
+  await check('respuestas tardías y errores de red',`(async()=>{const ra=document.querySelector('#ra'), form=document.querySelector('#real-search'), area=document.querySelector('#pair-results');ra.value='12.34';document.querySelector('#find-pairs').click();ra.value='22.34';ra.dispatchEvent(new Event('input',{bubbles:true}));form.requestSubmit();await new Promise(r=>setTimeout(r,650));const error=document.querySelector('#real-status').textContent.includes('IRSA no disponible');return error&&!area.textContent.includes('Calibración no verificada')&&!document.querySelector('#find-pairs').disabled})()`);
+  await check('búsqueda real antigua no sustituye error reciente',`(async()=>{const ra=document.querySelector('#ra'),form=document.querySelector('#real-search');ra.value='12.34';form.requestSubmit();await new Promise(r=>setTimeout(r,30));ra.value='22.34';form.requestSubmit();await new Promise(r=>setTimeout(r,650));return document.querySelector('#real-status').textContent.includes('IRSA no disponible')&&!document.querySelector('#real-observations button')&&!form.hasAttribute('aria-busy')})()`);
+  await check('modo offline no consulta IRSA',`(async()=>{let count=0,original=window.fetch;window.fetch=(...args)=>{if(String(args[0]).startsWith('/api/observations')||String(args[0]).startsWith('/api/temporal'))count++;return original(...args)};const checkbox=document.querySelector('#offline-mode');checkbox.click();document.querySelector('#real-search').requestSubmit();document.querySelector('#find-pairs').click();document.querySelector('#compare-real-form').requestSubmit();await new Promise(r=>setTimeout(r,100));const ok=count===0&&document.querySelector('#real-status').textContent.includes('OFFLINE')&&document.querySelector('#single-motion-experiment');checkbox.click();window.fetch=original;return !!ok})()`);
+  if(errors.length)throw Error('Errores de consola o JavaScript: '+errors.join('; '));
+  console.log('OK: sin excepciones JavaScript ni console.error durante la prueba');
+} finally { if(socket)socket.close();child.kill();server.close();await wait(300);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:200}).catch(()=>{}); }

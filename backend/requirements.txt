@@ -1,0 +1,11 @@
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+astropy>=6,<8
+numpy>=1.26,<3
+pillow>=10,<13
+httpx>=0.27,<1
+pyvo>=1.5,<2
+pytest>=8,<10
+reproject>=0.14,<1
+scipy>=1.13,<2
+photutils>=2,<3
