@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import logging
 import threading
 import time
 from collections import OrderedDict
@@ -20,6 +21,7 @@ CUTOUT_SIZE_DEG = 0.1
 _previews: OrderedDict[str, tuple[float, bytes, dict]] = OrderedDict()
 _lock = threading.Lock()
 _cutouts: OrderedDict[str, tuple[float, bytes]] = OrderedDict()
+log = logging.getLogger(__name__)
 
 
 def process_fits(raw: bytes) -> tuple[bytes, dict]:
@@ -57,7 +59,7 @@ def process_fits(raw: bytes) -> tuple[bytes, dict]:
         raise ValueError("FITS inválido o no compatible") from exc
 
 
-def download_cutout(observation: dict) -> bytes:
+def download_cutout(observation: dict, *, deadline=None) -> bytes:
     url = observation["reference_url"]
     if not allowed_url(url):
         raise IrsaError("URL del archivo no permitida")
@@ -67,9 +69,12 @@ def download_cutout(observation: dict) -> bytes:
         cached = _cutouts.get(key)
         if cached and cached[0] > time.monotonic():
             _cutouts.move_to_end(key)
+            log.info('Recorte: caché local encontrada')
             return cached[1]
+    log.info('Recorte: caché local no disponible; descargando')
     try:
-        raw = fetch_bytes(url, {"center": f"{center['ra']},{center['dec']}", "size": CUTOUT_SIZE_DEG}, MAX_DOWNLOAD)
+        options = {'timeout': 20, 'attempts': 2, 'deadline': deadline} if deadline is not None else {}
+        raw = fetch_bytes(url, {"center": f"{center['ra']},{center['dec']}", "size": CUTOUT_SIZE_DEG}, MAX_DOWNLOAD, **options)
     except httpx.TimeoutException as exc:
         raise IrsaError("IRSA agotó el tiempo de espera al obtener el recorte") from exc
     except httpx.HTTPError as exc:

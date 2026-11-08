@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import base64
 import io
+import logging
 import re
 import threading
 import time
 import uuid
 from collections import OrderedDict
+from contextlib import contextmanager
 
 import numpy as np
 from astropy import units as u
@@ -27,6 +29,26 @@ MIN_COVERAGE = 0.2
 _semaphore = threading.BoundedSemaphore(2)
 _results: OrderedDict[str, tuple[float, dict]] = OrderedDict()
 _lock = threading.Lock()
+log = logging.getLogger(__name__)
+COMPARISON_BUDGET_SECONDS = 90.0
+
+
+class TemporalTimeout(RuntimeError):
+    """Presupuesto cooperativo agotado entre etapas de comparación."""
+
+
+def _check_deadline(deadline):
+    if deadline is not None and time.monotonic() >= deadline:
+        raise TemporalTimeout('Tiempo de comparación agotado; inténtalo de nuevo.')
+
+
+@contextmanager
+def _stage(name):
+    start = time.monotonic()
+    try:
+        yield
+    finally:
+        log.info('Comparación temporal etapa=%s duración=%.3fs', name, time.monotonic()-start)
 
 
 def metadata(item):
@@ -39,7 +61,9 @@ def metadata(item):
 
 def read_science(raw, release=None):
     try:
+        started = time.monotonic()
         with fits.open(io.BytesIO(raw), memmap=False, lazy_load_hdus=False) as hdus:
+            log.info('Comparación temporal etapa=apertura_fits duración=%.3fs', time.monotonic()-started)
             if any(name not in hdus or hdus[name].data is None for name in ('IMAGE', 'FLAGS', 'VARIANCE')):
                 raise ValueError('Faltan IMAGE, FLAGS o VARIANCE')
             hdu = hdus['IMAGE']; header = hdu.header
@@ -78,7 +102,8 @@ def read_science(raw, release=None):
                 bandwidth = np.asarray(bandwidth, dtype=float)
             except Exception:
                 wavelength = bandwidth = None
-            calibrated_wave, calibrated_band, calibration_info = calibration.calibrated_maps(header, image.shape, release)
+            with _stage('calibracion'):
+                calibrated_wave, calibrated_band, calibration_info = calibration.calibrated_maps(header, image.shape, release)
             if calibration_info['verified']:
                 wavelength, bandwidth = calibrated_wave, calibrated_band
             return {'image': image, 'variance': variance, 'valid': valid, 'wcs': sky,
@@ -106,7 +131,13 @@ def _png(image, low, high):
     return 'data:image/png;base64,' + base64.b64encode(out.getvalue()).decode('ascii')
 
 
-def compare_arrays(a, b, item_a, item_b):
+def compare_arrays(a, b, item_a, item_b, deadline=None):
+    def reproject(data):
+        _check_deadline(deadline)
+        with _stage('reproyeccion'):
+            result = _reproject(data, b['wcs'], a['wcs'], shape)
+        _check_deadline(deadline)
+        return result
     reasons = []
     if item_a['id'] == item_b['id'] or (item_a.get('time_start_mjd') is None or item_b.get('time_start_mjd') is None or item_a.get('time_start_mjd') == item_b.get('time_start_mjd')):
         reasons.append('Se requieren dos exposiciones con épocas distintas conocidas.')
@@ -126,9 +157,9 @@ def compare_arrays(a, b, item_a, item_b):
         reasons.append('Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización.')
     shape = a['image'].shape
     # Interpolar máscara por separado evita mezclar píxeles inválidos con válidos.
-    weight, footprint = _reproject(b['valid'].astype(float), b['wcs'], a['wcs'], shape)
-    value, _ = _reproject(np.where(b['valid'], b['image'], 0.0), b['wcs'], a['wcs'], shape)
-    variance, _ = _reproject(np.where(b['valid'], b['variance'], 0.0), b['wcs'], a['wcs'], shape)
+    weight, footprint = reproject(b['valid'].astype(float))
+    value, _ = reproject(np.where(b['valid'], b['image'], 0.0))
+    variance, _ = reproject(np.where(b['valid'], b['variance'], 0.0))
     common = a['valid'] & np.isfinite(value) & (footprint > 0) & (weight > .999)
     spatial_common = common.copy()
     coverage = float(common.sum() / common.size)
@@ -138,8 +169,8 @@ def compare_arrays(a, b, item_a, item_b):
     if a['wavelength'] is None or b['wavelength'] is None or a['bandwidth'] is None or b['bandwidth'] is None:
         reasons.append('Falta WCS espectral por píxel; la banda del detector no basta.')
     elif common.any():
-        wl_b, _ = _reproject(b['wavelength'], b['wcs'], a['wcs'], shape)
-        bw_b, _ = _reproject(b['bandwidth'], b['wcs'], a['wcs'], shape)
+        wl_b, _ = reproject(b['wavelength'])
+        bw_b, _ = reproject(b['bandwidth'])
         good = common & np.isfinite(a['wavelength']) & np.isfinite(a['bandwidth']) & np.isfinite(wl_b) & np.isfinite(bw_b) & (a['bandwidth'] > 0) & (bw_b > 0)
         good &= np.abs(a['wavelength'] - wl_b) <= SPECTRAL_FRACTION * np.minimum(a['bandwidth'], bw_b)
         spectral_match = float(good.sum() / common.sum())
@@ -153,6 +184,8 @@ def compare_arrays(a, b, item_a, item_b):
             reasons.append('Cobertura válida espectralmente compatible insuficiente.')
     aa = np.where(spatial_common, a['image'], np.nan); bb = np.where(spatial_common, value, np.nan)
     views = {}
+    _check_deadline(deadline)
+    views_started = time.monotonic()
     if spatial_common.any():
         lo, hi = np.percentile(np.concatenate((aa[spatial_common], bb[spatial_common])), [1, 99])
         views['a'] = _png(aa, lo, hi); views['b'] = _png(bb, lo, hi)
@@ -161,6 +194,8 @@ def compare_arrays(a, b, item_a, item_b):
             difference = np.where(common, bb - aa, np.nan)
             limit = max(float(np.percentile(np.abs(difference[common]), 99)), 1e-12)
             views['difference'] = _png(difference, -limit, limit)
+    log.info('Comparación temporal etapa=vistas duración=%.3fs', time.monotonic()-views_started)
+    _check_deadline(deadline)
     # La varianza reinterpolada no aplica pesos al cuadrado ni correlaciones.
     variance_valid = common & np.isfinite(variance) & (variance >= 0)
     approx_variance_pixels = int(np.count_nonzero(variance_valid))
@@ -178,8 +213,18 @@ def compare(item_a, item_b):
     if not _semaphore.acquire(blocking=False):
         raise RuntimeError('Hay demasiadas comparaciones en curso; inténtalo de nuevo.')
     try:
-        a = read_science(download_cutout(item_a), item_a['release']); b = read_science(download_cutout(item_b), item_b['release'])
-        result = compare_arrays(a, b, item_a, item_b)
+        deadline = time.monotonic() + COMPARISON_BUDGET_SECONDS
+        loaded = []
+        for label, item in (('a', item_a), ('b', item_b)):
+            _check_deadline(deadline)
+            with _stage('recuperacion_descarga_'+label):
+                raw = download_cutout(item, deadline=deadline)
+            _check_deadline(deadline)
+            with _stage('lectura_fits_'+label):
+                loaded.append(read_science(raw, item['release']))
+            _check_deadline(deadline)
+        a, b = loaded
+        result = compare_arrays(a, b, item_a, item_b, deadline=deadline)
         result.update({'id': uuid.uuid4().hex, 'mode': 'real', 'a': metadata(item_a), 'b': metadata(item_b),
                        'fits_a': {k: a[k] for k in ('shape', 'unit', 'date_obs', 'detector', 'quality', 'wcs_ctype', 'wcs_frame', 'calibration')},
                        'fits_b': {k: b[k] for k in ('shape', 'unit', 'date_obs', 'detector', 'quality', 'wcs_ctype', 'wcs_frame', 'calibration')}})

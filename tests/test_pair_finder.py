@@ -71,6 +71,17 @@ def test_retry_429_respects_long_wait(monkeypatch):
     with pytest.raises(httpx.HTTPStatusError): network.fetch_bytes('https://irsa.ipac.caltech.edu/SIA',{},10)
 
 
+def test_network_deadline_stops_retry(monkeypatch):
+    real=httpx.Client; calls=[]
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(503,headers={'Retry-After':'2'})
+    monkeypatch.setattr(network.httpx,'Client',lambda **kw:real(transport=httpx.MockTransport(handler),**kw))
+    with pytest.raises(httpx.ReadTimeout):
+        network.fetch_bytes('https://irsa.ipac.caltech.edu/SIA',{},10,deadline=network.time.monotonic()+1)
+    assert len(calls)==1
+
+
 def item(id, t, band='D2'):
     return {'id':id*64,'band':band,'time_start_mjd':t,'release':'qr2','calibration_level':2,'observation_id':id}
 

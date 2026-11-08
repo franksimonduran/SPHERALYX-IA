@@ -21,6 +21,8 @@ Entorno existente: CPython 3.12.0 (`.venv312`), Node v26.13.0, FastAPI 0.162.2, 
 
 ## Fallida / bloqueo para entrega
 
+**Seguimiento posterior:** véase [diagnóstico temporal](diagnostico-timeout-temporal.md). Una nueva prueba real acotada completó con otro par posiblemente distinto y la calibración bloqueada; no identifica la causa del timeout original ni demuestra un límite duro.
+
 - Una comparación temporal real QR2 en RA 269.44626788°, Dec +4.76820441°, radio 0.1°, con dos productos de igual banda y épocas distintas, **agotó los 120 s del cliente HTTP** sin recibir respuesta. No se determinó si el retraso ocurrió en IRSA, descarga o procesamiento. Por tanto no quedó validado el resultado ni el comportamiento completo de ese par real en esta ejecución; debe investigarse y repetirse antes de depender de la comparación en vivo para la entrega. Cancelar una petición del cliente no demuestra que se detenga el trabajo del servidor. Las pruebas simuladas y unitarias sí verifican los bloqueos existentes, pero no sustituyen esa prueba en vivo.
 
 ## Omitidas

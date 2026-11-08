@@ -4,6 +4,7 @@ import { normalizeObservations } from './real-observations.js';
 export function initRealComparison() {
   const a=document.querySelector('#real-a'), b=document.querySelector('#real-b');
   const form=document.querySelector('#compare-real-form'), status=document.querySelector('#compare-real-status');
+  const submit=form.querySelector('button[type="submit"]');
   const panel=document.querySelector('#compare-real-views'), view=document.querySelector('#compare-real-image');
   const overlay=document.querySelector('#compare-real-overlay'), selector=document.querySelector('#compare-view');
   const play=document.querySelector('#compare-play'), pairs=document.querySelector('#pair-results');
@@ -36,7 +37,7 @@ export function initRealComparison() {
     slots.set(select,{load,clear:clearSlot});clearSlot();
   }
   function stop(){if(timer!==null)clearInterval(timer);timer=null;play.textContent='Reproducir A / B';play.setAttribute('aria-pressed','false');}
-  function clear(){stop();play.disabled=true;if(request)request.abort();request=null;form.removeAttribute('aria-busy');result=null;panel.hidden=true;view.removeAttribute('src');overlay.removeAttribute('src');overlay.hidden=true;selector.replaceChildren();document.querySelector('#compare-real-meta').textContent='';}
+  function clear(){stop();play.disabled=true;if(request)request.abort();request=null;submit.disabled=false;form.removeAttribute('aria-busy');result=null;panel.hidden=true;view.removeAttribute('src');overlay.removeAttribute('src');overlay.hidden=true;selector.replaceChildren();document.querySelector('#compare-real-meta').textContent='';}
   function clearPairs(){if(pairRequest)pairRequest.abort();pairRequest=null;find.disabled=false;pairs.replaceChildren();}
   window.addEventListener('real-observations',event=>{
     clear();clearPairs();for(const slot of slots.values())slot.clear();
@@ -84,7 +85,7 @@ export function initRealComparison() {
     event.preventDefault();clear();
     if(offline.checked){status.textContent='DEMO OFFLINE · Comparación real desactivada.';return;}
     if(!a.value||!b.value||a.value===b.value){status.textContent='Selecciona dos observaciones distintas.';return;}
-    const controller=new AbortController();request=controller;form.setAttribute('aria-busy','true');status.textContent='Descargando y verificando recortes FITS de IRSA…';
+    const controller=new AbortController();request=controller;submit.disabled=true;form.setAttribute('aria-busy','true');status.textContent='Descargando y verificando recortes FITS de IRSA…';
     try{
       const data=await realApi.compare(a.value,b.value,controller.signal);
       if(request!==controller||controller.signal.aborted)return;
@@ -96,7 +97,7 @@ export function initRealComparison() {
       if(data.compatible && data.views.a && data.views.b)selector.add(new Option('Superposición A / B','overlay'));
       if(data.views.a){panel.hidden=false;show('a');}play.disabled=!data.compatible||!data.views.a||!data.views.b;
     }catch(error){if(request===controller&&!controller.signal.aborted&&error.name!=='AbortError')status.textContent=`No se pudo comparar: ${error.message}`;}
-    finally{if(request===controller){request=null;form.removeAttribute('aria-busy');}}
+    finally{if(request===controller){request=null;submit.disabled=false;form.removeAttribute('aria-busy');}}
   });
   selector.addEventListener('change',()=>{stop();show(selector.value);});
   play.addEventListener('click',()=>{if(timer!==null){stop();return;}if(!result?.compatible)return;index=0;show('a');timer=setInterval(()=>{index=1-index;show(index?'b':'a');},800);play.textContent='Pausar A / B';play.setAttribute('aria-pressed','true');});

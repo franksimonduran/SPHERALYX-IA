@@ -1,0 +1,19 @@
+# Diagnóstico de comparación temporal y presupuesto cooperativo
+
+## Evidencia
+
+La auditoría previa agotó 120 s en un par QR2 del campo RA 269.44626788°, Dec +4.76820441°; no se registraron tiempos por etapa ni IDs del par. **No es posible establecer retrospectivamente la causa.** Dos descargas secuenciales, reintentos, espera de red o procesamiento son hipótesis, no conclusiones.
+
+Antes de consultar IRSA, una prueba local con transporte HTTP controlado simuló dos descargas consecutivas, dos respuestas 503 antes de cada éxito y 0,06 s de espera por respuesta: seis intentos acumularon aproximadamente 0,406 s; las esperas de reintento se omitieron en esa prueba. Esto reproduce acumulación de latencia, no el timeout original. Las pruebas controladas verifican además expiración antes de reintentar, saturación/liberación del semáforo y error 504 del presupuesto cooperativo.
+
+En una única comprobación posterior en vivo sobre ese campo QR2, SIA devolvió 100 productos en 12,03 s (límite y posible truncamiento). El primer par distinto de igual banda y época distinta devuelto fue `2026W12_1A_0311_3` / `2026W12_1A_0311_4` D2; no se puede confirmar que sea el par anterior. La comparación completó en 20,36 s: descargas 4,719 y 15,532 s; lecturas FITS 0,031 s cada una; cinco reproyecciones entre 0 y 0,016 s cada una; vistas 0,016 s. La calibración no estaba verificada; el resultado fue incompatible, con vistas A/B/cobertura y **sin diferencia**. Los tiempos dependen de red, caché, tamaño, equipo y productos; una ejecución rápida no explica ni descarta el fallo previo.
+
+## Cambios y límites
+
+- Se registran en el logger `backend.astronomy.temporal` tiempos de recuperación/descarga, apertura y lectura FITS, calibración, cada reproyección y vistas; `fits_processor` informa caché local o descarga. Activar nivel INFO para observarlos. No se incluyen datos científicos en esos mensajes de etapa.
+- Comparación individual usa presupuesto monotónico cooperativo de 90 s y comprueba su vencimiento entre etapas y reproyecciones. Las descargas de esa comparación usan timeout HTTP de 20 s por operación y hasta dos intentos, limitados también por el tiempo restante; se comprueba el presupuesto entre bloques de respuesta y antes de esperar un reintento. Otros consumidores conservan sus valores anteriores. Una expiración de presupuesto entre etapas devuelve 504; un timeout de descarga se comunica como error IRSA 502. Los reintentos conservan la política de estados del backend.
+- **No es un deadline duro:** el timeout HTTP limita inactividad, no tiempo total de una operación nativa; una lectura bloqueada o una llamada FITS/reproyección en curso puede prolongarse más allá del presupuesto antes de la siguiente comprobación. Desconectar el navegador tampoco detiene necesariamente el hilo del servidor. No se declara liberado el semáforo hasta terminar realmente el trabajo. Un límite duro exigiría aislamiento en procesos y gestión explícita de recursos.
+- El botón de comparación se deshabilita durante la solicitud y se recupera al terminar o cambiar la selección. Se ignoran respuestas antiguas. La búsqueda de pares puede ejecutar hasta tres comparaciones por separado, cada una con su presupuesto, y su timeout de cliente no garantiza finalizar todo el trabajo del servidor.
+- La caché se consulta bajo bloqueo pero la descarga se realiza fuera de él; dos solicitudes concurrentes del mismo recorte pueden descargarlo más de una vez. Evitar duplicados necesitaría coordinación por clave y pruebas adicionales; no se ha modificado para no introducir esperas compartidas nuevas.
+
+No cambian los criterios de calibración, WCS, cobertura ni compatibilidad. Las vistas sin calibración no autorizan diferencia; no se infiere movimiento real. Véase también `informe-qa-integracion.md` para el incidente original y las pruebas omitidas.

@@ -12,10 +12,17 @@ log = logging.getLogger(__name__)
 RETRY_STATUSES = {429, 502, 503, 504}
 
 
-def fetch_bytes(url, params, limit, timeout=45, attempts=3):
+def fetch_bytes(url, params, limit, timeout=45, attempts=3, deadline=None):
     start = time.monotonic()
+    def remaining():
+        if deadline is None: return None
+        value = deadline - time.monotonic()
+        if value <= 0: raise httpx.ReadTimeout('Tiempo total de descarga agotado')
+        return value
     for index in range(attempts):
-        with httpx.Client(timeout=httpx.Timeout(timeout, connect=10), follow_redirects=False) as client:
+        left = remaining()
+        current = timeout if left is None else min(timeout, left)
+        with httpx.Client(timeout=httpx.Timeout(current, connect=min(10, current)), follow_redirects=False) as client:
             with client.stream('GET', url, params=params) as response:
                 if response.status_code in RETRY_STATUSES and index + 1 < attempts:
                     retry_after = response.headers.get('Retry-After')
@@ -36,10 +43,13 @@ def fetch_bytes(url, params, limit, timeout=45, attempts=3):
                     response.raise_for_status()
                     chunks, size = [], 0
                     for chunk in response.iter_bytes():
+                        remaining()
                         size += len(chunk)
                         if size > limit: raise ValueError('Respuesta de IRSA supera el límite de tamaño')
                         chunks.append(chunk)
                     log.info('IRSA: %d bytes en %.2fs (%d intento/s)', size, time.monotonic()-start, index+1)
                     return b''.join(chunks)
+        left = remaining()
+        if left is not None and delay >= left: raise httpx.ReadTimeout('Tiempo total de descarga agotado antes del reintento')
         time.sleep(delay)
     raise RuntimeError('Reintentos agotados')

@@ -87,13 +87,15 @@ def test_api_validation(monkeypatch):
     assert response.status_code == 200 and response.json()['compatible'] is False
 
 
-def test_api_pipeline_with_mock_cutouts(monkeypatch):
+def test_api_pipeline_with_mock_cutouts(monkeypatch, caplog):
+    import logging
+    caplog.set_level(logging.INFO, logger=temporal.__name__)
     client=TestClient(app)
     a, b = item('c', 60003), item('d', 60004)
     for entry in (a, b):
         entry.update({'observation_id':'synthetic-test', 'reference_url':'https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/example.fits'})
         sc._store(entry)
-    monkeypatch.setattr(temporal, 'download_cutout', lambda entry: entry['id'].encode())
+    monkeypatch.setattr(temporal, 'download_cutout', lambda entry, **kwargs: entry['id'].encode())
     def read(raw, release=None):
         result = science(offset=0 if raw.startswith(b'c') else 2)
         result.update({'shape':[20,20], 'date_obs':'2025-01-01', 'wcs_ctype':['RA---TAN','DEC--TAN'], 'wcs_frame':'ICRS'})
@@ -101,7 +103,33 @@ def test_api_pipeline_with_mock_cutouts(monkeypatch):
     monkeypatch.setattr(temporal, 'read_science', read)
     response=client.post('/api/temporal/compare',json={'a':a['id'],'b':b['id']})
     assert response.status_code == 200 and response.json()['compatible']
+    assert all(stage in caplog.text for stage in ('recuperacion_descarga_a', 'lectura_fits_a', 'reproyeccion', 'vistas'))
     assert client.get('/api/temporal/results/' + response.json()['id']).json()['views']['difference'].startswith('data:image/png;base64,')
+
+
+def test_timeout_releases_semaphore_and_api_reports_504(monkeypatch):
+    a, b = item('e', 60003), item('f', 60004)
+    for entry in (a, b): sc._store(entry)
+    monkeypatch.setattr(temporal, 'COMPARISON_BUDGET_SECONDS', 0)
+    for _ in range(3):
+        response = TestClient(app).post('/api/temporal/compare', json={'a':a['id'],'b':b['id']})
+        assert response.status_code == 504
+    assert temporal._semaphore.acquire(blocking=False)
+    temporal._semaphore.release()
+
+
+def test_comparison_busy_and_failure_release(monkeypatch):
+    a, b = item('a', 1), item('b', 2)
+    assert temporal._semaphore.acquire(blocking=False)
+    assert temporal._semaphore.acquire(blocking=False)
+    try:
+        with pytest.raises(RuntimeError, match='demasiadas'): temporal.compare(a, b)
+    finally:
+        temporal._semaphore.release(); temporal._semaphore.release()
+    def fail(*args, **kwargs): raise sc.IrsaError('error simulado')
+    monkeypatch.setattr(temporal, 'download_cutout', fail)
+    for _ in range(3):
+        with pytest.raises(sc.IrsaError): temporal.compare(a, b)
 
 
 @pytest.mark.skipif(os.getenv('SPHERALYX_LIVE_TEMPORAL') != '1', reason='IRSA opcional')

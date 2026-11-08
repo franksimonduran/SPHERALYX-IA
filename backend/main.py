@@ -112,6 +112,8 @@ def search_pairs(request: PairSearchRequest):
         return pair_finder.find_pairs(request.ra, request.dec, request.radius, request.release, request.max_pairs)
     except spherex_client.IrsaError as exc:
         raise HTTPException(502, str(exc)) from exc
+    except temporal.TemporalTimeout as exc:
+        raise HTTPException(504, str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(503, str(exc)) from exc
 
@@ -125,6 +127,8 @@ def compare_observations(request: ComparisonRequest):
         raise HTTPException(502, str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(422, f"Datos científicos insuficientes o incompatibles: {exc}") from exc
+    except temporal.TemporalTimeout as exc:
+        raise HTTPException(504, str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(503, str(exc)) from exc
 
