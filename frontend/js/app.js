@@ -3,8 +3,9 @@ import { initTimeline } from './timeline.js';
 import { initSimulation } from './simulation.js';
 import { initAnalysis } from './ai-analysis.js';
 import { initRealComparison } from './real-comparison.js';
+import { initMissionWorkspace } from './mission-workspace.js';
 
-initExplorer(); initTimeline(); initSimulation(); initAnalysis(); initRealComparison();
+initExplorer(); initTimeline(); initSimulation(); initAnalysis(); initRealComparison(); initMissionWorkspace();
 // El logotipo oficial se muestra únicamente si la imagen cargada es válida.
 const logo=document.querySelector('.brand-logo'),symbol=document.querySelector('.brand-symbol');
 const updateLogo=()=>{const usable=logo.naturalWidth>1&&logo.naturalHeight>1;logo.hidden=!usable;symbol.hidden=usable;};
