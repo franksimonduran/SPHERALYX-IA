@@ -1,0 +1,68 @@
+/* Observatorio de precisión: presentación, sin cambios científicos. */
+:root {
+  --bg: #070c18;
+  --panel: #101b2e;
+  --text: #f1f6fc;
+  --muted: #b3c2d3;
+  --cyan: #55d0f1;
+  --border: rgba(165, 195, 220, .20);
+  --radius: 12px;
+  --shadow: 0 12px 36px rgba(0, 4, 15, .16);
+}
+body { background: var(--bg); font-size: 16px; }
+body:before { opacity: .35; }
+.header { background: rgba(7, 12, 24, .96); box-shadow: none; }
+.brand-logo:not([hidden]) { filter: none; }
+.mission-rail { background: #0b1526; border-color: var(--border); }
+.mission-rail-label, .mission-rail-foot span { color: #a7c0d4; font-size: .68rem; }
+.mission-rail-nav a { color: #b9cbdc; font-size: .82rem; border-radius: 8px; }
+.mission-rail-nav a:hover, .mission-rail-nav a.active { background: rgba(85, 208, 241, .09); border-color: rgba(85, 208, 241, .22); }
+.mission-rail-foot p { color: #adbed0; font-size: .75rem; }
+.hero:before { content: 'OBSERVATORIO / SPHERALYX AI'; color: #a2b8cc; }
+.hero h1 { max-width: 760px; font-size: clamp(3.1rem, 5.3vw, 5.7rem); letter-spacing: -.045em; }
+.hero h1 em { color: #9bdef1; background: none; -webkit-text-fill-color: currentColor; font-style: normal; }
+.hero-text { color: #c0cddd; line-height: 1.75; }
+.hero-visual { background: radial-gradient(ellipse at center, rgba(47,141,188,.10), transparent 65%); }
+.planet { box-shadow: inset -35px -22px 60px #030815, 0 0 80px rgba(42,148,197,.12), 0 0 0 1px rgba(126,215,245,.26); }
+.mission-hero-stats span { background: transparent; border-color: var(--border); color: #c8d8e7; font-size: .74rem; }
+.feature-grid { gap: 14px; }
+.feature { min-height: 210px; background: #101b2e; border-color: var(--border)!important; border-radius: var(--radius); box-shadow: none; }
+.feature:hover { transform: none; border-color: rgba(85,208,241,.45)!important; }
+.panel, .mission-workspace-column, .mission-compare-workspace { background: #101b2e; border-color: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.mission-workspace-column, .mission-compare-workspace { background: #0b1729; box-shadow: none; }
+.mission-real-workspace { padding: clamp(20px, 2.5vw, 30px); }
+.real-workspace-grid { gap: 12px; }
+.real-image-viewport { background: #050b17; border-color: rgba(133,183,216,.22); }
+.real-image-viewport:after { content: 'NASA/IPAC IRSA · VISTA REAL'; color: #b2cbdd; font-size: .65rem; }
+.workspace-column-head span, .eyebrow, .kicker { font-size: .7rem; letter-spacing: .11em; }
+.workspace-column-head h4 { font-size: 1rem; }
+.real-workspace-controls>p, .workspace-results-help, .real-workspace-controls .real-status, .real-image-empty p { font-size: .82rem; }
+.real-workspace-controls>.check { font-size: .8rem; }
+.real-observations button { text-align: left; line-height: 1.5; }
+.controls input[type=number], .real-form input[type=number], .viewer-coords, .real-metadata { font-variant-numeric: tabular-nums; }
+.viewer-coords, .real-metadata { font-family: ui-monospace, Consolas, monospace; }
+.button { border-radius: 8px; }
+.button.primary { background: #55d0f1; color: #061425; box-shadow: none; }
+.button.primary:hover { background: #8de4f7; box-shadow: none; }
+.demo-pill, .sim-tag { color: #c5ecff; background: rgba(74,145,208,.13); border-color: rgba(139,196,239,.4); font-size: .67rem; letter-spacing: .07em; }
+.real-panel .demo-pill { color: #c4f7dd; background: rgba(59,154,112,.13); border-color: rgba(112,209,161,.45); }
+.calibration-notice { padding: 14px 16px; border-left: 3px solid #e0b86d; background: rgba(224,184,109,.08); color: #e6dcc8; border-radius: 0 8px 8px 0; line-height: 1.6; }
+.calibration-notice strong { color: #f5e6c9; }
+.control-help, .fine-print, .muted { font-size: .8rem; }
+.real-status { color: #d1e8f4!important; }
+.footer { width: calc(100% - var(--rail-width) - 54px); margin-left: calc(var(--rail-width) + 27px); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid #a4efff; outline-offset: 3px; }
+@media(max-width: 760px) {
+  .hero h1 { font-size: clamp(2.6rem, 10vw, 4rem); }
+  .mission-rail { display: none; }
+  .real-workspace-grid { grid-template-columns: minmax(0, 1fr); }
+  .real-workspace-results { grid-column: auto; }
+  .mission-workspace-column { padding: 16px; }
+  .playback { flex-wrap: wrap; gap: 14px; }
+  .playback label { max-width: 100%; }
+  .footer { width: calc(100% - 34px); margin-left: 17px; }
+}
+@media(prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *:before, *:after { transition-duration: .01ms!important; animation-duration: .01ms!important; animation-iteration-count: 1!important; }
+}

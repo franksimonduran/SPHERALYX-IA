@@ -16,7 +16,7 @@ menu.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu.getAttribute('aria-expanded')==='true'){closeMenu();menu.focus();}});
 window.addEventListener('hashchange',closeMenu);
 nav.addEventListener('click',e=>{if(e.target.closest('a'))closeMenu();});
-const links=[...nav.querySelectorAll('a')];
+const links=[...document.querySelectorAll('#navigation a, .mission-rail-nav a')];
 const markActive=id=>links.forEach(link=>{
   const active=link.getAttribute('href')===`#${id}`;
   link.classList.toggle('active',active);
