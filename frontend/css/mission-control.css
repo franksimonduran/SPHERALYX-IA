@@ -1,0 +1,118 @@
+/* SPHERALYX AI Mission Control — structural frontend redesign.
+   No changes to scientific endpoints or data provenance. */
+:root{--rail-width:224px;--mission-top:74px}
+body{background:#060b17}
+.header{height:var(--mission-top);min-height:var(--mission-top);padding-left:24px;padding-right:24px;border-bottom:1px solid rgba(133,197,234,.15)}
+.header .brand{font-size:.87rem}.header nav{display:none}
+.header-status{display:inline-flex;margin-left:auto;font-size:.61rem}
+.mission-rail{
+ position:fixed;left:0;top:var(--mission-top);bottom:0;width:var(--rail-width);z-index:30;
+ display:flex;flex-direction:column;justify-content:space-between;
+ background:linear-gradient(180deg,#0c1830,#081225 60%,#08111f);
+ border-right:1px solid rgba(144,187,224,.17);padding:25px 12px 21px;
+}
+.mission-rail-label{display:block;padding:2px 15px 15px;font-size:.61rem;font-weight:700;letter-spacing:.19em;color:#6f99b6}
+.mission-rail-nav{display:grid;gap:5px}
+.mission-rail-nav a{display:flex;gap:13px;align-items:center;padding:14px 13px;min-height:49px;border:1px solid transparent;border-radius:11px;color:#a6bed6;font-size:.78rem;font-weight:600;transition:background .2s,color .2s,border-color .2s}
+.mission-rail-nav a:hover,.mission-rail-nav a.active{background:rgba(61,155,197,.13);border-color:rgba(73,181,226,.25);color:#e6f6ff}
+.mission-rail-nav a.active{box-shadow:inset 3px 0 #5bd5f5}
+.mission-rail-nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mission-rail-foot{padding:20px 13px 7px;border-top:1px solid rgba(146,193,222,.13)}
+.mission-rail-foot span{display:block;font-size:.57rem;color:#7db2cb;letter-spacing:.12em;font-weight:700}
+.mission-rail-foot strong{display:block;font-size:.75rem;font-weight:600;color:#d0dfec;margin:7px 0}
+.mission-rail-foot p{font-size:.65rem;line-height:1.55;color:#8da5bd}
+main,.footer{margin-left:var(--rail-width)}
+.wrap{width:min(1500px,calc(100% - 72px))}
+.hero{min-height:625px;grid-template-columns:minmax(0,1.1fr) minmax(270px,.9fr);padding:65px 0 95px}
+.hero-copy{padding:20px 0}
+.hero:before{content:'MISSION OPERATIONS / SPHERALYX AI';position:absolute;top:17px;left:0;font-size:.61rem;color:#6c91ae;letter-spacing:.17em}
+.hero h1{font-size:clamp(3.2rem,5.6vw,6.1rem)}
+.hero-visual{height:470px}
+.mission-hero-stats{display:flex;gap:9px;flex-wrap:wrap;margin-top:21px}
+.mission-hero-stats span{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid rgba(109,196,232,.2);border-radius:7px;background:rgba(12,35,57,.58);font-size:.65rem;color:#c1d7e9}
+.mission-hero-stats i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#5fdfdb}
+.section{padding-top:82px;padding-bottom:82px}
+.section-heading{align-items:center}
+.section-heading h2{font-size:clamp(2rem,3.1vw,3.2rem)}
+.mission-real-workspace{padding:25px 25px 30px}
+.mission-real-workspace>.panel-title{padding:2px 2px 22px;margin:0}
+.real-workspace-grid{display:grid;grid-template-columns:minmax(210px,.86fr) minmax(280px,1.6fr) minmax(210px,.88fr);gap:14px;align-items:stretch;min-height:490px}
+.mission-workspace-column{min-width:0;background:linear-gradient(150deg,rgba(8,21,40,.94),rgba(8,18,35,.95));border:1px solid rgba(130,181,221,.14);border-radius:13px;padding:17px}
+.workspace-column-head{padding-bottom:15px;border-bottom:1px solid rgba(148,190,219,.14);margin-bottom:15px}
+.workspace-column-head span{display:block;color:#63cde9;font-size:.57rem;letter-spacing:.17em;font-weight:700}
+.workspace-column-head h4{color:#ecf7ff;font-size:.9rem;letter-spacing:-.015em;margin:6px 0 0}
+.real-workspace-controls>p{font-size:.73rem;line-height:1.65}
+.real-workspace-controls>.check{font-size:.7rem;line-height:1.5;margin:13px 0}
+.real-workspace-controls .real-form{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0}
+.real-workspace-controls .real-form label{width:100%;min-width:0}
+.real-workspace-controls .real-form input,.real-workspace-controls .real-form select,.real-workspace-controls .real-form button{width:100%;max-width:none}
+.real-workspace-controls .real-form button{justify-content:center;gap:12px}
+.real-workspace-controls .real-status{font-size:.7rem;overflow-wrap:anywhere}
+.real-workspace-controls details{margin:12px 0}
+.real-image-viewport{position:relative;display:grid;place-items:center;min-height:365px;overflow:hidden;border-radius:10px;background:radial-gradient(ellipse at 50% 48%,rgba(44,102,143,.23),transparent 64%),#040b19;border:1px solid rgba(77,161,204,.25)}
+.real-image-viewport:before{content:'';position:absolute;inset:14px;border:1px dashed rgba(99,171,207,.16);pointer-events:none}
+.real-image-viewport:after{content:'NASA/IPAC IRSA · REAL DATA VIEWER';position:absolute;bottom:14px;left:16px;font-size:.54rem;letter-spacing:.13em;color:#81a9c3;pointer-events:none}
+.real-image-viewport .real-preview{width:auto;max-width:100%;max-height:min(60vh,480px);object-fit:contain;margin:0;position:relative;z-index:1;border:0;border-radius:0}
+.real-image-empty{display:grid;place-items:center;text-align:center;gap:12px;padding:22px;max-width:280px;color:#bed5e6}
+.real-image-empty strong{font-size:.83rem;font-weight:600}
+.real-image-empty p{font-size:.72rem;line-height:1.65}
+.image-empty-graphic{display:grid;place-items:center;width:91px;height:91px;border-radius:50%;border:1px solid rgba(95,208,243,.3);background:rgba(58,135,176,.08);font-size:2.6rem;font-weight:200;color:#6cd1f0}
+.real-preview:not([hidden]) + .real-image-empty{display:none}
+.real-workspace-image .real-metadata{margin-top:14px;max-height:260px;overflow:auto;font-size:.72rem}
+.workspace-results-help{font-size:.71rem;line-height:1.6}
+.real-workspace-results .real-observations{max-height:535px;overflow:auto;margin-top:14px;gap:8px}
+.real-workspace-results .real-observations>*{max-width:100%;overflow-wrap:anywhere}
+.mission-compare-workspace{margin-top:28px;padding:26px;border-radius:13px;background:rgba(5,16,33,.56);border:1px solid rgba(100,175,213,.18)}
+.mission-compare-workspace h3{font-size:1.1rem}
+.mission-compare-workspace #compare-real-views{margin-top:14px}
+.mission-compare-workspace .real-image-stack{width:min(100%,650px)}
+.mission-compare-workspace .real-form select{width:min(400px,100%)}
+.explorer-layout{margin-top:19px}
+.viewer-panel{background:linear-gradient(145deg,rgba(16,32,56,.95),rgba(9,20,38,.95))}
+.viewer-panel .sky-wrap{height:clamp(430px,48vw,650px)}
+.controls{background:linear-gradient(145deg,rgba(17,35,60,.95),rgba(9,19,38,.97))}
+.simulation-panel{border-top:2px solid rgba(90,197,231,.38)}
+.analysis-layout{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+#validation-lab,#classification-lab{border-top:1px solid rgba(91,211,239,.35)}
+#classification-lab{margin-top:24px}
+#classification-lab hr{border:0;border-top:1px solid rgba(135,195,232,.18);margin-bottom:24px}
+.discoveries .candidate-list{max-height:600px;overflow:auto}
+.footer{width:calc(100% - 72px)}
+@media(max-width:1440px){
+ :root{--rail-width:202px}
+ .wrap{width:calc(100% - 54px)}
+ .real-workspace-grid{grid-template-columns:minmax(190px,.84fr) minmax(260px,1.45fr)}
+ .real-workspace-results{grid-column:1/-1}
+ .real-workspace-results .real-observations{max-height:280px}
+}
+@media(max-width:1070px){
+ :root{--rail-width:0px}
+ .mission-rail{display:none}
+ main,.footer{margin-left:0}
+ .header nav{display:flex}
+ .header-status{display:none}
+ .header{height:auto;min-height:74px}
+ .real-workspace-grid{grid-template-columns:minmax(215px,.8fr) minmax(260px,1.2fr)}
+}
+@media(max-width:760px){
+ .header nav:not(.open){display:none}
+ .header nav.open{display:flex}
+ .mission-hero-stats{gap:7px}
+ .hero:before{top:14px}
+ .hero{padding-top:78px}
+ .real-workspace-grid{grid-template-columns:minmax(0,1fr)}
+ .real-workspace-results{grid-column:auto}
+ .mission-real-workspace{padding:17px}
+ .mission-workspace-column{padding:16px}
+ .real-image-viewport{min-height:290px}
+ .real-workspace-results .real-observations{max-height:260px}
+ .mission-compare-workspace{padding:16px}
+ .viewer-panel .sky-wrap{height:380px}
+ .footer{width:calc(100% - 34px)}
+}
+@media(max-width:430px){
+ .real-image-viewport{min-height:250px}
+ .viewer-panel .sky-wrap{height:320px}
+ .real-workspace-controls .real-form{grid-template-columns:1fr}
+ .mission-rail-foot{display:none}
+}
