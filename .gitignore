@@ -27,4 +27,5 @@ build/
 /data/samples/*
 !/data/samples/astromotion-seed42.json
 !/data/samples/campos-spherex-fase91.json
+!/data/samples/irsa-fase91-20261108-resumen.json
 *.zip

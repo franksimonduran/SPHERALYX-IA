@@ -15,6 +15,7 @@ PATTERNS = (
     'frontend/tests/*.mjs', 'frontend/assets/logo.png',
     'tests/*.py', 'docs/*.md', 'data/samples/astromotion-seed42.json',
     'data/samples/campos-spherex-fase91.json',
+    'data/samples/irsa-fase91-20261108-resumen.json',
     'tools/package_release.py', 'tools/auditoria_irsa_fase91.py',
 )
 

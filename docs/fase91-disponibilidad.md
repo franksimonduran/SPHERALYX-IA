@@ -1,25 +1,58 @@
-# Fase 9.1: disponibilidad SPHEREx — informe preliminar
+# Fase 9.1: disponibilidad real SPHEREx
 
-**Estado: exploración no concluida.** No se ha incorporado un resultado consolidado para los cinco campos ni se certifica que haya imágenes recuperables, pares visualizables o comparaciones científicas autorizadas. La ausencia de resultados aquí no significa que IRSA carezca de observaciones.
+**Ejecución real:** 8 de noviembre de 2026, 19:04:48–19:11:54 UTC, Windows/Python 3.12, sin manifiesto de calibración configurado. Diez consultas SIA2 (cinco campos × QR2/QR3), máximo 100 filas por consulta y radio 0,1°. La ejecución sufrió al menos un HTTP 503 que se resolvió mediante reintento. Los resultados son un sondeo limitado, no un censo exhaustivo ni detecciones de las fuentes.
 
-## Comprobación puntual registrada
+**Resumen:** ocho consultas devolvieron 100 productos normalizados (posible truncamiento); dos devolvieron cero. En cada uno de los ocho casos con resultados se seleccionó un par por la política existente, se recuperaron ambos recortes FITS y se generaron vistas individuales y vistas A/B alineadas. **Los ocho pares fueron rechazados para comparación calibrada**, todos por ausencia de CWAVE/CBAND verificados; no se generó ninguna vista de diferencia. La presencia de vistas A/B no demuestra que el objetivo esté en ellas ni que la respuesta espectral sea equivalente. La aplicación restringe animación y superposición a pares compatibles, por lo que ninguno habilitó esas funciones.
 
-El 8 de noviembre de 2026, una consulta real con el cliente existente a IRSA SIA2 para la posición histórica de Barnard (RA 269.45207696°, Dec +4.69336497°, radio 0,1°, colección QR3) devolvió **100 productos normalizados**, el límite solicitado. Uno de ellos fue `ivo://irsa.ipac/spherex_qr3?2026W33_2A_0594_3/D6`, fecha SIA `2026-08-16T15:06:13.162` UTC, banda `SPHEREx-D6`, nivel 2. Esta prueba no recuperó su FITS ni comprobó que la estrella o el centro estuvieran en él. Los 100 productos pueden ser una respuesta truncada. Es una búsqueda exploratoria con el centro histórico, distinta de la posición aproximada propagada utilizada por la herramienta de cinco campos.
+## Centros utilizados
 
-## Matriz de compatibilidad: pendiente
+| Campo | RA ° | Dec ° | Referencia y época |
+| --- | ---: | ---: | --- |
+| Barnard's Star | 269.44626788 | +4.76820441 | SIMBAD J2000, extrapolación angular aproximada a J2026 |
+| Epsilon Indi B | 331.09861270 | −56.80078102 | Scholz et al., posición 2MASS 1999.855, extrapolación aproximada a J2026 |
+| WISE 0855 | 133.75989006 | −7.24223708 | Posición JWST redondeada de 2023-12-02, extrapolación aproximada a J2026 |
+| RW Aurigae | 76.95652603 | +30.40143817 | SIMBAD J2000, sin propagación |
+| R Draconis | 248.16761083 | +66.75497942 | SIMBAD J2000, sin propagación |
 
-| Campo | Observaciones | FITS recuperados | A/B visualizable | Comparación autorizada |
+Véanse las referencias específicas, movimiento propio y advertencias en `data/samples/campos-spherex-fase91.json` y [metodología](fase91-metodologia.md). Las extrapolaciones omiten paralaje y velocidad radial; no son efemérides de cada exposición. La búsqueda SIA requiere intersección con el círculo, no que el centro se encuentre dentro de cada imagen. No se ha verificado la presencia o detectabilidad de cada objetivo.
+
+## Matriz de disponibilidad y compatibilidad temporal
+
+Las fechas son UTC y los números de cobertura corresponden a la **fracción espacial válida sobre la rejilla del primer recorte**, no a fotometría ni a cobertura del objeto. `WCS-WAVE` es un diagnóstico no calibrado. Un resultado `100` alcanza el límite y puede ocultar más productos; `0` indica solo que no se obtuvieron productos normalizados en esta consulta, no ausencia absoluta en IRSA.
+
+| Campo | Colección | Productos | FITS / PNG individuales | A/B alineadas | Cobertura | Calibración / diferencia |
+| --- | --- | ---: | --- | --- | ---: | --- |
+| Barnard's Star | QR2 | 100 | 2 / 2 | Sí, D6 | 86,91 % | No verificada; bloqueada |
+| Barnard's Star | QR3 | 100 | 2 / 2 | Sí, D2 | 84,14 % | No verificada; bloqueada |
+| Epsilon Indi B | QR2 | 100 | 2 / 2 | Sí, D6 | 87,07 % | No verificada; bloqueada |
+| Epsilon Indi B | QR3 | 100 | 2 / 2 | Sí, D6 | 79,58 % | No verificada; bloqueada |
+| WISE 0855 | QR2 | 100 | 2 / 2 | Sí, D3 | 91,61 % | No verificada; bloqueada |
+| WISE 0855 | QR3 | 0 | No se intentó | No evaluada | — | No evaluada |
+| RW Aurigae | QR2 | 100 | 2 / 2 | Sí, D2 | 95,49 % | No verificada; bloqueada |
+| RW Aurigae | QR3 | 100 | 2 / 2 | Sí, D4 | 89,09 % | No verificada; bloqueada |
+| R Draconis | QR2 | 100 | 2 / 2 | Sí, D6 | 88,85 % | No verificada; bloqueada |
+| R Draconis | QR3 | 0 | No se intentó | No evaluada | — | No evaluada |
+
+## Pares efectivamente evaluados
+
+| Campo / colección | IDs de observación A / B | Fecha A / B (UTC) | Banda SIA | Diagnóstico aproximado WCS-WAVE |
 | --- | --- | --- | --- | --- |
-| Barnard's Star | Consulta puntual QR3: 100 productos; no exhaustiva | No comprobado en esa consulta | No comprobado | No comprobada |
-| Epsilon Indi B | Resultado consolidado pendiente | Pendiente | Pendiente | Pendiente |
-| WISE 0855 | Resultado consolidado pendiente | Pendiente | Pendiente | Pendiente |
-| RW Aurigae | Resultado consolidado pendiente | Pendiente | Pendiente | Pendiente |
-| R Draconis | Resultado consolidado pendiente | Pendiente | Pendiente | Pendiente |
+| Barnard / QR2 | `2026W12_1A_0610_4` / `2026W12_2A_0520_1` | 2026-03-19 09:09:23 / 2026-03-22 08:44:20 | SPHEREx-D6 | 0 % |
+| Barnard / QR3 | `2026W34_1A_0363_1` / `2026W39_1A_0371_1` | 2026-08-18 20:48:38 / 2026-09-22 15:04:21 | SPHEREx-D2 | 100 % |
+| ε Indi B / QR2 | `2026W18_1A_0490_1` / `2026W18_1A_0529_1` | 2026-04-29 08:46:57 / 2026-04-29 13:37:58 | SPHEREx-D6 | 100 % |
+| ε Indi B / QR3 | `2026W39_2A_0647_1` / `2026W39_2A_0682_1` | 2026-09-27 14:07:45 / 2026-09-27 19:01:01 | SPHEREx-D6 | 100 % |
+| WISE 0855 / QR2 | `2026W17_2A_0692_1` / `2026W19_2A_0782_1` | 2026-04-26 11:50:10 / 2026-05-09 12:39:49 | SPHEREx-D3 | 100 % |
+| RW Aur / QR2 | `2026W09_2A_0503_1` / `2026W11_1A_0042_1` | 2026-03-01 04:55:44 / 2026-03-09 05:12:29 | SPHEREx-D2 | 0 % |
+| RW Aur / QR3 | `2026W36_1A_0476_1` / `2026W37_1A_0524_1` | 2026-09-02 02:19:55 / 2026-09-09 21:42:13 | SPHEREx-D4 | 0 % |
+| R Dra / QR2 | `2026W01_1A_0534_3` / `2026W01_2A_0426_3` | 2025-12-31 13:57:33 / 2026-01-03 13:41:13 | SPHEREx-D6 | 100 % |
 
-La ejecución de los cinco campos se inició por separado; hasta revisar y documentar su salida no se le atribuyen cifras ni resultados. Repetir con los comandos y centros de [metodología](fase91-metodologia.md). Las consultas son dinámicas y no necesariamente devolverán los mismos productos.
+El porcentaje espectral se calcula con WCS-WAVE **aproximada**, no con calibración CWAVE/CBAND. Ni un 100 % autoriza una diferencia ni un 0 % es una medición espectral definitiva. En los tres pares con 0 % la evaluación también informó discrepancia aproximada y cobertura espectral insuficiente. Todos quedaron bloqueados por calibración no verificada. Se evaluó **solo un par por caso**, seleccionado por cercanía angular de centros, por lo que otras parejas podrían arrojar resultados distintos.
 
-## Límites
+Los IDs de publicación, URLs de productos, hashes de los recortes recuperados, posiciones, tiempos completos, motivos y metadatos de cobertura se conservan como [resumen documental JSON](../data/samples/irsa-fase91-20261108-resumen.json). **No se almacenaron los FITS, PNG ni respuestas SIA originales**; los hashes no reemplazan los datos. La repetición depende de la disponibilidad y del orden de IRSA. El JSON no es una captura integral de las 100 filas por búsqueda.
 
-Una observación SIA, un recorte FITS, dos vistas A/B y una comparación científicamente autorizada son niveles de evidencia distintos. No se han verificado asociaciones de calibración CWAVE/CBAND para este informe; WCS-WAVE es una aproximación visual. No se ha detectado movimiento real validado ni Planet X.
+## Pruebas y siguiente fase
 
-En la ejecución local preparatoria: **78 pruebas aprobadas, 4 omitidas**, con una advertencia de Starlette/TestClient; la auditoría frontend con mocks y `pip check` también pasaron. Las cuatro pruebas omitidas son las opcionales IRSA descritas en `docs/informe-pruebas.md`; estas pruebas no constituyen la exploración de los cinco campos.
+- Backend local: **78 aprobadas, 4 omitidas, 1 advertencia** de Starlette/TestClient. Las cuatro omitidas requieren variables `SPHERALYX_LIVE_*`; esta exploración IRSA es independiente de esas pruebas.
+- Auditoría frontend: aprobada con respuestas API simuladas. `pip check`: sin incompatibilidades.
+- Los algoritmos y bloqueos científicos existentes no se modificaron. No se ha demostrado movimiento real ni descubrimiento de Planet X.
+- Recomendación 9.2: lista cronológica REAL con procedencia por producto y avisos de truncamiento; comprobación de WCS y posición por época, incluyendo movimiento propio y paralaje; vistas individuales claramente etiquetadas; preservar el bloqueo de animación/superposición/diferencia hasta su validación. Ver [inventario y metodología](fase91-metodologia.md).

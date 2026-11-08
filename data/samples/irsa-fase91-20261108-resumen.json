@@ -1,0 +1,1306 @@
+{
+  "started_utc": "2026-11-08T19:04:48.374493+00:00",
+  "cases": [
+    {
+      "field": "Barnard's Star",
+      "query": {
+        "ra": 269.44626788,
+        "dec": 4.76820441,
+        "radius_deg": 0.1,
+        "release": "qr2"
+      },
+      "source": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Barnard%27s+Star",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 824
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W12_1A_0610_4",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W12_1A_0610_4/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W12_1A/l2b-v24-2026-082/6/level2_2026W12_1A_0610_4D6_spx_l2b-v24-2026-082.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61118.381517,
+            "observation_time_utc": "2026-03-19T09:09:23.069",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 270.2507349233526 3.527109108737847 266.76484739085015 3.5961856353361856 266.67262559887644 7.08945607338909 270.2089812564597 7.015019650972075 270.2507349233526 3.527109108737847",
+            "image_center": {
+              "ra": 268.4801251309151,
+              "dec": 5.293742562708975
+            },
+            "search_center": {
+              "ra": 269.44626788,
+              "dec": 4.76820441
+            }
+          },
+          "status": "ok",
+          "bytes": 5109120,
+          "fits_sha256": "848fd2af81ad3062023dcc935f8609c8ef5a379f97a3cc75aba8d943a8e7606c",
+          "png_sha256": "84d3d4f03ce5027abfe9638b7c52a851b69717287171ae2e78dbf2161f2c02e2",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 3414,
+            "shape": [
+              59,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W12_2A_0520_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W12_2A_0520_1/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W12_2A/l2b-v24-2026-083/6/level2_2026W12_2A_0520_1D6_spx_l2b-v24-2026-083.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61121.364125,
+            "observation_time_utc": "2026-03-22T08:44:20.400",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 270.24673901629194 3.7227966985118552 266.7601533110602 3.7908857094035966 266.66656280879397 7.284306638922202 270.20445740855786 7.210771942164946 270.24673901629194 3.7227966985118552",
+            "image_center": {
+              "ra": 268.47533975619723,
+              "dec": 5.489076057385336
+            },
+            "search_center": {
+              "ra": 269.44626788,
+              "dec": 4.76820441
+            }
+          },
+          "status": "ok",
+          "bytes": 5109120,
+          "fits_sha256": "3efbfe36068156854084a87bcdc073ee8e15f437d0e8dcc6e516171cdd2fe8d2",
+          "png_sha256": "b1ce194e0d6131f7e9e4b896a563e05531cb0f0baa4a5a1e9a05552c1667218d",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 3358,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización.",
+          "WCS-WAVE aproximada sugiere discrepancia o faltan valores en más del 10 %; no es una validación científica.",
+          "Cobertura válida espectralmente compatible insuficiente."
+        ],
+        "coverage_fraction": 0.8690824079485681,
+        "spectral_match_fraction": 0.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            59,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-03-19T09:09:23.051",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "2dc965d6-bad3-4916-83ca-54e9e9cfcbd3",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-03-22T08:44:20.389",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "2dc965d6-bad3-4916-83ca-54e9e9cfcbd3",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "Barnard's Star",
+      "query": {
+        "ra": 269.44626788,
+        "dec": 4.76820441,
+        "radius_deg": 0.1,
+        "release": "qr3"
+      },
+      "source": "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=Barnard%27s+Star",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 928
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W34_1A_0363_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr3?2026W34_1A_0363_1/D2",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W34_1A/l2b-v27-2026-243/2/level2_2026W34_1A_0363_1D2_spx_l2b-v27-2026-243.fits",
+            "release": "qr3",
+            "band": "SPHEREx-D2",
+            "detector": "SPHEREx-D2",
+            "wavelength_min_m": 1.1033e-06,
+            "wavelength_max_m": 1.6499e-06,
+            "time_start_mjd": 61270.867116,
+            "observation_time_utc": "2026-08-18T20:48:38.822",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 266.16032454845964 5.675383871177582 269.63756893531684 5.568154739797188 269.53800662989164 2.0858104272522757 266.04697133494744 2.1937076928920045 266.16032454845964 5.675383871177582",
+            "image_center": {
+              "ra": 267.84625373265834,
+              "dec": 3.8976553410751227
+            },
+            "search_center": {
+              "ra": 269.44626788,
+              "dec": 4.76820441
+            }
+          },
+          "status": "ok",
+          "bytes": 4000320,
+          "fits_sha256": "d26a3d198bf60942b653a192754f1096dc6fa2e607b617b9f4fa5a06a78bf3fc",
+          "png_sha256": "059cee4511df7b643d81e8ed7ef5cbcc66c50b434467227c93084fb24055996a",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 2,
+            "nonzero_flag_pixels": 3481,
+            "shape": [
+              59,
+              59
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W39_1A_0371_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr3?2026W39_1A_0371_1/D2",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W39_1A/l2b-v27-2026-268/2/level2_2026W39_1A_0371_1D2_spx_l2b-v27-2026-268.fits",
+            "release": "qr3",
+            "band": "SPHEREx-D2",
+            "detector": "SPHEREx-D2",
+            "wavelength_min_m": 1.1033e-06,
+            "wavelength_max_m": 1.6499e-06,
+            "time_start_mjd": 61305.628021,
+            "observation_time_utc": "2026-09-22T15:04:21.014",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 266.1660536551423 5.674380549021603 269.64339121472426 5.567263234832558 269.5436467943314 2.0848407445298416 266.05270406365975 2.1926734152636422 266.1660536551423 5.674380549021603",
+            "image_center": {
+              "ra": 267.85198719347164,
+              "dec": 3.8966102830735507
+            },
+            "search_center": {
+              "ra": 269.44626788,
+              "dec": 4.76820441
+            }
+          },
+          "status": "ok",
+          "bytes": 4000320,
+          "fits_sha256": "5d96a28bcd4355c82c81538081bbd07614821142b3be742736e483e379ca00d4",
+          "png_sha256": "667f97641034eef6c5f0f1a29c20b9d73a3eb908b38bf8a5e08b65379cd413ed",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 3,
+            "nonzero_flag_pixels": 3481,
+            "shape": [
+              59,
+              59
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización."
+        ],
+        "coverage_fraction": 0.841424877908647,
+        "spectral_match_fraction": 1.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            59,
+            59
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-08-18T20:48:38.781",
+          "detector": 2,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "019f4f99-03f1-7376-a5a0-676318f2ddb6",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            59,
+            59
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-09-22T15:04:20.981",
+          "detector": 2,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "019f4f99-03f1-7376-a5a0-676318f2ddb6",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "Epsilon Indi B",
+      "query": {
+        "ra": 331.0986127,
+        "dec": -56.80078102,
+        "radius_deg": 0.1,
+        "release": "qr2"
+      },
+      "source": "https://arxiv.org/html/astro-ph/0212487v1",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 860
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W18_1A_0490_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W18_1A_0490_1/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W18_1A/l2b-v24-2026-124/6/level2_2026W18_1A_0490_1D6_spx_l2b-v24-2026-124.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61159.365948,
+            "observation_time_utc": "2026-04-29T08:46:57.907",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 334.11121479282355 -57.12522672461719 328.0595212743746 -58.432378140228074 325.7678589512185 -55.17037978731364 331.4636760349497 -53.97432744492594 334.11121479282355 -57.12522672461719",
+            "image_center": {
+              "ra": 329.867003774,
+              "dec": -56.228940347199995
+            },
+            "search_center": {
+              "ra": 331.0986127,
+              "dec": -56.80078102
+            }
+          },
+          "status": "ok",
+          "bytes": 5106240,
+          "fits_sha256": "ea3b3686348557c5984dcbb87cbd693a2939d3a102781d2ac983e10785996432",
+          "png_sha256": "49e47ae25ef031fd9bdf747b2885e827956caf94bdc3493be4d38220a37b827d",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 2,
+            "nonzero_flag_pixels": 1448,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W18_1A_0529_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W18_1A_0529_1/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W18_1A/l2b-v24-2026-124/6/level2_2026W18_1A_0529_1D6_spx_l2b-v24-2026-124.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61159.568042,
+            "observation_time_utc": "2026-04-29T13:37:58.829",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 334.11202881250966 -57.12465258142661 328.06041618685015 -58.43184117462885 325.76858297545607 -55.16979489699208 331.464250794065 -53.9736404702992 334.11202881250966 -57.12465258142661",
+            "image_center": {
+              "ra": 329.86763445,
+              "dec": -56.22837038809999
+            },
+            "search_center": {
+              "ra": 331.0986127,
+              "dec": -56.80078102
+            }
+          },
+          "status": "ok",
+          "bytes": 5106240,
+          "fits_sha256": "bae6a37d74b07b9af63e8e1a38bf9169c652960ca98cdd4f4ca0b7458cb880d0",
+          "png_sha256": "97e0ce271386f32dac8c667320fcf1b39707372fe37399a767a52afe062b5a7b",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 2,
+            "nonzero_flag_pixels": 1468,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización."
+        ],
+        "coverage_fraction": 0.8706896551724138,
+        "spectral_match_fraction": 1.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-04-29T08:46:57.937",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "2dc965d6-bad3-4916-83ca-54e9e9cfcbd3",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-04-29T13:37:58.852",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "2dc965d6-bad3-4916-83ca-54e9e9cfcbd3",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "Epsilon Indi B",
+      "query": {
+        "ra": 331.0986127,
+        "dec": -56.80078102,
+        "radius_deg": 0.1,
+        "release": "qr3"
+      },
+      "source": "https://arxiv.org/html/astro-ph/0212487v1",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 1488
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W39_2A_0647_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr3?2026W39_2A_0647_1/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W39_2A/l2b-v27-2026-271/6/level2_2026W39_2A_0647_1D6_spx_l2b-v27-2026-271.fits",
+            "release": "qr3",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61310.58872,
+            "observation_time_utc": "2026-09-27T14:07:45.408",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 328.075333387284 -54.31772714363762 333.2952656754307 -52.74079039031314 336.53761132075886 -55.67653971147342 330.9885240461092 -57.39928902502175 328.075333387284 -54.31772714363762",
+            "image_center": {
+              "ra": 332.19992171798043,
+              "dec": -55.06205529473278
+            },
+            "search_center": {
+              "ra": 331.0986127,
+              "dec": -56.80078102
+            }
+          },
+          "status": "ok",
+          "bytes": 3997440,
+          "fits_sha256": "3e089c3aa174b7a4d3ddf7d5f1e07c17fef7abd2e883b88735d3f2e49781b393",
+          "png_sha256": "3b61bdd20a09e1562fd76f2582594bfba44ab5523321492f254f888e92676ef9",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 2195,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W39_2A_0682_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr3?2026W39_2A_0682_1/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W39_2A/l2b-v27-2026-271/6/level2_2026W39_2A_0682_1D6_spx_l2b-v27-2026-271.fits",
+            "release": "qr3",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61310.792377,
+            "observation_time_utc": "2026-09-27T19:01:01.373",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 328.07538230367527 -54.31766056998624 333.29529063864754 -52.7407831793748 336.53756709629323 -55.676472994281255 330.9883407069904 -57.39917483283078 328.07538230367527 -54.31766056998624",
+            "image_center": {
+              "ra": 332.19992157878454,
+              "dec": -55.06201864750566
+            },
+            "search_center": {
+              "ra": 331.0986127,
+              "dec": -56.80078102
+            }
+          },
+          "status": "ok",
+          "bytes": 3997440,
+          "fits_sha256": "ec5c5c5865dc04185415ba4a80e480d87cadce7a10e59e5326c09fd46670e3aa",
+          "png_sha256": "fb86bb2a0804facfa711f78ae312e63c550ce45d74c4b32fd723201c1095d23f",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 1975,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización."
+        ],
+        "coverage_fraction": 0.7957788347205708,
+        "spectral_match_fraction": 1.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-09-27T14:07:45.417",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "019f4f99-5f21-722d-bd8d-a6033df45708",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-09-27T19:01:01.405",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "019f4f99-5f21-722d-bd8d-a6033df45708",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "WISE 0855",
+      "query": {
+        "ra": 133.75989006,
+        "dec": -7.24223708,
+        "radius_deg": 0.1,
+        "release": "qr2"
+      },
+      "source": "https://google.iopscience.iop.org/article/10.3847/1538-3881/ae17ca/pdf",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 824
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W17_2A_0692_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W17_2A_0692_1/D3",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W17_2A/l2b-v24-2026-118/3/level2_2026W17_2A_0692_1D3_spx_l2b-v24-2026-118.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D3",
+            "detector": "SPHEREx-D3",
+            "wavelength_min_m": 1.6301e-06,
+            "wavelength_max_m": 2.4346e-06,
+            "time_start_mjd": 61156.493181,
+            "observation_time_utc": "2026-04-26T11:50:10.838",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 133.35926833887973 -6.41388680475538 136.68007752299738 -7.51623487493533 135.71484211839518 -10.874259038177668 132.34039315372718 -9.748682964778581 133.35926833887973 -6.41388680475538",
+            "image_center": {
+              "ra": 134.522687122502,
+              "dec": -8.625785509643762
+            },
+            "search_center": {
+              "ra": 133.75989006,
+              "dec": -7.24223708
+            }
+          },
+          "status": "ok",
+          "bytes": 5109120,
+          "fits_sha256": "78935c2804124ad7ff45cf7dc7d6cb68c65f75d51b8b084726dbf25f5c656aa2",
+          "png_sha256": "1eddd3def8e7291fda00a2f13af89365ab71f0a45e09219c60ca2dca75e605a5",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 1595,
+            "shape": [
+              59,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W19_2A_0782_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W19_2A_0782_1/D3",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W19_2A/l2b-v24-2026-131/3/level2_2026W19_2A_0782_1D3_spx_l2b-v24-2026-131.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D3",
+            "detector": "SPHEREx-D3",
+            "wavelength_min_m": 1.6301e-06,
+            "wavelength_max_m": 2.4346e-06,
+            "time_start_mjd": 61169.527653,
+            "observation_time_utc": "2026-05-09T12:39:49.219",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 133.3612162114768 -6.414006799222014 136.68211782800557 -7.516231280460271 135.71690609871575 -10.874262883584883 132.34234777558402 -9.748820255447335 133.3612162114768 -6.414006799222014",
+            "image_center": {
+              "ra": 134.52467927506223,
+              "dec": -8.625861022614036
+            },
+            "search_center": {
+              "ra": 133.75989006,
+              "dec": -7.24223708
+            }
+          },
+          "status": "ok",
+          "bytes": 5109120,
+          "fits_sha256": "b5797f05a84739aef4a93b67ba6f52153969bb384c382a8762e480aef6518a21",
+          "png_sha256": "12b5431d2032d4ad9c28b096e93ceb20a52da0d45e6d51407b257464eb656bb6",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 1560,
+            "shape": [
+              59,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización."
+        ],
+        "coverage_fraction": 0.9161309175920515,
+        "spectral_match_fraction": 1.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            59,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-04-26T11:50:10.810",
+          "detector": 3,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "0d47d467-abe7-4583-b55d-3e9357b06aae",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            59,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-05-09T12:39:49.192",
+          "detector": 3,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "0d47d467-abe7-4583-b55d-3e9357b06aae",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "WISE 0855",
+      "query": {
+        "ra": 133.75989006,
+        "dec": -7.24223708,
+        "radius_deg": 0.1,
+        "release": "qr3"
+      },
+      "source": "https://google.iopscience.iop.org/article/10.3847/1538-3881/ae17ca/pdf",
+      "search": {
+        "status": "ok",
+        "count": 0,
+        "possibly_truncated": false,
+        "prefiltered_pairs": 0
+      },
+      "fits": [],
+      "pair": null
+    },
+    {
+      "field": "RW Aurigae",
+      "query": {
+        "ra": 76.95652603,
+        "dec": 30.40143817,
+        "radius_deg": 0.1,
+        "release": "qr2"
+      },
+      "source": "https://simbad.u-strasbg.fr/simbad/sim-id?Ident=rw+aurigae",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 804
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W09_2A_0503_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W09_2A_0503_1/D2",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W09_2A/l2b-v24-2026-094/2/level2_2026W09_2A_0503_1D2_spx_l2b-v24-2026-094.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D2",
+            "detector": "SPHEREx-D2",
+            "wavelength_min_m": 1.1033e-06,
+            "wavelength_max_m": 1.6499e-06,
+            "time_start_mjd": 61100.205376,
+            "observation_time_utc": "2026-03-01T04:55:44.486",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 76.281440329096 32.59720903707011 80.38726529844442 32.83165330624431 80.60159531967383 29.35272150838105 76.61010718667352 29.125189180055855 76.281440329096 32.59720903707011",
+            "image_center": {
+              "ra": 78.4690181007663,
+              "dec": 31.007581991824594
+            },
+            "search_center": {
+              "ra": 76.95652603,
+              "dec": 30.40143817
+            }
+          },
+          "status": "ok",
+          "bytes": 5109120,
+          "fits_sha256": "714ec09f9f9cf8ace572962665678cc2973a04fd37f4334f7119f06462baee0a",
+          "png_sha256": "7382aeca68e90d182109d3207670ea521ac5c4cdef8e6ecd7baaba9815d11b90",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 3052,
+            "shape": [
+              59,
+              59
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W11_1A_0042_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W11_1A_0042_1/D2",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W11_1A/l2b-v24-2026-094/2/level2_2026W11_1A_0042_1D2_spx_l2b-v24-2026-094.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D2",
+            "detector": "SPHEREx-D2",
+            "wavelength_min_m": 1.1033e-06,
+            "wavelength_max_m": 1.6499e-06,
+            "time_start_mjd": 61108.217007,
+            "observation_time_utc": "2026-03-09T05:12:29.405",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 76.27624054799195 32.6594604208796 80.38480900819515 32.89410662744908 80.59924690624175 29.41521947153435 76.60533625713678 29.187481483279132 76.27624054799195 32.6594604208796",
+            "image_center": {
+              "ra": 78.46537790112589,
+              "dec": 31.069994076668884
+            },
+            "search_center": {
+              "ra": 76.95652603,
+              "dec": 30.40143817
+            }
+          },
+          "status": "ok",
+          "bytes": 5109120,
+          "fits_sha256": "d37cc3cc7e61f1f88065eb4c7c8bf23d1cf0b7a82b037237edfa8ff6f573dfdf",
+          "png_sha256": "d608595e2a9ea0472a41a59fd97d811f4a4b129f3e7b434e433805d927036a58",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 3033,
+            "shape": [
+              59,
+              59
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización.",
+          "WCS-WAVE aproximada sugiere discrepancia o faltan valores en más del 10 %; no es una validación científica.",
+          "Cobertura válida espectralmente compatible insuficiente."
+        ],
+        "coverage_fraction": 0.9548980178109738,
+        "spectral_match_fraction": 0.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            59,
+            59
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-03-01T04:55:44.494",
+          "detector": 2,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "a9cb438e-e37d-4888-a1a5-5a9db6ad0737",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            59,
+            59
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-03-09T05:12:29.393",
+          "detector": 2,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "a9cb438e-e37d-4888-a1a5-5a9db6ad0737",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "RW Aurigae",
+      "query": {
+        "ra": 76.95652603,
+        "dec": 30.40143817,
+        "radius_deg": 0.1,
+        "release": "qr3"
+      },
+      "source": "https://simbad.u-strasbg.fr/simbad/sim-id?Ident=rw+aurigae",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 1000
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W36_1A_0476_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr3?2026W36_1A_0476_1/D4",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W36_1A/l2b-v27-2026-252/4/level2_2026W36_1A_0476_1D4_spx_l2b-v27-2026-252.fits",
+            "release": "qr3",
+            "band": "SPHEREx-D4",
+            "detector": "SPHEREx-D4",
+            "wavelength_min_m": 2.4027e-06,
+            "wavelength_max_m": 3.8473e-06,
+            "time_start_mjd": 61285.097169,
+            "observation_time_utc": "2026-09-02T02:19:55.402",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 77.54184659026137 29.351281970600553 73.577122188744 28.997738831143316 73.22355590299475 32.472293256270426 77.3695981997584 32.842373530645496 77.54184659026137 29.351281970600553",
+            "image_center": {
+              "ra": 75.42154616850584,
+              "dec": 30.915826919680878
+            },
+            "search_center": {
+              "ra": 76.95652603,
+              "dec": 30.40143817
+            }
+          },
+          "status": "ok",
+          "bytes": 3997440,
+          "fits_sha256": "ff3c149ddbe1ee965933fde3f0b35bcfcf50e4c7ca19a78bb2122d093d993089",
+          "png_sha256": "dd8c8b152ec89d01dc26dda580d9c06068808361785932aeb8e05a5df7e81394",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 5,
+            "nonzero_flag_pixels": 3045,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W37_1A_0524_1",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr3?2026W37_1A_0524_1/D4",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr3/level2/2026W37_1A/l2b-v27-2026-255/4/level2_2026W37_1A_0524_1D4_spx_l2b-v27-2026-255.fits",
+            "release": "qr3",
+            "band": "SPHEREx-D4",
+            "detector": "SPHEREx-D4",
+            "wavelength_min_m": 2.4027e-06,
+            "wavelength_max_m": 3.8473e-06,
+            "time_start_mjd": 61292.904327,
+            "observation_time_utc": "2026-09-09T21:42:13.853",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 77.5438313308673 29.288701969383094 73.58155861565609 28.93500259785772 73.22832602227827 32.40951657471122 77.37144396431121 32.77975104992078 77.5438313308673 29.288701969383094",
+            "image_center": {
+              "ra": 75.42475123267224,
+              "dec": 30.853110400801164
+            },
+            "search_center": {
+              "ra": 76.95652603,
+              "dec": 30.40143817
+            }
+          },
+          "status": "ok",
+          "bytes": 3997440,
+          "fits_sha256": "52979f78d41bc59298b9c43c6d85379e2fc4ca548df2bfcc90f0af99d24f631d",
+          "png_sha256": "849e0238cc5231a36d8972547d32fe816d79fe52e94b8417979f5ed5befc2402",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 0,
+            "nonzero_flag_pixels": 3045,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización.",
+          "WCS-WAVE aproximada sugiere discrepancia o faltan valores en más del 10 %; no es una validación científica.",
+          "Cobertura válida espectralmente compatible insuficiente."
+        ],
+        "coverage_fraction": 0.8909036860879905,
+        "spectral_match_fraction": 0.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-09-02T02:19:55.430",
+          "detector": 4,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "019f4f99-3265-766b-b368-e28eb08fdbed",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-09-09T21:42:13.876",
+          "detector": 4,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "019f4f99-3265-766b-b368-e28eb08fdbed",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "R Draconis",
+      "query": {
+        "ra": 248.16761083,
+        "dec": 66.75497942,
+        "radius_deg": 0.1,
+        "release": "qr2"
+      },
+      "source": "https://simbad.u-strasbg.fr/simbad/sim-id?Ident=R+Dra",
+      "search": {
+        "status": "ok",
+        "count": 100,
+        "possibly_truncated": true,
+        "prefiltered_pairs": 2451
+      },
+      "fits": [
+        {
+          "observation": {
+            "observation_id": "2026W01_1A_0534_3",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W01_1A_0534_3/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W01_1A/l2b-v22-2026-007/6/level2_2026W01_1A_0534_3D6_spx_l2b-v22-2026-007.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61040.581643,
+            "observation_time_utc": "2025-12-31T13:57:33.955",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 248.76348006532785 64.70531521974179 243.78328953937358 67.54440995418003 251.4696162745788 69.63338888175318 255.9522325250091 66.54508444324924 248.76348006532785 64.70531521974179",
+            "image_center": {
+              "ra": 249.959864238,
+              "dec": 67.1545475552
+            },
+            "search_center": {
+              "ra": 248.16761083,
+              "dec": 66.75497942
+            }
+          },
+          "status": "ok",
+          "bytes": 5106240,
+          "fits_sha256": "702e257a83952a7eac8fc566d9f78b96664175515512c6327b8e3f8044c78641",
+          "png_sha256": "5991e8218d61daabf96d3a6865c12c75fbdc9a864bc169a29d3f2f60b08ae9eb",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 5,
+            "nonzero_flag_pixels": 3364,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        },
+        {
+          "observation": {
+            "observation_id": "2026W01_2A_0426_3",
+            "publisher_id": "ivo://irsa.ipac/spherex_qr2?2026W01_2A_0426_3/D6",
+            "reference_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/qr2/level2/2026W01_2A/l2b-v23-2026-008/6/level2_2026W01_2A_0426_3D6_spx_l2b-v23-2026-008.fits",
+            "release": "qr2",
+            "band": "SPHEREx-D6",
+            "detector": "SPHEREx-D6",
+            "wavelength_min_m": 4.4115e-06,
+            "wavelength_max_m": 5.0096e-06,
+            "time_start_mjd": 61043.570292,
+            "observation_time_utc": "2026-01-03T13:41:13.229",
+            "calibration_level": 2.0,
+            "coverage_region": "POLYGON ICRS 248.76535805761063 64.70551187268723 243.78529411810388 67.54460681772157 251.47242098169835 69.6335210460425 255.9542710916078 66.54518353334564 248.76535805761063 64.70551187268723",
+            "image_center": {
+              "ra": 249.962046202,
+              "dec": 67.1547151362
+            },
+            "search_center": {
+              "ra": 248.16761083,
+              "dec": 66.75497942
+            }
+          },
+          "status": "ok",
+          "bytes": 5106240,
+          "fits_sha256": "6edfa489bf8df5abf87b187dda22b088e194fa6ef5a678af17bf49d85e7e0b12",
+          "png_sha256": "1ea6ad43ac48b1ac346e3c9bbe2bfc5ed2ad65222a87651522060117005ff09c",
+          "preview": {
+            "image_extension": "IMAGE",
+            "flags_extension": "FLAGS",
+            "invalid_pixels": 4,
+            "nonzero_flag_pixels": 3364,
+            "shape": [
+              58,
+              58
+            ],
+            "unit": "MJy / sr",
+            "visualization": "Escala lineal percentiles 1–99; no son mediciones científicas.",
+            "flags_note": "Se cuentan flags no nulos, sin interpretarlos ni excluirlos de la imagen."
+          }
+        }
+      ],
+      "pair": {
+        "compatible": false,
+        "reasons": [
+          "Calibración CWAVE/CBAND no verificada para ambas observaciones; WCS-WAVE es solo para visualización."
+        ],
+        "coverage_fraction": 0.888525564803805,
+        "spectral_match_fraction": 1.0,
+        "spectral_status": "aproximada_no_verificada",
+        "fits_a": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2025-12-31T13:57:33.971",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "2dc965d6-bad3-4916-83ca-54e9e9cfcbd3",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "fits_b": {
+          "shape": [
+            58,
+            58
+          ],
+          "unit": "MJy / sr",
+          "date_obs": "2026-01-03T13:41:13.221",
+          "detector": 6,
+          "quality": "Pass",
+          "wcs_ctype": [
+            "RA---TAN-SIP",
+            "DEC--TAN-SIP"
+          ],
+          "wcs_frame": "ICRS",
+          "calibration": {
+            "source": "WCS-WAVE",
+            "verified": false,
+            "uuid": "2dc965d6-bad3-4916-83ca-54e9e9cfcbd3",
+            "reason": "Calibración CWAVE/CBAND no verificada"
+          }
+        },
+        "available_views": [
+          "a",
+          "b",
+          "coverage"
+        ],
+        "status": "evaluado"
+      }
+    },
+    {
+      "field": "R Draconis",
+      "query": {
+        "ra": 248.16761083,
+        "dec": 66.75497942,
+        "radius_deg": 0.1,
+        "release": "qr3"
+      },
+      "source": "https://simbad.u-strasbg.fr/simbad/sim-id?Ident=R+Dra",
+      "search": {
+        "status": "ok",
+        "count": 0,
+        "possibly_truncated": false,
+        "prefiltered_pairs": 0
+      },
+      "fits": [],
+      "pair": null
+    }
+  ],
+  "notice": "Propagación angular aproximada sin paralaje ni velocidad radial; no es una efeméride ni prueba de que el objeto esté en un FITS. La colección SIA puede truncarse a 100 filas. Resumen documental: no incluye todas las filas SIA ni conserva bytes FITS/PNG.",
+  "target_epoch_jyear": 2026.0,
+  "finished_utc": "2026-11-08T19:11:54.552353+00:00"
+}
