@@ -78,9 +78,9 @@ def test_gaia_galactic_columns_are_real_and_nullable():
     query = gc.build_adql(83.8221, -5.3911, 0.02, 8)
     assert "source_id, ra, dec, l, b, ref_epoch" in query
     text = (
-        "source_id,ra,dec,l,b,ref_epoch,phot_g_mean_mag,bp_rp\\n"
-        "3017364063331140096,83.8221,-5.3911,209.014,-19.381,2016.0,11.452,0.612\\n"
-        "3017364063331140097,83.8235,-5.3902,,,2016.0,16.810,\\n"
+        "source_id,ra,dec,l,b,ref_epoch,phot_g_mean_mag,bp_rp\n"
+        "3017364063331140096,83.8221,-5.3911,209.014,-19.381,2016.0,11.452,0.612\n"
+        "3017364063331140097,83.8235,-5.3902,,,2016.0,16.810,\n"
     )
     sources, truncated = gc.parse_csv(text, 83.8221, -5.3911, limit=8)
     assert not truncated
