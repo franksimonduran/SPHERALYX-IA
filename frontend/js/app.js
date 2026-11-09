@@ -27,3 +27,19 @@ const markActive=id=>links.forEach(link=>{
 });
 if(location.hash&&document.querySelector(location.hash))markActive(location.hash.slice(1));
 if('IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting)markActive(entry.target.id);});},{rootMargin:'-20% 0px -65% 0px'});links.forEach(link=>{const section=document.querySelector(link.getAttribute('href'));if(section)observer.observe(section);});}
+
+// Informa el modo de datos del servidor; la disponibilidad upstream sigue sin verificarse.
+const headerDataStatus = document.querySelector('.header-status');
+if (headerDataStatus) {
+  fetch('/health', { cache: 'no-store' }).then(async response => {
+    if (!response.ok) return;
+    const data = await response.json();
+    if (data?.data_mode === 'offline') {
+      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> DEMO OFFLINE · GAIA / WISE / IRSA DESACTIVADOS';
+      headerDataStatus.setAttribute('title', 'El 3D funciona; las consultas astronómicas externas están bloqueadas por el servidor.');
+    } else if (data?.data_mode === 'real') {
+      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> MODO REAL · SERVICIOS NO VERIFICADOS';
+      headerDataStatus.setAttribute('title', 'Las consultas están habilitadas; NASA y ESA pueden no responder.');
+    }
+  }).catch(() => { /* Estado desconocido: conservar el texto original. */ });
+}
