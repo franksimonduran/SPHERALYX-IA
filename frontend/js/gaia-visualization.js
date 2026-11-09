@@ -151,6 +151,9 @@ export function initGaiaVisualization() {
         fov:Math.max(.05,Math.min(1.5,query.radius_deg*2.7)),
         cooFrame:'ICRSd',showReticle:true,showLayersControl:true
       });
+      aladin.on('objectClicked', object => {
+        if (object?.data?.source_id != null) pickSource(String(object.data.source_id));
+      });
       skyBtn.textContent='Actualizar vista de archivo';
       caption.textContent='CDS Aladin Lite · DSS2 color (archivo, NO SPHEREx). Selecciona una estrella en los gráficos para localizarla.';
       updateAladin();
