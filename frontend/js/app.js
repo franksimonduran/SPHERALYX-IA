@@ -35,7 +35,17 @@ if (headerDataStatus) {
   fetch('/health', { cache: 'no-store' }).then(async response => {
     if (!response.ok) return;
     const data = await response.json();
-    if (data?.data_mode === 'offline') {
+    document.body.dataset.catalogMode = data?.catalog_mode === 'real' ? 'real' : 'offline';
+    if (data?.data_mode === 'offline' && data?.catalog_mode === 'real') {
+      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> GAIA / WISE ACTIVOS · SPHEREx OFFLINE';
+      headerDataStatus.classList.add('status-offline');
+      headerDataStatus.setAttribute('title', 'Los catálogos reales están disponibles con cuota. Las consultas FITS y temporales de IRSA siguen offline.');
+      const offlineCheckbox = document.querySelector('#offline-mode');
+      if (offlineCheckbox && !offlineCheckbox.checked) {
+        offlineCheckbox.checked = true;
+        offlineCheckbox.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+    } else if (data?.data_mode === 'offline') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> DEMO OFFLINE · GAIA / WISE / IRSA DESACTIVADOS';
       headerDataStatus.classList.add('status-offline');
       const offlineCheckbox = document.querySelector('#offline-mode');
