@@ -113,10 +113,35 @@ export function initCosmic3D() {
     } catch (error) {
       stage.classList.remove('webgl-active');
       stage.dataset.renderMode = '2d';
-      modeStatus.textContent = 'Modo 3D no disponible; se mantiene el visor 2D.';
+      modeStatus.textContent = '3D no disponible aquí. Vista celeste 2D activa; puedes reintentar.';
       modeBtn.textContent = 'Reintentar vista 3D';
     } finally { webglLoading = false; modeBtn.disabled = false; }
   });
+  // El usuario no debe descubrir el 3D escondido detrás de un botón:
+  // se inicia automáticamente cuando el explorador entra en pantalla.
+  // Si falta WebGL o la biblioteca no carga, conserva el Canvas original.
+  let auto3dAttempted = false;
+  function activateVisible3D() {
+    if (auto3dAttempted || webgl || webglLoading || document.visibilityState === 'hidden') return;
+    auto3dAttempted = true;
+    if (typeof IntersectionObserver === 'undefined') {
+      modeBtn.click();
+    } else {
+      modeBtn.click();
+    }
+  }
+  if (typeof IntersectionObserver !== 'undefined') {
+    const auto3dObserver = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        auto3dObserver.disconnect();
+        activateVisible3D();
+      }
+    }, { rootMargin: '80px 0px', threshold: 0.05 });
+    auto3dObserver.observe(stage);
+  } else {
+    // Evita una dependencia adicional en navegadores antiguos.
+    activateVisible3D();
+  }
   stage.addEventListener('cosmic-webgl-lost', () => {
     webgl = null; stage.classList.remove('webgl-active');
     stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed', 'false');
