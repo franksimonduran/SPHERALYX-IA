@@ -184,7 +184,7 @@ export function initGaiaVisualization() {
     query=detail.query||null;meta=detail.meta||null;
     const trunc=meta?.truncated?' · muestra limitada (posible truncamiento)':'';
     status.textContent=sources.length
-      ? 'Gaia DR3 · '+sources.length+' fuentes del cono consultado'+trunc+' · '+(meta?.queried_at_utc||'fecha de consulta no disponible')
+      ? 'Gaia DR3 · '+(meta?.source || 'Archivo Gaia')+' · '+sources.length+' fuentes del cono consultado'+trunc+' · '+(meta?.queried_at_utc||'fecha de consulta no disponible')
       : 'Sin fuentes Gaia cargadas para el campo actual. No se muestran resultados sintéticos.';
     requestDraw();
     if(aladin)updateAladin();
