@@ -36,6 +36,12 @@ if (headerDataStatus) {
     const data = await response.json();
     if (data?.data_mode === 'offline') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> DEMO OFFLINE · GAIA / WISE / IRSA DESACTIVADOS';
+      headerDataStatus.classList.add('status-offline');
+      const offlineCheckbox = document.querySelector('#offline-mode');
+      if (offlineCheckbox && !offlineCheckbox.checked) {
+        offlineCheckbox.checked = true;
+        offlineCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+      }
       headerDataStatus.setAttribute('title', 'El 3D funciona; las consultas astronómicas externas están bloqueadas por el servidor.');
     } else if (data?.data_mode === 'real') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> MODO REAL · SERVICIOS NO VERIFICADOS';
