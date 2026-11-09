@@ -29,62 +29,39 @@ export function initMissionPortal() {
   region.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;rotate((event.clientX-drag.x)*.008,(event.clientY-drag.y)*.008);drag.x=event.clientX;drag.y=event.clientY;});
   const stop=event=>{if(drag?.id===event.pointerId)drag=null;};region.addEventListener('pointerup',stop);region.addEventListener('pointercancel',stop);region.addEventListener('lostpointercapture',stop);
   reset.addEventListener('click',()=>{yaw=-.45;pitch=.2;draw();});
-  // El modelo de terceros vive DENTRO del viewport de la portada.
-  // El botón principal y los créditos se integran sin dialog ni nueva pantalla.
+  // Modelo ilustrativo de Sketchfab, solo con activación explícita y licencia visible.
+  // No es una representación a escala ni se usa como dato SPHEREx/Gaia/WISE.
   const sketchfabBtn = document.querySelector('#portal-sketchfab-toggle');
-  const portalEntry = document.querySelector('.portal-model-entry');
-  const stage = document.querySelector('.portal-stage');
-  const embedUrl = 'https://sketchfab.com/models/c4d55b801842497c9900c7dbcea1727c/embed?autostart=1&ui_theme=dark&annotations_visible=0&ui_hint=0';
   let sketchfabFrame = null;
-  const toolbar = document.createElement('div');
-  toolbar.className = 'portal-inline-toolbar';
-  toolbar.hidden = true;
-  toolbar.innerHTML = `<span>MODELO 3D ILUSTRATIVO · SIN ESCALA REAL</span>
-    <button type="button" class="portal-inline-close" aria-label="Cerrar modelo 3D y regresar a la portada">✕ Volver a la portada</button>`;
-  const toolbarClose = toolbar.querySelector('button');
-  toolbar.addEventListener('pointerdown', event => event.stopPropagation());
-  toolbar.addEventListener('click', event => event.stopPropagation());
-  const credit = document.createElement('div');
-  credit.className = 'portal-inline-credit';
-  credit.hidden = true;
-  credit.innerHTML = 'Solar System Custom · Alberto Benítez · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY</a> · Sketchfab';
-  credit.addEventListener('pointerdown', event => event.stopPropagation());
-  region.append(toolbar, credit);
-  function closeModel() {
-    if (sketchfabFrame) { sketchfabFrame.remove(); sketchfabFrame = null; }
-    stage.classList.remove('portal-inline-model-active');
-    region.classList.remove('portal-sketchfab-active');
-    toolbar.hidden = true;
-    credit.hidden = true;
-    sketchfabBtn?.setAttribute('aria-pressed', 'false');
-    portalEntry?.setAttribute('aria-pressed', 'false');
-    sketchfabBtn.textContent = 'Ver modelo 3D ilustrativo ↗';
-    portalEntry?.focus();
-    draw();
-  }
-  function openModel() {
-    if (sketchfabFrame) return;
+  const portalEntry = document.querySelector('.portal-model-entry');
+  portalEntry?.addEventListener('click', () => {
+    sketchfabBtn?.click();
+    if (sketchfabFrame) region.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
+  sketchfabBtn?.addEventListener('click', () => {
+    if (sketchfabFrame) {
+      sketchfabFrame.remove();
+      sketchfabFrame = null;
+      region.classList.remove('portal-sketchfab-active');
+      sketchfabBtn.textContent = 'Ver modelo 3D ilustrativo ↗';
+      sketchfabBtn.setAttribute('aria-pressed', 'false');
+      region.setAttribute('aria-label', 'Esfera celeste conceptual interactiva');
+      draw();
+      return;
+    }
     sketchfabFrame = document.createElement('iframe');
     sketchfabFrame.className = 'portal-sketchfab-frame';
-    sketchfabFrame.title = 'Modelo 3D ilustrativo Solar System Custom de Alberto Benítez en Sketchfab; no a escala';
-    sketchfabFrame.src = embedUrl;
+    sketchfabFrame.title = 'Modelo 3D ilustrativo Solar System Custom de Alberto Benítez en Sketchfab; escalas no reales';
+    sketchfabFrame.src = 'https://sketchfab.com/models/c4d55b801842497c9900c7dbcea1727c/embed?autostart=1&ui_hint=2';
+    sketchfabFrame.loading = 'lazy';
     sketchfabFrame.referrerPolicy = 'strict-origin-when-cross-origin';
     sketchfabFrame.allow = 'autoplay; fullscreen; xr-spatial-tracking';
     sketchfabFrame.setAttribute('allowfullscreen', '');
     region.append(sketchfabFrame);
-    stage.classList.add('portal-inline-model-active');
     region.classList.add('portal-sketchfab-active');
-    toolbar.hidden = false;
-    credit.hidden = false;
-    sketchfabBtn?.setAttribute('aria-pressed', 'true');
-    portalEntry?.setAttribute('aria-pressed', 'true');
-    toolbarClose.focus();
-  }
-  sketchfabBtn?.addEventListener('click', openModel);
-  portalEntry?.addEventListener('click', openModel);
-  toolbarClose.addEventListener('click', closeModel);
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && sketchfabFrame) { event.preventDefault(); closeModel(); }
+    sketchfabBtn.textContent = 'Volver a esfera conceptual ↩';
+    sketchfabBtn.setAttribute('aria-pressed', 'true');
+    region.setAttribute('aria-label', 'Modelo Sketchfab ilustrativo del Sistema Solar, no a escala');
   });
   if('ResizeObserver' in window)new ResizeObserver(draw).observe(region);else window.addEventListener('resize',draw);
   draw();
