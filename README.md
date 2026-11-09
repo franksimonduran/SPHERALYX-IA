@@ -83,6 +83,8 @@ Introduce RA y Dec en el explorador y utiliza **Buscar en IRSA** en el panel REA
 | `GET /api/gaia/sources?ra=83.8221&dec=-5.3911&radius=0.05&limit=120` | Consulta TAP/ADQL fija sobre `gaiadr3.gaia_source` (ESA Gaia Archive, época `J2016.0`). Conserva `source_id` como cadena y valores ausentes como `null`. |
 | `GET /api/wise/sources?ra=83.8221&dec=-5.3911&radius=0.05&limit=120` | Consulta TAP/ADQL fija sobre `allwise_p3as_psd` (NASA/IPAC IRSA TAP). Etiqueta proximidades como asociaciones candidatas no confirmadas. |
 
+**Coordenadas de catálogo y épocas:** el campo `ref_epoch` de Gaia es `null` si el registro recibido no incluye una época; la referencia general Gaia DR3 es J2016.0, pero no se completa automáticamente un dato ausente. En AllWISE, `reference_epoch` es `null`: J2000 describe un sistema de referencia de coordenadas, **no una fecha individual de adquisición**, ya que el catálogo agrupa exposiciones. La esfera de Cosmic Explorer es una proyección Canvas 2D de direcciones ICRS, no una reconstrucción espacial ni una escena Three.js/WebGL nativa. Las capas solo se dibujan si RA/Dec/radio siguen coincidiendo con su consulta; en caso contrario se marca **CONSULTA ANTERIOR**. Consultar el [alcance científico y visual](docs/cosmic-explorer-3d.md).
+
 Ejemplo:
 
 ```sh
