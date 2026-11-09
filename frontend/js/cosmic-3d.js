@@ -69,6 +69,7 @@ export function initCosmic3D() {
   let gaiaSources = [], wiseSources = [], selectedKey = '', projectedHits = [];
   let gaiaMeta = null, wiseMeta = null;
   let gaiaController = null, wiseController = null;
+  let copyingCatalogCoords = false;
   let webgl = null, webglLoading = false;
   // El modo 3D se carga al solicitarlo: sin dependencia CDN obligatoria para la demo offline.
   const modeBtn = document.createElement('button');
@@ -296,8 +297,11 @@ export function initCosmic3D() {
     if (!item) return;
     ra.value = wrap(Number(item.raw.ra.toFixed(6))).toFixed(6);
     dec.value = item.raw.dec.toFixed(6);
-    ra.dispatchEvent(new Event('input', { bubbles: true }));
-    dec.dispatchEvent(new Event('input', { bubbles: true }));
+    copyingCatalogCoords = true;
+    try {
+      ra.dispatchEvent(new Event('input', { bubbles: true }));
+      dec.dispatchEvent(new Event('input', { bubbles: true }));
+    } finally { copyingCatalogCoords = false; }
     const label = item.kind === 'gaia' ? `Gaia DR3 ${item.raw.source_id}` : `AllWISE ${item.raw.source_id}`;
     status.textContent = `Coordenadas actualizadas desde ${label}. Pulsa Buscar en IRSA; la búsqueda no se inicia automáticamente.`;
     publishGaiaViews();
@@ -608,8 +612,8 @@ export function initCosmic3D() {
   }
 
   for (const input of [ra, dec, radius, release]) {
-    input.addEventListener('input', () => { abortCatalogRequests(); populateSourceSelect(); updateCatalogSummary(); draw(); });
-    input.addEventListener('change', () => { abortCatalogRequests(); populateSourceSelect(); updateCatalogSummary(); draw(); });
+    input.addEventListener('input', () => { abortCatalogRequests(); if (!copyingCatalogCoords) populateSourceSelect(); updateCatalogSummary(); draw(); });
+    input.addEventListener('change', () => { abortCatalogRequests(); if (!copyingCatalogCoords) populateSourceSelect(); updateCatalogSummary(); draw(); });
   }
   grid.addEventListener('change', draw);
   document.querySelector('#cosmic-center').addEventListener('click', center);
