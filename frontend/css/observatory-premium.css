@@ -353,3 +353,30 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
  .cosmic-3d-stage .cosmic-renderer-toggle{top:62px;font-size:.63rem;max-width:70%}
  .cosmic-3d-stage .cosmic-renderer-status{font-size:.57rem;bottom:72px}
 }
+
+/* Sketchfab se activa con consentimiento explícito; modelo externo solo en el portal. */
+.portal-orb .portal-sketchfab-frame{
+ position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;
+ background:#030814;
+}
+.portal-orb.portal-sketchfab-active{cursor:default;touch-action:auto}
+.portal-scene-info #portal-sketchfab-toggle{
+ display:block;margin:13px 0 5px;padding:9px 13px;
+ border:1px solid rgba(201,172,255,.55);border-radius:8px;
+ background:linear-gradient(115deg,#6744b2,#35478e);
+ color:#fff;text-decoration:none;font-weight:700;font-size:.72rem;
+}
+.portal-scene-info #portal-sketchfab-toggle:hover{background:#7b5dcb}
+.portal-scene-info #portal-sketchfab-toggle[aria-pressed="true"]{
+ background:#253c74;border-color:rgba(145,207,252,.6)
+}
+.portal-scene-info .portal-model-credit{
+ max-width:330px;margin-top:9px;color:#bdc4db;font-size:.64rem;
+ line-height:1.5;overflow-wrap:anywhere;
+}
+.portal-scene-info .portal-model-credit a{color:#d9c2ff;text-decoration:underline}
+.portal-orb.portal-sketchfab-active ~ .portal-intro{pointer-events:none}
+@media(max-width:760px){
+ .portal-orb .portal-sketchfab-frame{min-height:350px}
+ .portal-scene-info .portal-model-credit{max-width:100%}
+}
