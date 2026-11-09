@@ -41,4 +41,16 @@ jobs:
           assert isinstance(first.get('ra'),(int,float)) and isinstance(first.get('dec'),(int,float)), 'Coordenadas incompletas'
           assert 'l' in first and 'b' in first, 'Faltan columnas galácticas'
           print('PASS: al menos una fuente Gaia real con RA/Dec, ID y columnas galácticas')
+          wise='/api/wise/sources?ra=83.8221&dec=-5.3911&radius=0.02&limit=10'
+          try:
+              status,w=fetch(wise,95)
+              print('AllWISE HTTP:',status,'mode:',w.get('mode'),'count:',w.get('count'),'source:',w.get('source'))
+              assert status==200 and w.get('mode')=='real', 'AllWISE no devolvió respuesta real'
+              assert isinstance(w.get('sources'),list), 'AllWISE no devolvió lista'
+              if w['sources']:
+                  assert isinstance(w['sources'][0].get('source_id'),str), 'WISE source_id inválido'
+              print('PASS: consulta AllWISE real procesada sin inventar fuentes')
+          except urllib.error.HTTPError as e:
+              print('AllWISE HTTP error:',e.code,e.read(500).decode('utf-8','replace'))
+              raise
           PY
