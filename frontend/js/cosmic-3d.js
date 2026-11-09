@@ -544,7 +544,7 @@ export function initCosmic3D() {
   }
 
   async function loadCatalog(kind) {
-    if (offline?.checked) {
+    if (offline?.checked && document.body.dataset.catalogMode !== 'real') {
       abortCatalogRequests();
       if (catalogStatus) catalogStatus.textContent = 'DEMO OFFLINE · Consultas a Gaia DR3 y AllWISE desactivadas.';
       return;
@@ -637,7 +637,7 @@ export function initCosmic3D() {
   }
   if (offline) {
     offline.addEventListener('change', () => {
-      if (offline.checked) {
+      if (offline.checked && document.body.dataset.catalogMode !== 'real') {
         abortCatalogRequests();
         gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = '';
         populateSourceSelect();
