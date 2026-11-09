@@ -413,3 +413,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
 /* Indicador de estado real: demo offline ≠ acceso activo a archivos NASA/ESA. */
 .header-status.status-offline{border-color:rgba(255,191,123,.42);color:#f2d8ad;background:rgba(76,47,32,.34)}
 .header-status.status-offline i{background:#efb46f;box-shadow:0 0 11px rgba(239,180,111,.47)}
+
+
+/* 768px tablet: keep scientific controls and image side-by-side.
+   Only phones (<=760px) stack both; this prevents a cramped tall workspace. */
+@media (min-width:761px) and (max-width:820px) {
+  .real-workspace-grid { grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); }
+  .real-workspace-results { grid-column:1 / -1; }
+}
