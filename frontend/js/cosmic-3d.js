@@ -217,6 +217,8 @@ export function initCosmic3D() {
   }
 
   function findCandidateCounterpart(item) {
+    // Un campo Gaia nuevo nunca se compara con un catálogo WISE de otra consulta.
+    if (!matchesCatalogQuery(gaiaMeta) || !matchesCatalogQuery(wiseMeta)) return null;
     const others = item.kind === 'gaia' ? wiseSources : gaiaSources;
     if (!others.length) return null;
     let best = null, bestSep = 3.0;
