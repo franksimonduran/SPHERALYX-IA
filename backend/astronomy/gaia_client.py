@@ -209,6 +209,8 @@ def _query_gaia(ra: float, dec: float, limit: int, params: dict) -> tuple[list[d
         else:
             sources, truncated = parse_csv(raw.decode("utf-8-sig"), ra, dec, limit)
         return sources, truncated, "Gaia@AIP TAP (DR3, Leibniz AIP)", GAIA_AIP_TAP_URL
+    except httpx.TimeoutException as exc:
+        raise GaiaError("Tiempo de espera agotado consultando Gaia DR3 en ESA y Gaia@AIP") from exc
     except (httpx.HTTPError, UnicodeError, csv.Error, ValueError) as exc:
         raise GaiaError("No se pudo consultar Gaia DR3 en ESA ni en Gaia@AIP") from exc
 
