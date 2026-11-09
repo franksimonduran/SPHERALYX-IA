@@ -73,6 +73,16 @@ def test_gaia_parse_and_preserve_64bit_source_id_and_nulls():
     assert second["ruwe"] is None
 
 
+
+def test_gaia_missing_epoch_remains_null():
+    # No atribuir al registro una época que no se recibió realmente del servicio.
+    text = SAMPLE_GAIA_CSV.replace("2016.0,16.810", ",16.810")
+    sources, truncated = gc.parse_csv(text, 83.8221, -5.3911, limit=10)
+    assert len(sources) == 2 and not truncated
+    assert sources[0]["ref_epoch"] == 2016.0
+    assert sources[1]["ref_epoch"] is None
+
+
 def test_gaia_truncation_and_cache(monkeypatch):
     real_client = httpx.Client
     calls = 0
