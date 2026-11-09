@@ -75,9 +75,9 @@ export function initCosmic3D() {
   modeBtn.type = 'button';
   modeBtn.id = 'cosmic-renderer-toggle';
   modeBtn.className = 'cosmic-renderer-toggle';
-  modeBtn.textContent = 'Activar vista 3D';
+  modeBtn.textContent = 'Activar 3D';
   modeBtn.setAttribute('aria-pressed', 'false');
-  modeBtn.setAttribute('aria-label', 'Activar representación 3D con Three.js (requiere conexión al proveedor de la biblioteca)');
+  modeBtn.setAttribute('aria-label', 'Activar esfera 3D WebGL sin biblioteca externa');
   const modeStatus = document.createElement('span');
   modeStatus.id = 'cosmic-renderer-status';
   modeStatus.className = 'cosmic-renderer-status';
@@ -102,13 +102,15 @@ export function initCosmic3D() {
     modeBtn.disabled = true;
     modeStatus.textContent = 'Preparando escena 3D…';
     try {
-      const { createCelestialWebGL } = await import('./cosmic-webgl.js');
-      webgl = await createCelestialWebGL(stage);
+      // Renderizador local, independiente de CDN. Three.js queda como motor opcional
+      // para futuras escenas; este modo es WebGL real y conserva la misma astronomía.
+      const { createNativeCelestialWebGL } = await import('./cosmic-native-webgl.js');
+      webgl = createNativeCelestialWebGL(stage);
       stage.classList.add('webgl-active');
       stage.dataset.renderMode = '3d';
       modeBtn.setAttribute('aria-pressed', 'true');
       modeBtn.textContent = 'Volver a vista 2D';
-      modeStatus.textContent = 'Three.js · esfera direccional, sin distancias físicas';
+      modeStatus.textContent = 'WebGL 3D activo · fuentes reales solo tras consulta Gaia/WISE';
       draw();
     } catch (error) {
       stage.classList.remove('webgl-active');
