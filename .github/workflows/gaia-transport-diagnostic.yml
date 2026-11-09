@@ -14,8 +14,8 @@ jobs:
           python - <<'PY'
           import urllib.request,urllib.parse,urllib.error
           q="SELECT TOP 2 source_id,ra,dec,l,b,ref_epoch,phot_g_mean_mag,bp_rp FROM gaiadr3.gaia_source WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',83.8221,-5.3911,0.02))"
-          url='https://gaia.aip.de/tap/sync?'+urllib.parse.urlencode({'REQUEST':'doQuery','LANG':'ADQL','FORMAT':'csv','QUERY':q})
-          req=urllib.request.Request(url,headers={'User-Agent':'SPHERALYX-ScienceCheck/1','Accept':'text/csv'})
+          url='https://gaia.aip.de/tap/sync?'+urllib.parse.urlencode({'REQUEST':'doQuery','LANG':'ADQL','RESPONSEFORMAT':'text/csv','QUERY':q})
+          req=urllib.request.Request(url,headers={'User-Agent':'SPHERALYX-ScienceCheck/1','Accept':'*/*'})
           try:
             with urllib.request.urlopen(req,timeout=50) as r:
               body=r.read(1400)
