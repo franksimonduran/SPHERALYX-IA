@@ -8,6 +8,10 @@ No existe un archivo `LICENSE` ni una declaración de licencia del código propi
 
 ## Imagen local
 
+### Iconos de navegación Lucide
+
+Los seis iconos en `frontend/assets/lucide/` proceden de [Lucide](https://github.com/lucide-icons/lucide), commit `53fab88ff9d1b48f4704b5b5b560d6b4d560bf4c`: `house`, `telescope`, `clock-3`, `orbit`, `flask-conical` y `book-open`. Se distribuyen localmente con la licencia y avisos originales en `frontend/assets/lucide/LICENSE.txt` (ISC y, para los iconos derivados de Feather enumerados allí, MIT). Su inclusión no establece una licencia para el código propio de SPHERALYX.
+
 Durante la revisión de fase 8.1 `frontend/assets/logo.png` cambió externamente: el archivo inicialmente inspeccionado era un marcador 1×1; el archivo actual es una imagen de marca de **1254×1254 píxeles**, SHA-256 `221f313c5402697bd30a82f5d019d9f1e14c7217aea5aba56b001356f6a9d81e`. Se conserva sin modificar y se muestra en el encabezado con proporciones conservadas. El usuario confirmó que tiene derecho a publicarlo y autorizó su distribución en GitHub; su origen y autoría detallados no se han verificado de manera independiente. Si el archivo falta o vuelve a ser un marcador, se muestra el símbolo tipográfico existente.
 
 ### Pendientes para el titular
@@ -34,6 +38,6 @@ El ZIP incluye el archivo de versiones, **no distribuye los paquetes Python**. E
 
 Los 55 paquetes son los fijados por la instantánea de Windows/Python 3.12, incluyendo algunos adicionales de pruebas. La interpretación de metadatos y las obligaciones de redistribución de cada dependencia deben revisarse para el medio concreto de entrega. La disponibilidad y las licencias pueden cambiar al resolver dependencias en otras plataformas.
 
-## Datos y fuentes NASA/IPAC
+## Datos y fuentes NASA/IPAC y ESA Gaia
 
-No se incluye un FITS real descargado. El árbol local sí contiene informes y muestras JSON documentales de la fase 9.1 con metadatos y resultados derivados de consultas IRSA; revisar su contenido y permisos antes de distribuirlos. `data/samples/astromotion-seed42.json` es un resultado **sintético**. Para uso de datos SPHEREx reales, seguir la [página oficial de QR y sus DOI y reconocimiento](https://irsa.ipac.caltech.edu/data/SPHEREx/docs/overview_qr.html). Documentación adicional y fuentes están en `README.md` y `docs/comparacion-temporal.md`. El uso de datos públicos no implica respaldo ni afiliación de NASA.
+No se incluye un FITS real descargado. El árbol local sí contiene informes y muestras JSON documentales de la fase 9.1 con metadatos y resultados derivados de consultas IRSA; revisar su contenido y permisos antes de distribuirlos. `data/samples/astromotion-seed42.json` es un resultado **sintético**. Para uso de datos SPHEREx reales, seguir la [página oficial de QR y sus DOI y reconocimiento](https://irsa.ipac.caltech.edu/data/SPHEREx/docs/overview_qr.html). Para datos de **Gaia DR3** obtenidos mediante el servicio TAP oficial de ESA (`https://gea.esac.esa.int/tap-server/tap/sync`, tabla `gaiadr3.gaia_source`), incluir el crédito oficial de ESA/Gaia/DPAC según las [instrucciones de crédito y citación de Gaia](https://gea.esac.esa.int/archive/documentation/credits.html). Para datos de **AllWISE** consultados mediante NASA/IPAC IRSA TAP (`https://irsa.ipac.caltech.edu/TAP/sync`, tabla `allwise_p3as_psd`), incluir el reconocimiento de WISE/AllWISE (NASA/JPL-Caltech y UCLA) e IRSA. Documentación adicional y fuentes están en `README.md` y `docs/comparacion-temporal.md`. El uso de datos públicos no implica respaldo ni afiliación de NASA ni de ESA.

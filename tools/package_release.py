@@ -12,7 +12,7 @@ PATTERNS = (
     'README.md', 'VERSION', '.gitignore',
     'backend/*.py', 'backend/requirements*.txt', 'backend/astronomy/*.py',
     'frontend/index.html', 'frontend/css/*.css', 'frontend/js/*.js',
-    'frontend/tests/*.mjs', 'frontend/assets/logo.png',
+    'frontend/tests/*.mjs', 'frontend/assets/logo.png', 'frontend/assets/lucide/*.svg', 'frontend/assets/lucide/LICENSE.txt',
     'tests/*.py', 'docs/*.md', 'data/samples/astromotion-seed42.json',
     'data/samples/campos-spherex-fase91.json',
     'data/samples/irsa-fase91-20261108-resumen.json',
@@ -32,6 +32,8 @@ def files_for_release():
             found.add(path.relative_to(ROOT).as_posix())
     required = {'README.md', 'VERSION', 'backend/main.py', 'frontend/index.html',
                 'frontend/assets/logo.png', 'data/samples/astromotion-seed42.json'}
+    required.update(f'frontend/assets/lucide/{name}.svg' for name in ('house','telescope','clock-3','orbit','flask-conical','book-open'))
+    required.add('frontend/assets/lucide/LICENSE.txt')
     if not required <= found:
         raise ValueError('Faltan archivos requeridos')
     if (ROOT / 'VERSION').read_text(encoding='utf-8').strip() != VERSION:

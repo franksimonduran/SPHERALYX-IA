@@ -80,6 +80,8 @@ Introduce RA y Dec en el explorador y utiliza **Buscar en IRSA** en el panel REA
 | `GET /api/observations?ra=156.09328159&dec=-41.64466331&radius=0.01&release=qr2` | Consulta SIA2 real: RA `[0,360)`, Dec `[-90,90]`, radio `(0,0.25]` grados; release `qr2` o `qr3`. Máximo 100 filas. |
 | `GET /api/observations/{id}` | Metadatos y procedencia de un resultado de la búsqueda. |
 | `GET /api/observations/{id}/preview` | PNG del recorte; `X-Invalid-Pixels`, `X-Flagged-Pixels` y `X-Preview-Scientific: false`. |
+| `GET /api/gaia/sources?ra=83.8221&dec=-5.3911&radius=0.05&limit=120` | Consulta TAP/ADQL fija sobre `gaiadr3.gaia_source` (ESA Gaia Archive, época `J2016.0`). Conserva `source_id` como cadena y valores ausentes como `null`. |
+| `GET /api/wise/sources?ra=83.8221&dec=-5.3911&radius=0.05&limit=120` | Consulta TAP/ADQL fija sobre `allwise_p3as_psd` (NASA/IPAC IRSA TAP). Etiqueta proximidades como asociaciones candidatas no confirmadas. |
 
 Ejemplo:
 

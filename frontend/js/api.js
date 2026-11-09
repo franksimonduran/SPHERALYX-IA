@@ -33,4 +33,12 @@ export const realApi = {
   async preview(id, signal) { return apiRequest(`/api/observations/${encodeURIComponent(id)}/preview`, {signal}); },
   async compare(a, b, signal) { return (await apiRequest('/api/temporal/compare', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({a,b}), signal})).json(); },
   async findPairs(params, signal) { return (await apiRequest('/api/temporal/pairs', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params),signal})).json(); },
+  async gaiaSources({ra, dec, radius, limit = 120}, signal) {
+    const params = new URLSearchParams({ra, dec, radius, limit});
+    return (await apiRequest(`/api/gaia/sources?${params}`, {signal})).json();
+  },
+  async wiseSources({ra, dec, radius, limit = 120}, signal) {
+    const params = new URLSearchParams({ra, dec, radius, limit});
+    return (await apiRequest(`/api/wise/sources?${params}`, {signal})).json();
+  },
 };

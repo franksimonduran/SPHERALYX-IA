@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .astronomy import fits_processor, spherex_client, temporal, pair_finder, datalink
+from .astronomy import fits_processor, spherex_client, temporal, pair_finder, datalink, gaia_client, wise_client
 from .astronomy import motion_detection, validation_lab, classification_lab
 
 app = FastAPI(title="SPHERALYX AI", version="0.3.0-rc1")
@@ -20,12 +20,14 @@ app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", 
 
 @app.middleware('http')
 async def offline_guard(request, call_next):
-    """Bloqueo optativo de API IRSA; no afecta a experimentos sintéticos locales."""
+    """Bloqueo optativo de APIs externas (IRSA, Gaia, WISE); no afecta a experimentos sintéticos locales."""
     offline = os.getenv('SPHERALYX_OFFLINE', '').lower() in ('1', 'true', 'yes')
     path = request.url.path
     if offline and (path == '/api/observations' or path.startswith('/api/observations/')
-                    or path == '/api/temporal' or path.startswith('/api/temporal/')):
-        return JSONResponse(status_code=503, content={'detail': 'Modo offline del servidor: acceso a IRSA desactivado'})
+                    or path == '/api/temporal' or path.startswith('/api/temporal/')
+                    or path == '/api/gaia' or path.startswith('/api/gaia/')
+                    or path == '/api/wise' or path.startswith('/api/wise/')):
+        return JSONResponse(status_code=503, content={'detail': 'Modo offline del servidor: acceso a servicios astronómicos externos (IRSA/Gaia/WISE) desactivado'})
     return await call_next(request)
 
 
@@ -48,6 +50,28 @@ def observations(ra: float = Query(ge=0, lt=360, allow_inf_nan=False),
             "query": {"ra": ra, "dec": dec, "radius_deg": radius}, "count": len(items),
             "limit": spherex_client.MAX_RESULTS, "observations": items,
             "notice": "La intersección no garantiza que el centro esté dentro de todas las imágenes; bandas distintas no son automáticamente comparables."}
+
+
+@app.get("/api/gaia/sources")
+def gaia_sources(ra: float = Query(ge=0, lt=360, allow_inf_nan=False),
+                 dec: float = Query(ge=-90, le=90, allow_inf_nan=False),
+                 radius: float = Query(default=0.05, gt=0, le=gaia_client.MAX_RADIUS_DEG, allow_inf_nan=False),
+                 limit: int = Query(default=gaia_client.DEFAULT_LIMIT, ge=1, le=gaia_client.MAX_RESULTS)):
+    try:
+        return gaia_client.search_cone(ra, dec, radius, limit)
+    except gaia_client.GaiaError as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+
+@app.get("/api/wise/sources")
+def wise_sources(ra: float = Query(ge=0, lt=360, allow_inf_nan=False),
+                 dec: float = Query(ge=-90, le=90, allow_inf_nan=False),
+                 radius: float = Query(default=0.05, gt=0, le=wise_client.MAX_RADIUS_DEG, allow_inf_nan=False),
+                 limit: int = Query(default=wise_client.DEFAULT_LIMIT, ge=1, le=wise_client.MAX_RESULTS)):
+    try:
+        return wise_client.search_cone(ra, dec, radius, limit)
+    except wise_client.WiseError as exc:
+        raise HTTPException(502, str(exc)) from exc
 
 
 def _get(identifier: str):

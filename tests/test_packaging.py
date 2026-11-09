@@ -15,6 +15,8 @@ def test_package_reproducible_and_manifest(tmp_path):
     with ZipFile(first) as archive:
         names = archive.namelist()
         assert 'VERSION' in names and 'frontend/assets/logo.png' in names
+        assert 'frontend/assets/lucide/LICENSE.txt' in names
+        assert all(f'frontend/assets/lucide/{icon}.svg' in names for icon in ('house','telescope','clock-3','orbit','flask-conical','book-open'))
         assert not any(part in names for part in ('.env', '.venv/', '.venv312/'))
         assert all('__pycache__' not in name and '.pytest_cache' not in name for name in names)
         for line in archive.read('MANIFEST.sha256').decode().splitlines():

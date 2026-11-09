@@ -16,7 +16,8 @@ body{background:#060b17}
 .mission-rail-nav a{display:flex;gap:13px;align-items:center;padding:14px 13px;min-height:49px;border:1px solid transparent;border-radius:11px;color:#a6bed6;font-size:.78rem;font-weight:600;transition:background .2s,color .2s,border-color .2s}
 .mission-rail-nav a:hover,.mission-rail-nav a.active{background:rgba(61,155,197,.13);border-color:rgba(73,181,226,.25);color:#e6f6ff}
 .mission-rail-nav a.active{box-shadow:inset 3px 0 #5bd5f5}
-.mission-rail-nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mission-rail-nav .nav-icon{display:block;width:18px;height:18px;flex:none;background-color:currentColor;-webkit-mask:var(--nav-icon) center/contain no-repeat;mask:var(--nav-icon) center/contain no-repeat}
+.nav-icon-home{--nav-icon:url('../assets/lucide/house.svg')}.nav-icon-telescope{--nav-icon:url('../assets/lucide/telescope.svg')}.nav-icon-clock{--nav-icon:url('../assets/lucide/clock-3.svg')}.nav-icon-orbit{--nav-icon:url('../assets/lucide/orbit.svg')}.nav-icon-flask{--nav-icon:url('../assets/lucide/flask-conical.svg')}.nav-icon-book{--nav-icon:url('../assets/lucide/book-open.svg')}
 .mission-rail-foot{padding:20px 13px 7px;border-top:1px solid rgba(146,193,222,.13)}
 .mission-rail-foot span{display:block;font-size:.57rem;color:#7db2cb;letter-spacing:.12em;font-weight:700}
 .mission-rail-foot strong{display:block;font-size:.75rem;font-weight:600;color:#d0dfec;margin:7px 0}

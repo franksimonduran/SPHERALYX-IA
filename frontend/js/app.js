@@ -4,8 +4,11 @@ import { initSimulation } from './simulation.js';
 import { initAnalysis } from './ai-analysis.js';
 import { initRealComparison } from './real-comparison.js';
 import { initMissionWorkspace } from './mission-workspace.js';
+import { initMissionPortal } from './mission-portal.js';
+import { initCosmic3D } from './cosmic-3d.js';
+import { initTemporalExplorer } from './temporal-explorer.js';
 
-initExplorer(); initTimeline(); initSimulation(); initAnalysis(); initRealComparison(); initMissionWorkspace();
+initExplorer(); initTimeline(); initSimulation(); initAnalysis(); initRealComparison(); initTemporalExplorer(); initMissionWorkspace(); initMissionPortal(); initCosmic3D();
 // El logotipo oficial se muestra únicamente si la imagen cargada es válida.
 const logo=document.querySelector('.brand-logo'),symbol=document.querySelector('.brand-symbol');
 const updateLogo=()=>{const usable=logo.naturalWidth>1&&logo.naturalHeight>1;logo.hidden=!usable;symbol.hidden=usable;};

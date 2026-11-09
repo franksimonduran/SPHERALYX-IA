@@ -1,4 +1,5 @@
 // Visualización de resultados sintéticos; no calcula asociaciones ni mediciones.
+import { createMotion3D } from './motion-3d.js';
 const names={stationary:'Estacionaria compatible',possibly_moving:'Posiblemente móvil',ambiguous:'Ambigua',insufficient:'Insuficiente evidencia'};
 const colors={stationary:'#70dcff',possibly_moving:'#ffad5b',ambiguous:'#ff6c83',insufficient:'#c4cad4'};
 const finite=n=>typeof n==='number'&&Number.isFinite(n);
@@ -16,6 +17,7 @@ export function createMotionViewer(data){
   const image=root.querySelector('img'),canvas=root.querySelector('canvas'),ctx=canvas.getContext('2d'),epoch=root.querySelector('.motion-epoch'),epochLabel=root.querySelector('.motion-epoch-label'),select=root.querySelector('.motion-select'),detail=root.querySelector('.motion-detail'),labels=root.querySelector('.motion-labels'),trails=root.querySelector('.motion-trails');
   epoch.max=String(data.images.length-1);epoch.value='0';
   data.tracks.forEach((track,i)=>select.add(new Option(`${track.id} · ${names[track.class]}`,String(i))));
+  root.querySelector('.motion-viewer-main').prepend(createMotion3D(data,{select,epoch,labels,trails,colors}));
   function renderDetail(){
     detail.replaceChildren();const track=select.value===''?null:data.tracks[Number(select.value)];
     if(!track){detail.textContent=data.tracks.length?'Selecciona una trayectoria existente.':'No hay trayectorias detectadas.';return;}

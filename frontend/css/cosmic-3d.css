@@ -1,0 +1,19 @@
+.cosmic-3d{margin:0 0 20px;padding:18px;border:1px solid rgba(122,179,219,.22);border-radius:14px;background:#050a16}
+.cosmic-3d-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.cosmic-3d-heading h3{color:#edf7ff}.cosmic-3d-tag{color:#b3d9ed;font-size:.68rem;letter-spacing:.06em;text-align:right}
+.cosmic-3d-layout{display:grid;grid-template-columns:minmax(195px,240px) minmax(0,1fr) minmax(215px,265px);gap:12px;align-items:stretch}
+.cosmic-3d-panel{min-width:0;padding:17px;border:1px solid rgba(130,180,220,.22);border-radius:12px;background:linear-gradient(155deg,#111c30,#091222);color:#edf7ff;overflow-wrap:anywhere}.cosmic-3d-panel h4{font-size:.98rem;margin:5px 0 12px}.cosmic-3d-panel p{font-size:.76rem;line-height:1.55;margin:10px 0;color:#bed0df}.cosmic-3d-panel button{width:100%;padding:9px 10px;border:1px solid #68c7eb;border-radius:7px;background:#173a59;color:#effbff;font-size:.74rem;font-weight:700;cursor:pointer}.cosmic-3d-panel button:hover:not(:disabled){background:#245274}.cosmic-3d-panel button:disabled{opacity:.5;cursor:not-allowed}.cosmic-3d-check{display:flex;align-items:center;gap:8px;margin:12px 0;font-size:.76rem}
+.cosmic-zoom-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 8px}
+.cosmic-catalog-actions{display:grid;gap:7px;margin:10px 0}
+.cosmic-3d-panel .cosmic-secondary-btn{background:#0f2238;border-color:rgba(130,180,220,.38);color:#cfe9fb}
+.cosmic-scientific-note{font-size:.7rem;color:#9ab6ca}
+.cosmic-3d-info dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px;font-size:.74rem}.cosmic-3d-info dt{color:#a9c2d4}.cosmic-3d-info dd{margin:0;color:#f0f8ff;text-align:right;font-variant-numeric:tabular-nums}.cosmic-3d-info a{display:block;text-align:center;margin-top:11px;color:#a7eaff;font-size:.77rem;text-decoration:underline}
+.cosmic-source-box{margin:12px 0;padding:10px;border:1px solid rgba(120,183,226,.22);border-radius:9px;background:rgba(6,13,26,.65);display:grid;gap:8px;min-width:0}
+.cosmic-source-label{display:grid;gap:5px;font-size:.73rem;color:#c3daea;min-width:0}
+.cosmic-source-label select{width:100%;max-width:100%;min-width:0;padding:7px 8px;border:1px solid rgba(120,183,226,.35);border-radius:6px;background:#0a1528;color:#edf7ff;font-size:.73rem}
+.cosmic-source-detail{font-size:.72rem;line-height:1.5;color:#d6e8f5;max-height:210px;overflow-y:auto;padding-right:2px;overflow-wrap:anywhere}
+.cosmic-source-detail dl{margin:6px 0 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 8px;font-size:.71rem}
+.cosmic-source-detail dt{color:#9ab6ca}
+.cosmic-source-detail dd{margin:0;color:#f0f8ff;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.cosmic-3d-stage{position:relative;min-width:0;min-height:460px;overflow:hidden;border:1px solid rgba(120,183,226,.23);border-radius:12px;background:radial-gradient(ellipse at 50% 55%,#172b48,#060b1a 65%,#02050d);cursor:crosshair;touch-action:none}.cosmic-3d-stage canvas{position:absolute;inset:0;width:100%;height:100%}.cosmic-3d-stage:focus-visible{outline:3px solid #a4efff;outline-offset:2px}.cosmic-stage-label{position:absolute;top:14px;left:15px;color:#a4c4da;font-size:.62rem;letter-spacing:.12em;pointer-events:none}.cosmic-3d-stage>p{position:absolute;bottom:12px;left:14px;right:14px;color:#cadce8;font-size:.68rem;pointer-events:none;text-align:center;text-shadow:0 2px 5px #000}
+@media(max-width:1100px){.cosmic-3d-layout{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}.cosmic-3d-info{grid-column:1/-1}.cosmic-3d-stage{min-height:400px}}
+@media(max-width:760px){.cosmic-3d-heading{align-items:flex-start;flex-direction:column}.cosmic-3d-tag{text-align:left}.cosmic-3d-layout{grid-template-columns:minmax(0,1fr)}.cosmic-3d-stage{min-height:330px}.cosmic-3d-info{grid-column:auto}}
