@@ -105,8 +105,7 @@ def build_adql(ra: float, dec: float, radius: float, limit: int = DEFAULT_LIMIT)
     return (
         f"SELECT TOP {top} {columns} "
         f"FROM {GAIA_TABLE} "
-        f"WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {ra:.10f}, {dec:.10f}, {radius:.10f})) "
-        f"ORDER BY phot_g_mean_mag ASC, source_id ASC"
+        f"WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', {ra:.10f}, {dec:.10f}, {radius:.10f}))"
     )
 
 
