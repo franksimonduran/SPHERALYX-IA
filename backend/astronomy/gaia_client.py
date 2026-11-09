@@ -120,7 +120,7 @@ def normalize_row(row: dict, center_ra: float, center_dec: float) -> dict | None
         "catalog": "Gaia DR3",
         "ra": ra,
         "dec": dec,
-        "ref_epoch": ref_epoch if ref_epoch is not None else 2016.0,
+        "ref_epoch": ref_epoch,
         "phot_g_mean_mag": _number(lowered.get("phot_g_mean_mag")),
         "bp_rp": _number(lowered.get("bp_rp")),
         "phot_bp_mean_mag": _number(lowered.get("phot_bp_mean_mag")),
