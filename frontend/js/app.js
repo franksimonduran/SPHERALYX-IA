@@ -36,23 +36,34 @@ if (headerDataStatus) {
     if (!response.ok) return;
     const data = await response.json();
     document.body.dataset.catalogMode = data?.catalog_mode === 'real' ? 'real' : 'offline';
+    document.body.dataset.irsaMode = data?.data_mode === 'offline' ? 'offline' : 'real';
+    const irsaLocked = data?.data_mode === 'offline';
+    const irsaNotice = document.querySelector('#real-status');
+    const irsaSearch = document.querySelector('#real-search button[type="submit"]');
+    const cosmicSearch = document.querySelector('#cosmic-search');
+    const compareSearch = document.querySelector('#compare-real-form button[type="submit"]');
+    const pairSearch = document.querySelector('#find-pairs');
+    // En un servidor restringido no ofrecemos acciones que inevitablemente fallan.
+    // La casilla offline es una decisión manual y NUNCA representa automáticamente
+    // el estado de SPHEREx en el backend (Gaia/WISE pueden seguir online).
+    for (const button of [irsaSearch, cosmicSearch, compareSearch, pairSearch]) {
+      if (button) {
+        button.disabled = irsaLocked;
+        if (irsaLocked) button.title = 'SPHEREx/IRSA no está habilitado en este servidor. Gaia y WISE pueden consultarse por separado.';
+        else button.removeAttribute('title');
+      }
+    }
+    if (irsaLocked && irsaNotice) {
+      irsaNotice.textContent = 'SPHEREx no disponible en este servidor: búsqueda FITS y comparación temporal desactivadas. Gaia DR3 y AllWISE pueden consultarse desde Cosmic Explorer.';
+      irsaNotice.classList.add('real-status-server-offline');
+    }
     if (data?.data_mode === 'offline' && data?.catalog_mode === 'real') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> GAIA / WISE HABILITADOS · SPHEREx OFFLINE';
       headerDataStatus.classList.add('status-offline');
       headerDataStatus.setAttribute('title', 'Los catálogos reales están disponibles con cuota. Las consultas FITS y temporales de IRSA siguen offline.');
-      const offlineCheckbox = document.querySelector('#offline-mode');
-      if (offlineCheckbox && !offlineCheckbox.checked) {
-        offlineCheckbox.checked = true;
-        offlineCheckbox.dispatchEvent(new Event('change',{bubbles:true}));
-      }
     } else if (data?.data_mode === 'offline') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> DEMO OFFLINE · GAIA / WISE / IRSA DESACTIVADOS';
       headerDataStatus.classList.add('status-offline');
-      const offlineCheckbox = document.querySelector('#offline-mode');
-      if (offlineCheckbox && !offlineCheckbox.checked) {
-        offlineCheckbox.checked = true;
-        offlineCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-      }
       headerDataStatus.setAttribute('title', 'El 3D funciona; las consultas astronómicas externas están bloqueadas por el servidor.');
     } else if (data?.data_mode === 'real') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> MODO REAL · SERVICIOS NO VERIFICADOS';
