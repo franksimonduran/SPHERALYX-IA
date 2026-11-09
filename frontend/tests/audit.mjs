@@ -130,6 +130,38 @@ try {
   await check('procedencia y control de calibración visibles',"(()=>{const real=document.querySelector('#real-title').closest('.real-panel'),demo=document.querySelector('#simulacion'),catalog=document.querySelector('#descubrimientos');return real.textContent.includes('OBSERVACIÓN REAL')&&real.querySelector('.calibration-notice').textContent.includes('calibración espectral verificada')&&demo.textContent.includes('SECUENCIA SIMULADA')&&catalog.textContent.includes('CANDIDATOS SIMULADOS')})()");
   await check('imagen de marca o alternativa según dimensiones',"(()=>{const img=document.querySelector('.brand-logo'),fallback=document.querySelector('.brand-symbol'),usable=img.naturalWidth>1&&img.naturalHeight>1;return img.complete && img.hidden===!usable && fallback.hidden===usable})()");
   await check('logo utilizable y error conservan alternativa',"(()=>{const img=document.querySelector('.brand-logo'),fallback=document.querySelector('.brand-symbol');Object.defineProperties(img,{naturalWidth:{configurable:true,value:120},naturalHeight:{configurable:true,value:80}});img.dispatchEvent(new Event('load'));const shown=!img.hidden&&fallback.hidden;Object.defineProperties(img,{naturalWidth:{configurable:true,value:0},naturalHeight:{configurable:true,value:0}});img.dispatchEvent(new Event('error'));const failed=img.hidden&&!fallback.hidden;delete img.naturalWidth;delete img.naturalHeight;img.dispatchEvent(new Event('load'));return shown&&failed})()");
+  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+  await wait(120);
+  await check('navegación única en escritorio: solo sidebar visible',`(()=>{
+    const nav=document.querySelector('#navigation'),rail=document.querySelector('.mission-rail'),button=document.querySelector('.menu-toggle');
+    return getComputedStyle(nav).display==='none'&&getComputedStyle(rail).display!=='none'&&getComputedStyle(button).display==='none'&&document.querySelectorAll('.mission-rail-nav a').length===6;
+  })()`);
+  await check('portada sin superposición entre CTA, esfera y tarjeta',`(()=>{
+    const intro=document.querySelector('.portal-intro').getBoundingClientRect(),
+      orb=document.querySelector('.portal-orb').getBoundingClientRect(),
+      info=document.querySelector('.portal-scene-info').getBoundingClientRect(),
+      panel=document.querySelector('.portal-mission-panel').getBoundingClientRect(),
+      button=document.querySelector('.portal-explore').getBoundingClientRect();
+    const el=document.elementFromPoint(button.left+button.width/2,button.top+button.height/2);
+    return intro.right<=orb.left+2&&orb.right<=panel.left+2&&info.top>=orb.bottom-2&&!!el?.closest('.portal-explore');
+  })()`);
+  for(const width of [375,430,768,1024,1440]){
+    await send('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:false});
+    await wait(120);
+    await check(`navegación exclusiva a ${width}px`,`(()=>{
+      const desktop=${width}>1100;
+      const rail=getComputedStyle(document.querySelector('.mission-rail')).display!=='none';
+      const toggle=getComputedStyle(document.querySelector('.menu-toggle')).display!=='none';
+      const nav=getComputedStyle(document.querySelector('#navigation')).display!=='none';
+      return desktop?rail&&!toggle&&!nav:!rail&&toggle&&!nav;
+    })()`);
+    await check(`portada separada a ${width}px`,`(()=>{
+      const intro=document.querySelector('.portal-intro').getBoundingClientRect(),orb=document.querySelector('.portal-orb').getBoundingClientRect(),info=document.querySelector('.portal-scene-info').getBoundingClientRect();
+      return intro.width>130&&orb.width>170&&info.width>170&&(
+        ${width}<=690?(orb.top>=intro.bottom-2&&info.top>=orb.bottom-2):
+        (intro.right<=orb.left+2&&info.top>=orb.bottom-2));
+    })()`);
+  }
   for(const width of [375,430,768,1024,1440]){await send('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:false});await wait(150);if(!await evaluate('document.documentElement.scrollWidth <= innerWidth'))console.error('Elementos fuera de pantalla:',await evaluate("[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>innerWidth+1).slice(0,12).map(e=>({tag:e.tagName,id:e.id,cls:e.className,right:Math.round(e.getBoundingClientRect().right)}))"));await check(`sin desbordamiento horizontal a ${width}px`,"document.documentElement.scrollWidth <= innerWidth");await check(`paneles REAL adaptados a ${width}px`,`(()=>{const a=document.querySelector('.real-workspace-controls').getBoundingClientRect(),b=document.querySelector('.real-workspace-image').getBoundingClientRect(),c=document.querySelector('.real-workspace-results').getBoundingClientRect();return ${width<=430?'b.top>a.top && c.top>b.top':width===1440?'b.left>a.left && c.left>b.left && Math.abs(a.top-c.top)<2':'b.left>a.left && c.top>a.top'}})()`);}
   await send('Emulation.setDeviceMetricsOverride',{width:375,height:812,deviceScaleFactor:1,mobile:false});
   await wait(200);
