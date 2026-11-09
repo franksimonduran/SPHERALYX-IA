@@ -83,14 +83,14 @@ const server = createServer(async (req,res) => {
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const port=server.address().port, profile=await mkdtemp(resolve(tmpdir(),'spheralyx-audit-'));
-const child=spawn(browser,['--headless=new','--disable-gpu','--no-sandbox','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
+const child=spawn(browser,['--headless=new','--disable-gpu','--disable-dev-shm-usage','--no-zygote','--no-sandbox','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let stderr='';child.stderr.on('data',x=>stderr+=x);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 let socket;
 try {
   let endpoint;
-  for(let i=0;i<100&&!endpoint;i++){await wait(100);endpoint=stderr.match(/DevTools listening on (ws:\/\/\S+)/)?.[1];}
-  if(!endpoint)throw Error('Chrome no inició el protocolo de depuración');
+  for(let i=0;i<300&&!endpoint;i++){await wait(100);endpoint=stderr.match(/DevTools listening on (ws:\/\/\S+)/)?.[1];}
+  if(!endpoint)throw Error('Chrome no inició el protocolo de depuración: '+stderr.slice(-1800));
   const debugPort=new URL(endpoint).port;
   const target=await (await fetch(`http://127.0.0.1:${debugPort}/json/new?about:blank`,{method:'PUT'})).json();
   socket=new WebSocket(target.webSocketDebuggerUrl);await new Promise((r,j)=>{socket.onopen=r;socket.onerror=j;});
