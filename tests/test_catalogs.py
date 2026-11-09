@@ -99,6 +99,40 @@ def test_catalog_only_mode_keeps_irsa_offline(monkeypatch):
     assert client.get("/api/observations?ra=83&dec=-5").status_code == 503
 
 
+def test_gaia_rate_limit_falls_back_to_aip_votable(monkeypatch):
+    import io
+    from astropy.table import Table
+
+    votable = io.BytesIO()
+    Table(
+        rows=[(3017364063331140096, 83.8221, -5.3911, 209.014, -19.381, 2016.0, 11.452, 0.612)],
+        names=["source_id", "ra", "dec", "l", "b", "ref_epoch", "phot_g_mean_mag", "bp_rp"],
+    ).write(votable, format="votable")
+
+    requested = []
+
+    def fake_fetch(url, params, limit, timeout=None, attempts=None):
+        requested.append(url)
+        if url == gc.GAIA_TAP_URL:
+            request = httpx.Request("GET", url)
+            response = httpx.Response(429, request=request)
+            raise httpx.HTTPStatusError("rate limited", request=request, response=response)
+        assert url == gc.GAIA_AIP_TAP_URL
+        return votable.getvalue()
+
+    monkeypatch.setattr(gc, "fetch_bytes", fake_fetch)
+    result = gc.search_cone(83.8221, -5.3911, radius=0.02, limit=10)
+    assert requested == [gc.GAIA_TAP_URL, gc.GAIA_AIP_TAP_URL]
+    assert result["mode"] == "real"
+    assert result["source"] == "Gaia@AIP TAP (DR3, Leibniz AIP)"
+    assert result["service_url"] == gc.GAIA_AIP_TAP_URL
+    assert result["count"] == 1
+    assert result["sources"][0]["source_id"] == "3017364063331140096"
+    assert result["sources"][0]["l"] == pytest.approx(209.014)
+    assert result["sources"][0]["b"] == pytest.approx(-19.381)
+    assert result["sources"][0]["pmra"] is None
+
+
 def test_gaia_missing_epoch_remains_null():
     # No atribuir al registro una época que no se recibió realmente del servicio.
     text = SAMPLE_GAIA_CSV.replace("2016.0,16.810", ",16.810")
