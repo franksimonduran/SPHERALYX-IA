@@ -46,6 +46,7 @@ export function initMissionPortal() {
       sketchfabBtn.textContent = 'Ver modelo 3D ilustrativo ↗';
       sketchfabBtn.setAttribute('aria-pressed', 'false');
       region.setAttribute('aria-label', 'Esfera celeste conceptual interactiva');
+      if (portalEntry) { portalEntry.textContent = 'ABRIR MODELO 3D SKETCHFAB ↗'; portalEntry.setAttribute('aria-pressed', 'false'); }
       draw();
       return;
     }
@@ -62,6 +63,7 @@ export function initMissionPortal() {
     sketchfabBtn.textContent = 'Volver a esfera conceptual ↩';
     sketchfabBtn.setAttribute('aria-pressed', 'true');
     region.setAttribute('aria-label', 'Modelo Sketchfab ilustrativo del Sistema Solar, no a escala');
+    if (portalEntry) { portalEntry.textContent = 'VOLVER A LA ESFERA 3D ↩'; portalEntry.setAttribute('aria-pressed', 'true'); }
   });
   if('ResizeObserver' in window)new ResizeObserver(draw).observe(region);else window.addEventListener('resize',draw);
   draw();
