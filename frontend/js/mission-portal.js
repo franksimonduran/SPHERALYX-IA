@@ -5,9 +5,15 @@
    Los elementos del visor externo pertenecen a Sketchfab y la ocultación
    completa de controles requiere permisos Premium del proveedor. */
 const MODEL_ID = '47364f26b7de41c7ab3b020c7b794ee1';
+// annotations_visible=0 funciona sin plan Premium: elimina los marcadores
+// numéricos de anotaciones; no elimina números incorporados en la geometría.
+// Las opciones ui_* requieren permisos Premium para ocultar interfaz propia.
+// Mantener el logo/atribución contractual del proveedor.
 const EMBED_URL = 'https://sketchfab.com/models/' + MODEL_ID
-  + '/embed?autostart=1&ui_theme=dark&ui_controls=0&ui_infos=0'
-  + '&ui_inspector=0&ui_hint=0&ui_stop=0&ui_watermark=1';
+  + '/embed?autostart=1&ui_theme=dark&annotations_visible=0'
+  + '&annotation_tooltip_visible=0&annotation_cycle=0'
+  + '&ui_controls=0&ui_infos=0&ui_inspector=0&ui_annotations=0'
+  + '&ui_animations=0&ui_start=0&ui_hint=0&ui_stop=0&ui_watermark=1';
 
 export function initMissionPortal() {
   const stage = document.querySelector('.portal-ambient');
