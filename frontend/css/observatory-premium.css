@@ -415,51 +415,57 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
 .header-status.status-offline i{background:#efb46f;box-shadow:0 0 11px rgba(239,180,111,.47)}
 
 
-/* Sketchfab independiente: evita que las herramientas del modelo tapen la portada. */
-.portal-model-dialog{
- position:fixed;inset:0;margin:auto;
- width:min(1420px,calc(100vw - 34px));
- max-width:none;max-height:calc(100dvh - 34px);
- padding:0;border:1px solid rgba(177,152,248,.48);
- border-radius:18px;background:#070d1e;color:#f4f5ff;
- overflow:hidden;box-shadow:0 28px 85px rgba(0,0,0,.72);
- z-index:1000;
+/* Sketchfab integrado en el mismo Mission Portal: sin ventana secundaria.
+   El título y los controles conceptuales desaparecen durante la reproducción;
+   se conserva el panel derecho de módulos. */
+.portal-stage.portal-inline-model-active .portal-intro,
+.portal-stage.portal-inline-model-active .portal-scene-info{
+  visibility:hidden;pointer-events:none;
 }
-.portal-model-dialog::backdrop{background:rgba(0,3,13,.89);backdrop-filter:blur(7px)}
-.portal-model-layout{display:flex;flex-direction:column;max-height:calc(100dvh - 34px);height:min(850px,calc(100dvh - 34px))}
-.portal-model-header{
- display:flex;align-items:center;justify-content:space-between;gap:18px;
- padding:17px clamp(15px,2.5vw,30px);
- border-bottom:1px solid rgba(151,143,216,.27);
- background:linear-gradient(105deg,#111b35,#0b1128);
+.portal-stage.portal-inline-model-active .portal-orb{
+  cursor:default;touch-action:auto;
+  background:#020510;
 }
-.portal-model-header span{display:block;font-size:.61rem;letter-spacing:.14em;font-weight:750;color:#bca3ff}
-.portal-model-header h2{font-size:clamp(1.08rem,2vw,1.6rem);margin:3px 0 4px;color:#fff}
-.portal-model-header p{font-size:.74rem;color:#aebedb;line-height:1.45;max-width:760px}
-.portal-model-close{
- flex-shrink:0;min-height:44px;padding:10px 16px;
- color:#fff;background:#443178;border:1px solid rgba(201,169,255,.55);
- border-radius:9px;font-size:.79rem;font-weight:750;
+.portal-stage.portal-inline-model-active .portal-orb > canvas,
+.portal-stage.portal-inline-model-active .portal-orb > .portal-orb-fallback{
+  visibility:hidden;
 }
-.portal-model-close:hover{background:#6547a3}
-.portal-model-viewport{position:relative;flex:1;min-height:210px;background:#020711;overflow:hidden}
-.portal-model-viewport .portal-sketchfab-frame{
- position:absolute;inset:0;width:100%;height:100%;display:block;border:0;
+.portal-stage.portal-inline-model-active .portal-orb .portal-sketchfab-frame{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  z-index:4;border:0;background:#030611;
 }
-.portal-model-footer{
- display:flex;justify-content:space-between;align-items:center;gap:14px;
- padding:12px clamp(15px,2.5vw,30px);background:#0a1227;
- border-top:1px solid rgba(151,143,216,.27);
- font-size:.7rem;color:#bbc7dd;line-height:1.5;
+.portal-stage .portal-inline-toolbar{
+  position:absolute;top:16px;left:16px;right:16px;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:10px 13px;
+  background:rgba(7,12,28,.91);border:1px solid rgba(164,144,230,.44);
+  border-radius:12px;backdrop-filter:blur(13px);
+  box-shadow:0 5px 25px rgba(0,0,0,.4);
 }
-.portal-model-footer a{color:#d9c6ff;text-decoration:underline}
-.portal-model-footer span:last-child{color:#95a5c4;text-align:right}
-@media(max-width:640px){
- .portal-model-dialog{width:calc(100vw - 12px);max-height:calc(100dvh - 12px);border-radius:11px}
- .portal-model-layout{height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}
- .portal-model-header{padding:12px;align-items:flex-start}
- .portal-model-header p{font-size:.64rem}
- .portal-model-close{min-height:38px;padding:8px 10px;font-size:.7rem}
- .portal-model-footer{padding:9px 12px;flex-direction:column;align-items:flex-start;font-size:.61rem}
- .portal-model-footer span:last-child{text-align:left}
+.portal-stage .portal-inline-toolbar span{
+  color:#cbd7f1;letter-spacing:.07em;font-size:.65rem;font-weight:700;
+}
+.portal-stage .portal-inline-toolbar .portal-inline-close{
+  flex-shrink:0;min-height:39px;padding:9px 13px;border:1px solid rgba(202,168,255,.65);
+  background:linear-gradient(105deg,#7050b9,#4a3c94);border-radius:9px;
+  color:#fff;font-size:.75rem;font-weight:750;
+}
+.portal-stage .portal-inline-toolbar .portal-inline-close:hover{background:#8163c4}
+.portal-stage .portal-inline-credit{
+  position:absolute;bottom:15px;left:15px;z-index:10;
+  max-width:calc(100% - 30px);padding:9px 12px;
+  color:#dee5f5;font-size:.64rem;line-height:1.5;
+  background:rgba(6,12,28,.88);border:1px solid rgba(146,164,214,.35);
+  border-radius:9px;backdrop-filter:blur(9px);
+}
+.portal-stage .portal-inline-credit a{color:#d9beff;text-decoration:underline}
+.portal-stage .portal-inline-toolbar[hidden],
+.portal-stage .portal-inline-credit[hidden]{display:none!important}
+.portal-stage.portal-inline-model-active .portal-mission-panel{z-index:11}
+@media(max-width:760px){
+  .portal-stage.portal-inline-model-active .portal-orb{height:min(64dvh,520px);min-height:365px}
+  .portal-stage .portal-inline-toolbar{top:8px;left:8px;right:8px;gap:8px;padding:8px}
+  .portal-stage .portal-inline-toolbar span{font-size:.53rem}
+  .portal-stage .portal-inline-toolbar .portal-inline-close{padding:8px 9px;font-size:.65rem}
+  .portal-stage .portal-inline-credit{left:8px;bottom:8px;font-size:.58rem}
 }
