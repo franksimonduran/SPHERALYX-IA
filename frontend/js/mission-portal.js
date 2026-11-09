@@ -29,39 +29,65 @@ export function initMissionPortal() {
   region.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;rotate((event.clientX-drag.x)*.008,(event.clientY-drag.y)*.008);drag.x=event.clientX;drag.y=event.clientY;});
   const stop=event=>{if(drag?.id===event.pointerId)drag=null;};region.addEventListener('pointerup',stop);region.addEventListener('pointercancel',stop);region.addEventListener('lostpointercapture',stop);
   reset.addEventListener('click',()=>{yaw=-.45;pitch=.2;draw();});
-  // Modelo ilustrativo de Sketchfab, solo con activación explícita y licencia visible.
-  // No es una representación a escala ni se usa como dato SPHEREx/Gaia/WISE.
+  // El modelo externo se abre en un diálogo propio: nunca debajo del título de portada.
+  // Sketchfab es un recurso ilustrativo, NO geometría astronómica ni imagen SPHEREx.
   const sketchfabBtn = document.querySelector('#portal-sketchfab-toggle');
-  let sketchfabFrame = null;
   const portalEntry = document.querySelector('.portal-model-entry');
-  portalEntry?.addEventListener('click', () => {
-    sketchfabBtn?.click();
-    if (sketchfabFrame) region.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  });
-  sketchfabBtn?.addEventListener('click', () => {
-    if (sketchfabFrame) {
-      sketchfabFrame.remove();
-      sketchfabFrame = null;
-      region.classList.remove('portal-sketchfab-active');
-      sketchfabBtn.textContent = 'Ver modelo 3D ilustrativo ↗';
-      sketchfabBtn.setAttribute('aria-pressed', 'false');
-      region.setAttribute('aria-label', 'Esfera celeste conceptual interactiva');
-      draw();
-      return;
-    }
+  const modelLink = 'https://sketchfab.com/3d-models/solar-system-custom-c4d55b801842497c9900c7dbcea1727c';
+  const embedUrl = 'https://sketchfab.com/models/c4d55b801842497c9900c7dbcea1727c/embed?autostart=1&ui_theme=dark&annotations_visible=0&ui_hint=0';
+  let sketchfabFrame = null;
+  const dialog = document.createElement('dialog');
+  dialog.id = 'portal-model-dialog';
+  dialog.className = 'portal-model-dialog';
+  dialog.setAttribute('aria-labelledby', 'portal-model-title');
+  dialog.innerHTML = `
+    <div class="portal-model-layout">
+      <header class="portal-model-header">
+        <div><span>SPHERALYX AI · VISOR EXTERNO 3D</span>
+          <h2 id="portal-model-title">Sistema Solar ilustrativo</h2>
+          <p>Modelo de divulgación · no representa tamaños, distancias ni observaciones SPHEREx a escala.</p></div>
+        <button type="button" class="portal-model-close" aria-label="Cerrar modelo tridimensional">✕ Cerrar</button>
+      </header>
+      <div class="portal-model-viewport" id="portal-model-viewport"></div>
+      <footer class="portal-model-footer">
+        <span>Modelo: <a href="${modelLink}" target="_blank" rel="noopener noreferrer">Solar System Custom</a> · Alberto Benítez · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY</a>.</span>
+        <span>Sketchfab puede mostrar sus propios controles y paneles de inspección.</span>
+      </footer>
+    </div>`;
+  document.body.append(dialog);
+  const viewport = dialog.querySelector('#portal-model-viewport');
+  const closeButton = dialog.querySelector('.portal-model-close');
+  function closeModel() {
+    if (dialog.open) dialog.close();
+    if (sketchfabFrame) { sketchfabFrame.remove(); sketchfabFrame = null; }
+    sketchfabBtn?.setAttribute('aria-pressed','false');
+    portalEntry?.setAttribute('aria-pressed','false');
+    sketchfabBtn.textContent = 'Ver modelo 3D ilustrativo ↗';
+    sketchfabBtn?.focus();
+  }
+  function openModel() {
+    if (dialog.open) return;
     sketchfabFrame = document.createElement('iframe');
     sketchfabFrame.className = 'portal-sketchfab-frame';
-    sketchfabFrame.title = 'Modelo 3D ilustrativo Solar System Custom de Alberto Benítez en Sketchfab; escalas no reales';
-    sketchfabFrame.src = 'https://sketchfab.com/models/c4d55b801842497c9900c7dbcea1727c/embed?autostart=1&ui_hint=2';
-    sketchfabFrame.loading = 'lazy';
+    sketchfabFrame.title = 'Sistema Solar ilustrativo de Alberto Benítez en Sketchfab (no a escala)';
+    sketchfabFrame.src = embedUrl;
     sketchfabFrame.referrerPolicy = 'strict-origin-when-cross-origin';
     sketchfabFrame.allow = 'autoplay; fullscreen; xr-spatial-tracking';
     sketchfabFrame.setAttribute('allowfullscreen', '');
-    region.append(sketchfabFrame);
-    region.classList.add('portal-sketchfab-active');
-    sketchfabBtn.textContent = 'Volver a esfera conceptual ↩';
-    sketchfabBtn.setAttribute('aria-pressed', 'true');
-    region.setAttribute('aria-label', 'Modelo Sketchfab ilustrativo del Sistema Solar, no a escala');
+    viewport.append(sketchfabFrame);
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open','');
+    sketchfabBtn?.setAttribute('aria-pressed','true');
+    portalEntry?.setAttribute('aria-pressed','true');
+    sketchfabBtn.textContent = 'Modelo 3D abierto';
+    closeButton.focus();
+  }
+  sketchfabBtn?.addEventListener('click', openModel);
+  portalEntry?.addEventListener('click', openModel);
+  closeButton.addEventListener('click', closeModel);
+  dialog.addEventListener('cancel', event => { event.preventDefault(); closeModel(); });
+  dialog.addEventListener('click', event => {
+    if (event.target === dialog) closeModel();
   });
   if('ResizeObserver' in window)new ResizeObserver(draw).observe(region);else window.addEventListener('resize',draw);
   draw();
