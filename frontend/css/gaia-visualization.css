@@ -1,0 +1,22 @@
+/* Gaia linked scientific views; use only server-supplied Gaia DR3 sources. */
+.gaia-linked-views{margin-top:18px;padding:16px;border:1px solid rgba(143,149,225,.28);border-radius:14px;background:linear-gradient(140deg,rgba(14,20,43,.98),rgba(7,14,30,.98))}
+.gaia-linked-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:15px}
+.gaia-linked-heading h4{font-size:1.08rem;color:#f4f4ff;margin:5px 0 0}
+.gaia-linked-heading p{font-size:.67rem;color:#b9c7e0;max-width:420px;text-align:right;overflow-wrap:anywhere}
+.gaia-linked-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gaia-linked-card{display:flex;flex-direction:column;min-width:0;min-height:315px;padding:11px 11px 13px;border:1px solid rgba(138,148,210,.24);border-radius:12px;background:linear-gradient(160deg,#0e172d,#070e20);overflow:hidden}
+.gaia-linked-card h5{margin:3px 1px 11px;color:#e6eaff;font-size:.79rem;letter-spacing:.01em}
+.gaia-linked-card canvas{display:block;width:100%;height:216px;border-radius:8px;cursor:crosshair;background:#071222;border:1px solid rgba(150,178,223,.16)}
+.gaia-linked-card p{font-size:.66rem;line-height:1.55;color:#9fafcd;margin-top:10px}
+.gaia-linked-card button{min-height:35px;margin-top:8px;border:1px solid rgba(178,147,242,.53);border-radius:8px;color:#f4efff;background:linear-gradient(112deg,#51408f,#293966);font-weight:700;font-size:.69rem}
+.gaia-linked-card button:hover:not(:disabled){background:#6e50ab;border-color:#caadff}
+.gaia-linked-card button:disabled{opacity:.6;cursor:wait}
+.gaia-sky-shell{position:relative;min-height:216px;background:radial-gradient(ellipse at 55% 50%,#142446,#050b18);border:1px solid rgba(150,178,223,.16);border-radius:8px;overflow:hidden;display:grid;place-items:center}
+.gaia-sky-shell>p{max-width:250px;text-align:center;padding:16px;font-size:.71rem}
+.gaia-sky-shell:has(#gaia-aladin:not([hidden]))>p{display:none}
+#gaia-aladin{position:absolute;inset:0;width:100%;height:100%}
+#gaia-aladin[hidden]{display:none}
+.gaia-sky-card small{margin-top:7px;color:#8fa5c7;font-size:.6rem}
+.gaia-linked-disclaimer{font-size:.68rem;line-height:1.6;color:#9aaed0;margin:11px 2px 1px}
+@media(max-width:1100px){.gaia-linked-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gaia-sky-card{grid-column:1/-1}.gaia-sky-shell{min-height:275px}}
+@media(max-width:650px){.gaia-linked-views{padding:10px}.gaia-linked-heading{align-items:flex-start;flex-direction:column;gap:5px}.gaia-linked-heading p{text-align:left}.gaia-linked-grid{grid-template-columns:1fr}.gaia-sky-card{grid-column:auto}.gaia-linked-card{min-height:0}.gaia-linked-card canvas{height:230px}}
