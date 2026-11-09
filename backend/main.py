@@ -1,6 +1,5 @@
 """API de SPHERALYX: búsquedas reales, sin mezclar con la demostración local."""
 import os
-import asyncio
 import threading
 import time
 from collections import deque
@@ -25,7 +24,7 @@ _catalog_access = deque()
 _catalog_access_lock = threading.Lock()
 CATALOG_WINDOW_SECONDS = 600
 CATALOG_MAX_REQUESTS = 40  # global per Render worker; protects external ESA/NASA upstream
-_catalog_semaphore = asyncio.Semaphore(3)
+_catalog_semaphore = threading.BoundedSemaphore(3)
 
 def _flag(name):
     return os.getenv(name, '').strip().lower() in ('1', 'true', 'yes')
@@ -49,9 +48,7 @@ async def offline_guard(request, call_next):
             if len(_catalog_access) >= CATALOG_MAX_REQUESTS:
                 return JSONResponse(status_code=429, content={'detail':'Límite de consultas a Gaia/WISE alcanzado. Vuelve más tarde.'}, headers={'Retry-After':'600'})
             _catalog_access.append(now)
-        try:
-            await asyncio.wait_for(_catalog_semaphore.acquire(), timeout=0.05)
-        except asyncio.TimeoutError:
+        if not _catalog_semaphore.acquire(blocking=False):
             return JSONResponse(status_code=429, content={'detail':'Demasiadas consultas a catálogos en paralelo. Intenta otra vez.'}, headers={'Retry-After':'15'})
         try:
             return await call_next(request)
