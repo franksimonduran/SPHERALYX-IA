@@ -314,7 +314,11 @@ main .mission-portal{padding:clamp(12px,1.2vw,20px);margin-top:22px;border-radiu
 .mission-portal .portal-ambient-frame{
   position:absolute;inset:0;width:100%;height:100%;
   border:0;display:block;pointer-events:none;
-  filter:brightness(.79) saturate(1.14);
+  /* Acercamiento visual moderado: mayor presencia de los planetas, sin
+     deformar geometría ni cambiar los datos científicos del observatorio. */
+  transform:scale(var(--portal-planets-zoom,1.12));
+  transform-origin:55% 48%;
+  filter:brightness(.94) saturate(1.16);
 }
 .mission-portal .portal-ambient-shade{
   position:absolute;inset:0;z-index:1;pointer-events:none;
@@ -359,6 +363,7 @@ main .mission-portal{padding:clamp(12px,1.2vw,20px);margin-top:22px;border-radiu
     display:flex;flex-direction:column;min-height:0;gap:10px;padding:12px;
   }
   .mission-portal .portal-ambient{inset:0;border-radius:16px}
+  .mission-portal .portal-ambient-frame{--portal-planets-zoom:1.05;transform-origin:center center}
   .mission-portal .portal-intro{
     order:0;width:100%;max-width:none;
     padding:22px 15px 10px;align-self:stretch;
