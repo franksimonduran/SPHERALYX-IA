@@ -17,10 +17,13 @@ from collections import OrderedDict
 from datetime import datetime, timezone
 
 import httpx
+from astropy.io.votable import parse_single_table
+import numpy as np
 
 from .network import fetch_bytes
 
 GAIA_TAP_URL = "https://gea.esac.esa.int/tap-server/tap/sync"
+GAIA_AIP_TAP_URL = "https://gaia.aip.de/tap/sync"
 GAIA_TABLE = "gaiadr3.gaia_source"
 GAIA_COLUMNS = (
     "source_id",
@@ -159,6 +162,57 @@ def parse_csv(text: str, center_ra: float, center_dec: float, limit: int = DEFAU
     return items[:limit], truncated
 
 
+
+def parse_votable(payload: bytes, center_ra: float, center_dec: float,
+                  limit: int = DEFAULT_LIMIT) -> tuple[list[dict], bool]:
+    """Parsea VOTable de un espejo Gaia certificado, preservando source_id como str."""
+    if len(payload) > MAX_GAIA_BYTES:
+        raise GaiaError("La respuesta VOTable Gaia supera el tamaño máximo")
+    try:
+        table = parse_single_table(io.BytesIO(payload)).to_table(use_names_over_ids=True)
+    except (ValueError, TypeError, OSError) as exc:
+        raise GaiaError("Formato VOTable Gaia inválido") from exc
+    if not {"source_id", "ra", "dec"}.issubset(table.colnames):
+        raise GaiaError("VOTable sin columnas Gaia obligatorias")
+    items, seen = [], set()
+    for row in table:
+        fields = {}
+        for col in GAIA_COLUMNS:
+            if col not in table.colnames:
+                fields[col] = None
+                continue
+            v = row[col]
+            fields[col] = None if np.ma.is_masked(v) else str(v)
+        normalized = normalize_row(fields, center_ra, center_dec)
+        if normalized and normalized["source_id"] not in seen:
+            seen.add(normalized["source_id"])
+            items.append(normalized)
+    return items[:limit], len(items) > limit
+
+
+def _query_gaia(ra: float, dec: float, limit: int, params: dict) -> tuple[list[dict], bool, str, str]:
+    """Consulta ESA con una sola tentativa y fallback Gaia@AIP si hay limitación temporal."""
+    try:
+        raw = fetch_bytes(GAIA_TAP_URL, params, MAX_GAIA_BYTES, timeout=25, attempts=1)
+        return (*parse_csv(raw.decode("utf-8-sig"), ra, dec, limit), "ESA Gaia Archive TAP", GAIA_TAP_URL)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code not in (429, 502, 503, 504):
+            raise GaiaError("ESA Gaia TAP rechazó la consulta") from exc
+    except (httpx.TimeoutException, httpx.RequestError):
+        pass
+    # Gaia@AIP es un centro de datos oficial Gaia DR3 con TAP, distinto del
+    # archivo ESA principal. No se reutilizan páginas web ni imágenes decorativas.
+    try:
+        raw = fetch_bytes(GAIA_AIP_TAP_URL, params, MAX_GAIA_BYTES, timeout=25, attempts=1)
+        if raw.lstrip().startswith(b"<"):
+            sources, truncated = parse_votable(raw, ra, dec, limit)
+        else:
+            sources, truncated = parse_csv(raw.decode("utf-8-sig"), ra, dec, limit)
+        return sources, truncated, "Gaia@AIP TAP (DR3, Leibniz AIP)", GAIA_AIP_TAP_URL
+    except (httpx.HTTPError, UnicodeError, csv.Error, ValueError) as exc:
+        raise GaiaError("No se pudo consultar Gaia DR3 en ESA ni en Gaia@AIP") from exc
+
+
 def search_cone(ra: float, dec: float, radius: float = 0.05, limit: int = DEFAULT_LIMIT) -> dict:
     validate_cone(ra, dec, radius, limit)
     cache_key = (round(ra, 7), round(dec, 7), round(radius, 7), limit)
@@ -180,23 +234,19 @@ def search_cone(ra: float, dec: float, radius: float = 0.05, limit: int = DEFAUL
         "QUERY": query,
     }
     try:
-        raw = fetch_bytes(GAIA_TAP_URL, params, MAX_GAIA_BYTES, timeout=25, attempts=2)
-        text = raw.decode("utf-8-sig")
-        sources, truncated = parse_csv(text, ra, dec, limit)
-    except httpx.TimeoutException as exc:
-        raise GaiaError("ESA Gaia TAP agotó el tiempo de espera") from exc
-    except (httpx.HTTPError, UnicodeError, csv.Error) as exc:
-        raise GaiaError("No se pudo consultar ESA Gaia TAP") from exc
-    except ValueError as exc:
-        raise GaiaError("Respuesta de ESA Gaia TAP demasiado grande o inválida") from exc
+        sources, truncated, source_name, service_url = _query_gaia(ra, dec, limit, params)
+    except GaiaError:
+        raise
+    except (UnicodeError, csv.Error, ValueError) as exc:
+        raise GaiaError("Respuesta Gaia DR3 demasiado grande o inválida") from exc
 
     queried_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     result = {
         "mode": "real",
-        "source": "ESA Gaia Archive TAP",
+        "source": source_name,
         "catalog": "Gaia DR3 (gaiadr3.gaia_source)",
         "reference_epoch": "J2016.0",
-        "service_url": GAIA_TAP_URL,
+        "service_url": service_url,
         "query": {"ra": ra, "dec": dec, "radius_deg": radius, "limit": limit},
         "count": len(sources),
         "limit": limit,
@@ -206,6 +256,7 @@ def search_cone(ra: float, dec: float, radius: float = 0.05, limit: int = DEFAUL
         "sources": sources,
         "notice": (
             "Posiciones reales Gaia DR3 en época de catálogo (J2016.0, ICRS). "
+            "El servicio utilizado se declara explícitamente en source y service_url. "
             "Se representan únicamente como direcciones sobre la esfera celeste; "
             "las paralajes no se invierten en distancias físicas y las fuentes no se "
             "superponen sobre recortes FITS de SPHEREx sin validar WCS, orientación y época."
