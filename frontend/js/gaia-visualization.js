@@ -144,17 +144,18 @@ export function initGaiaVisualization() {
         });
       }
       await window.A.init;
+      aladinHost.hidden=false;
       aladin=window.A.aladin('#gaia-aladin',{
         survey:'P/DSS2/color',
         target:query.ra+' '+query.dec,
         fov:Math.max(.05,Math.min(1.5,query.radius_deg*2.7)),
         cooFrame:'ICRSd',showReticle:true,showLayersControl:true
       });
-      aladinHost.hidden=false;
       skyBtn.textContent='Actualizar vista de archivo';
       caption.textContent='CDS Aladin Lite · DSS2 color (archivo, NO SPHEREx). Selecciona una estrella en los gráficos para localizarla.';
       updateAladin();
     }catch(error){
+      aladinHost.hidden=true;
       caption.textContent='No se pudo cargar la imagen externa: '+error.message+'. Los gráficos Gaia locales siguen funcionando.';
     }finally{aladinLoading=false;skyBtn.disabled=false;}
   }
@@ -163,9 +164,10 @@ export function initGaiaVisualization() {
     try{
       aladin.gotoRaDec(query.ra,query.dec);
       aladin.setFoV(Math.max(.05,Math.min(1.5,query.radius_deg*2.7)));
-      if(markerLayer)aladin.removeLayers();
-      markerLayer=window.A.catalog({name:'Gaia DR3 · consulta seleccionada',sourceSize:7,color:'#a98cff',onClick:'showPopup'});
-      aladin.addCatalog(markerLayer);
+      if(!markerLayer){
+        markerLayer=window.A.catalog({name:'Gaia DR3 · consulta seleccionada',sourceSize:7,color:'#a98cff',onClick:'showPopup'});
+        aladin.addCatalog(markerLayer);
+      } else markerLayer.removeAll();
       markerLayer.addSources(sources.filter(s=>finite(s.ra)&&finite(s.dec)).slice(0,200).map(s=>window.A.source(s.ra,s.dec,{name:'Gaia DR3 '+s.source_id,source_id:String(s.source_id)})));
       const selected=sources.find(s=>keyOf(s)===selectedKey);
       if(selected)aladin.gotoRaDec(selected.ra,selected.dec);
