@@ -33,6 +33,11 @@ export function initMissionPortal() {
   // No es una representación a escala ni se usa como dato SPHEREx/Gaia/WISE.
   const sketchfabBtn = document.querySelector('#portal-sketchfab-toggle');
   let sketchfabFrame = null;
+  const portalEntry = document.querySelector('.portal-model-entry');
+  portalEntry?.addEventListener('click', () => {
+    sketchfabBtn?.click();
+    if (sketchfabFrame) region.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
   sketchfabBtn?.addEventListener('click', () => {
     if (sketchfabFrame) {
       sketchfabFrame.remove();
