@@ -53,3 +53,16 @@ El contenido de Sketchfab y Three.js son servicios ajenos con sus propias polít
 ### Verificación pendiente
 
 Las nuevas pruebas de frontend controlan presencia de controles y atribución sin descargar los servicios terceros; la sintaxis de los módulos y el balance de llaves del CSS han sido inspeccionados. Se requiere una prueba manual del modo Three.js con navegador que permita WebGL/CDN y de la carga de Sketchfab, más la ejecución completa de `node frontend/tests/audit.mjs` y de `python -m pytest tests -q`. Estos últimos no han sido ejecutados por el asistente en el entorno local.
+
+
+## Reparación de visibilidad 3D en Render
+
+La experiencia anterior exigía activar manualmente Three.js desde un botón poco visible y dependía de descargar una biblioteca externa. En esta revisión el **Cosmic Explorer inicia automáticamente una esfera WebGL cuando entra en pantalla**, utilizando `frontend/js/cosmic-native-webgl.js` sin CDN. El motor transforma RA/Dec reales hacia coordenadas visibles y dibuja rejilla, centro, campo y exclusivamente fuentes cargadas del catálogo; no inventa estrellas ni distancias.
+
+El botón dentro del mismo viewport alterna 2D/3D. Si WebGL está desactivado, se conserva el Canvas 2D. El módulo `cosmic-webgl.js` basado en Three.js permanece en el repositorio, pero **la vista 3D predeterminada ahora utiliza WebGL nativo**, para no depender de jsDelivr. La mención de Three.js como motor predeterminado en versiones previas queda reemplazada por esta descripción.
+
+El Mission Portal contiene ahora una acción principal «ABRIR MODELO 3D SKETCHFAB», conectada al mismo visor opcional y acreditado. El iframe está detrás de las superposiciones y controles para que el usuario pueda cerrarlo. Sketchfab **sigue requiriendo acceso externo**; el globo WebGL propio funciona sin ese servicio.
+
+Por último, el encabezado consulta `/health` para comunicar cuándo la instancia pública tiene el modo offline activado. Esto explica que haya una esfera 3D geométrica sin puntos de catálogo reales: no es un fallo de renderizado, sino una limitación operativa del servidor. No se rellenan las capas Gaia/WISE con datos sintéticos. La aplicación continúa sin permitir consultas externas en el despliegue offline.
+
+Verificación: comprobación estática de sintaxis JS, enlace del botón, balance CSS y existencia de renderizador/controles. Pendiente ejecutar auditoría de navegador completa y comprobar el resultado de WebGL con GPU real; no se afirma una validación de hardware que no se ha realizado.
