@@ -69,6 +69,61 @@ export function initCosmic3D() {
   let gaiaSources = [], wiseSources = [], selectedKey = '', projectedHits = [];
   let gaiaMeta = null, wiseMeta = null;
   let gaiaController = null, wiseController = null;
+  let webgl = null, webglLoading = false;
+  // El modo 3D se carga al solicitarlo: sin dependencia CDN obligatoria para la demo offline.
+  const modeBtn = document.createElement('button');
+  modeBtn.type = 'button';
+  modeBtn.id = 'cosmic-renderer-toggle';
+  modeBtn.className = 'cosmic-renderer-toggle';
+  modeBtn.textContent = 'Activar vista 3D';
+  modeBtn.setAttribute('aria-pressed', 'false');
+  modeBtn.setAttribute('aria-label', 'Activar representación 3D con Three.js (requiere conexión al proveedor de la biblioteca)');
+  const modeStatus = document.createElement('span');
+  modeStatus.id = 'cosmic-renderer-status';
+  modeStatus.className = 'cosmic-renderer-status';
+  modeStatus.textContent = 'Vista 2D · fuentes de catálogo bajo consulta';
+  stage.append(modeBtn, modeStatus);
+  stage.dataset.renderMode = '2d';
+  modeBtn.addEventListener('pointerdown', e => e.stopPropagation());
+  modeBtn.addEventListener('click', async e => {
+    e.stopPropagation();
+    if (webglLoading) return;
+    if (webgl) {
+      webgl.dispose(); webgl = null;
+      stage.classList.remove('webgl-active');
+      stage.dataset.renderMode = '2d';
+      modeBtn.setAttribute('aria-pressed', 'false');
+      modeBtn.textContent = 'Activar vista 3D';
+      modeStatus.textContent = 'Vista 2D · fuentes de catálogo bajo consulta';
+      draw();
+      return;
+    }
+    webglLoading = true;
+    modeBtn.disabled = true;
+    modeStatus.textContent = 'Preparando escena 3D…';
+    try {
+      const { createCelestialWebGL } = await import('./cosmic-webgl.js');
+      webgl = await createCelestialWebGL(stage);
+      stage.classList.add('webgl-active');
+      stage.dataset.renderMode = '3d';
+      modeBtn.setAttribute('aria-pressed', 'true');
+      modeBtn.textContent = 'Volver a vista 2D';
+      modeStatus.textContent = 'Three.js · esfera direccional, sin distancias físicas';
+      draw();
+    } catch (error) {
+      stage.classList.remove('webgl-active');
+      stage.dataset.renderMode = '2d';
+      modeStatus.textContent = 'Modo 3D no disponible; se mantiene el visor 2D.';
+      modeBtn.textContent = 'Reintentar vista 3D';
+    } finally { webglLoading = false; modeBtn.disabled = false; }
+  });
+  stage.addEventListener('cosmic-webgl-lost', () => {
+    webgl = null; stage.classList.remove('webgl-active');
+    stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed', 'false');
+    modeBtn.textContent = 'Activar vista 3D';
+    modeStatus.textContent = 'Contexto WebGL perdido; visor 2D restaurado.';
+    draw();
+  });
 
   const coords = () => {
     const a = Number(ra.value), d = Number(dec.value);
@@ -385,6 +440,22 @@ export function initCosmic3D() {
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, 2 * Math.PI);
     ctx.stroke();
+    if (webgl) {
+      try {
+        webgl.render({
+          viewRa, viewDec, zoom: sphereZoom, showGrid: grid.checked,
+          sources: allCatalogItems()
+            .filter(item => matchesCatalogQuery(item.kind === 'gaia' ? gaiaMeta : wiseMeta))
+            .map(item => ({ key:item.key,kind:item.kind,ra:item.raw.ra,dec:item.raw.dec })),
+          selectedKey, target: coords(), radiusDeg: validRadius()
+        });
+      } catch (_) {
+        webgl.dispose(); webgl = null; stage.classList.remove('webgl-active');
+        stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed','false');
+        modeBtn.textContent = 'Reintentar vista 3D';
+        modeStatus.textContent = 'Error gráfico; visor 2D restaurado.';
+      }
+    }
   }
 
   function selected(p) {
@@ -545,6 +616,7 @@ export function initCosmic3D() {
   });
 
   stage.addEventListener('keydown', event => {
+    if (event.target !== stage) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       selected({ ra: viewRa, dec: viewDec });
@@ -560,6 +632,7 @@ export function initCosmic3D() {
   });
 
   stage.addEventListener('pointerdown', event => {
+    if (event.target.closest('button')) return;
     if (event.button !== 0) return;
     drag = { id: event.pointerId, x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, moved: false };
     stage.setPointerCapture(event.pointerId);
