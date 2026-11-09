@@ -185,7 +185,7 @@ export function initCosmic3D() {
       sources: valid ? gaiaSources : [],
       selectedKey: valid && selectedKey.startsWith('gaia:') ? selectedKey : '',
       query: valid ? gaiaMeta.query : p && rr !== null ? { ra:p.ra,dec:p.dec,radius_deg:rr } : null,
-      meta: valid ? {truncated:gaiaMeta.truncated,queried_at_utc:gaiaMeta.queried_at_utc} : null
+      meta: valid ? {source:gaiaMeta.source,service_url:gaiaMeta.service_url,truncated:gaiaMeta.truncated,queried_at_utc:gaiaMeta.queried_at_utc} : null
     }}));
   }
   function allCatalogItems() {
@@ -531,7 +531,7 @@ export function initCosmic3D() {
     if (!catalogStatus) return;
     const parts = [];
     if (gaiaMeta) {
-      parts.push(`Gaia DR3 (${gaiaMeta.reference_epoch || 'J2016.0'}): ${gaiaSources.length} fuentes reales${gaiaMeta.truncated ? ' (posible truncamiento)' : ''}${matchesCatalogQuery(gaiaMeta) ? '' : ' · CONSULTA ANTERIOR: fuentes ocultas hasta volver al campo consultado'}`);
+      parts.push(`Gaia DR3 · ${gaiaMeta.source || 'Archivo ESA'} (${gaiaMeta.reference_epoch || 'J2016.0'}): ${gaiaSources.length} fuentes reales${gaiaMeta.truncated ? ' (posible truncamiento)' : ''}${matchesCatalogQuery(gaiaMeta) ? '' : ' · CONSULTA ANTERIOR: fuentes ocultas hasta volver al campo consultado'}`);
     }
     if (wiseMeta) {
       parts.push(`AllWISE: ${wiseSources.length} fuentes reales${wiseMeta.truncated ? ' (posible truncamiento)' : ''}${matchesCatalogQuery(wiseMeta) ? '' : ' · CONSULTA ANTERIOR: fuentes ocultas hasta volver al campo consultado'} · asociación candidata no confirmada`);
