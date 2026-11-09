@@ -74,6 +74,31 @@ def test_gaia_parse_and_preserve_64bit_source_id_and_nulls():
 
 
 
+def test_gaia_galactic_columns_are_real_and_nullable():
+    query = gc.build_adql(83.8221, -5.3911, 0.02, 8)
+    assert "source_id, ra, dec, l, b, ref_epoch" in query
+    text = (
+        "source_id,ra,dec,l,b,ref_epoch,phot_g_mean_mag,bp_rp\\n"
+        "3017364063331140096,83.8221,-5.3911,209.014,-19.381,2016.0,11.452,0.612\\n"
+        "3017364063331140097,83.8235,-5.3902,,,2016.0,16.810,\\n"
+    )
+    sources, truncated = gc.parse_csv(text, 83.8221, -5.3911, limit=8)
+    assert not truncated
+    assert sources[0]["l"] == pytest.approx(209.014)
+    assert sources[0]["b"] == pytest.approx(-19.381)
+    assert sources[1]["l"] is None and sources[1]["b"] is None
+    assert isinstance(sources[0]["source_id"], str)
+
+
+def test_catalog_only_mode_keeps_irsa_offline(monkeypatch):
+    monkeypatch.setenv("SPHERALYX_OFFLINE", "1")
+    monkeypatch.setenv("SPHERALYX_CATALOGS_ONLINE", "1")
+    monkeypatch.setattr(gc, "search_cone", lambda *args: {"mode": "real", "sources": [], "count": 0})
+    assert client.get("/health").json()["catalog_mode"] == "real"
+    assert client.get("/api/gaia/sources?ra=83&dec=-5&radius=0.02").status_code == 200
+    assert client.get("/api/observations?ra=83&dec=-5").status_code == 503
+
+
 def test_gaia_missing_epoch_remains_null():
     # No atribuir al registro una época que no se recibió realmente del servicio.
     text = SAMPLE_GAIA_CSV.replace("2016.0,16.810", ",16.810")
