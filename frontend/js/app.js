@@ -26,7 +26,7 @@ const markActive=id=>links.forEach(link=>{
   link.classList.toggle('active',active);
   if(active)link.setAttribute('aria-current','location');else link.removeAttribute('aria-current');
 });
-if(location.hash&&document.querySelector(location.hash))markActive(location.hash.slice(1));
+if(location.hash && document.getElementById(location.hash.slice(1)))markActive(location.hash.slice(1));
 if('IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting)markActive(entry.target.id);});},{rootMargin:'-20% 0px -65% 0px'});links.forEach(link=>{const section=document.querySelector(link.getAttribute('href'));if(section)observer.observe(section);});}
 
 // Informa el modo de datos del servidor; la disponibilidad upstream sigue sin verificarse.
