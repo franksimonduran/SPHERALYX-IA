@@ -29,6 +29,35 @@ export function initMissionPortal() {
   region.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;rotate((event.clientX-drag.x)*.008,(event.clientY-drag.y)*.008);drag.x=event.clientX;drag.y=event.clientY;});
   const stop=event=>{if(drag?.id===event.pointerId)drag=null;};region.addEventListener('pointerup',stop);region.addEventListener('pointercancel',stop);region.addEventListener('lostpointercapture',stop);
   reset.addEventListener('click',()=>{yaw=-.45;pitch=.2;draw();});
+  // Modelo ilustrativo de Sketchfab, solo con activación explícita y licencia visible.
+  // No es una representación a escala ni se usa como dato SPHEREx/Gaia/WISE.
+  const sketchfabBtn = document.querySelector('#portal-sketchfab-toggle');
+  let sketchfabFrame = null;
+  sketchfabBtn?.addEventListener('click', () => {
+    if (sketchfabFrame) {
+      sketchfabFrame.remove();
+      sketchfabFrame = null;
+      region.classList.remove('portal-sketchfab-active');
+      sketchfabBtn.textContent = 'Ver modelo 3D ilustrativo ↗';
+      sketchfabBtn.setAttribute('aria-pressed', 'false');
+      region.setAttribute('aria-label', 'Esfera celeste conceptual interactiva');
+      draw();
+      return;
+    }
+    sketchfabFrame = document.createElement('iframe');
+    sketchfabFrame.className = 'portal-sketchfab-frame';
+    sketchfabFrame.title = 'Modelo 3D ilustrativo Solar System Custom de Alberto Benítez en Sketchfab; escalas no reales';
+    sketchfabFrame.src = 'https://sketchfab.com/models/c4d55b801842497c9900c7dbcea1727c/embed?autostart=1&ui_hint=2';
+    sketchfabFrame.loading = 'lazy';
+    sketchfabFrame.referrerPolicy = 'strict-origin-when-cross-origin';
+    sketchfabFrame.allow = 'autoplay; fullscreen; xr-spatial-tracking';
+    sketchfabFrame.setAttribute('allowfullscreen', '');
+    region.append(sketchfabFrame);
+    region.classList.add('portal-sketchfab-active');
+    sketchfabBtn.textContent = 'Volver a esfera conceptual ↩';
+    sketchfabBtn.setAttribute('aria-pressed', 'true');
+    region.setAttribute('aria-label', 'Modelo Sketchfab ilustrativo del Sistema Solar, no a escala');
+  });
   if('ResizeObserver' in window)new ResizeObserver(draw).observe(region);else window.addEventListener('resize',draw);
   draw();
 }
