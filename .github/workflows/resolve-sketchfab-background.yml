@@ -1,0 +1,33 @@
+name: Resolve requested Sketchfab background model
+on:
+  push:
+    paths: ['.github/workflows/resolve-sketchfab-background.yml']
+  workflow_dispatch:
+jobs:
+  model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Resolve supplied public short URL and metadata
+        shell: bash
+        run: |
+          python - <<'PY'
+          import urllib.request, urllib.error, re, json
+          url="https://skfb.ly/oLqMS"
+          req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 SPHERALYX-source-verification"})
+          try:
+            with urllib.request.urlopen(req,timeout=22) as resp:
+              final=resp.geturl()
+              body=resp.read(200000).decode("utf-8","replace")
+              print("RESOLVED_DESTINATION:",final,flush=True)
+              print("WEB_TITLE:",(re.search(r'<title[^>]*>(.*?)</title>',body,re.I|re.S) or [None,'not found'])[1][:180],flush=True)
+              m=re.search(r'(?:3d-models/[^/]+-|models/)([a-f0-9]{32})',final)
+              if m:
+                print("RESOLVED_MODEL_UID:",m.group(1),flush=True)
+                print("MODEL_EMBED:",f"https://sketchfab.com/models/{m.group(1)}/embed",flush=True)
+              else:
+                candidates=re.findall(r'[a-f0-9]{32}',body)
+                print("CANDIDATES:",candidates[:4],flush=True)
+          except Exception as e:
+            print("MODEL_RESOLVE_ERROR:",type(e).__name__,str(e)[:350],flush=True)
+          PY
