@@ -608,8 +608,8 @@ export function initCosmic3D() {
   }
 
   for (const input of [ra, dec, radius, release]) {
-    input.addEventListener('input', () => { abortCatalogRequests(); updateCatalogSummary(); draw(); });
-    input.addEventListener('change', () => { abortCatalogRequests(); updateCatalogSummary(); draw(); });
+    input.addEventListener('input', () => { abortCatalogRequests(); populateSourceSelect(); updateCatalogSummary(); draw(); });
+    input.addEventListener('change', () => { abortCatalogRequests(); populateSourceSelect(); updateCatalogSummary(); draw(); });
   }
   grid.addEventListener('change', draw);
   document.querySelector('#cosmic-center').addEventListener('click', center);
