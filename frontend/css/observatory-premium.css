@@ -322,3 +322,34 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
  .cosmic-3d-panel button{transition:none}
  .mission-rail-nav a,.header nav a{transition:none}
 }
+
+/* Three.js comparte el mismo viewport y deja los eventos al controlador ICRS existente. */
+.cosmic-3d-stage .cosmic-webgl-canvas{
+ position:absolute;inset:0;width:100%;height:100%;
+ z-index:1;display:block;pointer-events:none;touch-action:none;
+}
+.cosmic-3d-stage.webgl-active #cosmic-canvas{opacity:0}
+.cosmic-3d-stage .cosmic-renderer-toggle{
+ position:absolute;z-index:5;right:13px;top:11px;min-height:35px;
+ padding:7px 12px;max-width:45%;
+ border-radius:9px;border:1px solid rgba(196,163,255,.62);
+ background:linear-gradient(115deg,rgba(80,53,149,.96),rgba(32,40,96,.93));
+ box-shadow:0 3px 19px rgba(24,17,67,.4);color:#f6efff;
+ font-weight:700;font-size:.7rem;letter-spacing:.015em;
+}
+.cosmic-3d-stage .cosmic-renderer-toggle:hover:not(:disabled){
+ background:linear-gradient(115deg,#7754ce,#4456ae);
+}
+.cosmic-3d-stage .cosmic-renderer-toggle[aria-pressed="true"]{
+ border-color:#8cdfff;background:rgba(26,64,106,.96);
+}
+.cosmic-3d-stage .cosmic-renderer-toggle:disabled{opacity:.6;cursor:progress}
+.cosmic-3d-stage .cosmic-renderer-status{
+ position:absolute;z-index:3;right:13px;bottom:57px;
+ max-width:65%;font-size:.62rem;color:#b5c5e2;
+ text-align:right;pointer-events:none;text-shadow:0 2px 9px #000;
+}
+@media(max-width:490px){
+ .cosmic-3d-stage .cosmic-renderer-toggle{top:62px;font-size:.63rem;max-width:70%}
+ .cosmic-3d-stage .cosmic-renderer-status{font-size:.57rem;bottom:72px}
+}
