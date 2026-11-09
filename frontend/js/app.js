@@ -37,7 +37,7 @@ if (headerDataStatus) {
     const data = await response.json();
     document.body.dataset.catalogMode = data?.catalog_mode === 'real' ? 'real' : 'offline';
     if (data?.data_mode === 'offline' && data?.catalog_mode === 'real') {
-      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> GAIA / WISE ACTIVOS · SPHEREx OFFLINE';
+      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> GAIA / WISE HABILITADOS · SPHEREx OFFLINE';
       headerDataStatus.classList.add('status-offline');
       headerDataStatus.setAttribute('title', 'Los catálogos reales están disponibles con cuota. Las consultas FITS y temporales de IRSA siguen offline.');
       const offlineCheckbox = document.querySelector('#offline-mode');
