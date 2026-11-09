@@ -11,6 +11,7 @@ export function initGaiaVisualization() {
   const skyBtn = area.querySelector('#gaia-sky-open');
   const aladinHost = area.querySelector('#gaia-aladin');
   const sourceSelect = document.querySelector('#cosmic-source-select');
+  const manualOffline = document.querySelector('#offline-mode');
   let sources = [], selectedKey = '', query = null, meta = null;
   let aladin = null, markerLayer = null, aladinLoading = false;
   let redrawPending = false;
@@ -127,6 +128,10 @@ export function initGaiaVisualization() {
     });
   }
   async function ensureAladin(){
+    if (manualOffline?.checked) {
+      caption.textContent = 'Modo offline elegido: no se cargará el visor CDS ni se solicitarán imágenes externas.';
+      return;
+    }
     if(aladin||aladinLoading)return;
     if(!query||!finite(query.ra)||!finite(query.dec)){
       caption.textContent='Selecciona un campo con RA/Dec válidas antes de abrir la imagen.';return;
@@ -176,7 +181,26 @@ export function initGaiaVisualization() {
       if(selected)aladin.gotoRaDec(selected.ra,selected.dec);
     }catch(error){caption.textContent='Error al actualizar Aladin Lite; la visualización Gaia permanece disponible.';}
   }
-  skyBtn.addEventListener('click',()=>aladin?updateAladin():ensureAladin());
+  skyBtn.addEventListener('click',()=>{
+    if (manualOffline?.checked) {
+      caption.textContent='Modo offline elegido: imágenes externas de CDS desactivadas.';
+      return;
+    }
+    return aladin ? updateAladin() : ensureAladin();
+  });
+  manualOffline?.addEventListener('change',()=>{
+    if (manualOffline.checked) {
+      aladinHost.hidden=true;
+      skyBtn.disabled=true;
+      caption.textContent='DEMO OFFLINE · Imagen de archivo CDS desactivada por elección del usuario.';
+    } else {
+      skyBtn.disabled=false;
+      if (aladin) aladinHost.hidden=false;
+      caption.textContent=aladin
+        ? 'CDS Aladin Lite · DSS2 color (archivo óptico, NO SPHEREx).'
+        : 'Visor óptico opcional. Pulsa para cargar el archivo CDS.';
+    }
+  });
   document.addEventListener('spheralyx:gaia-visualization',event=>{
     const detail=event.detail||{};
     sources=Array.isArray(detail.sources)?detail.sources:[];
