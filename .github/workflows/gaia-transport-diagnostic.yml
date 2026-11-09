@@ -1,4 +1,4 @@
-name: Diagnose ESA TAP transport
+name: Diagnose Gaia AIP mirror transport
 on:
   push:
     paths:
@@ -7,30 +7,21 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 3
     steps:
-      - name: Test ESA TAP in GET and POST modes
+      - name: Test one bounded Gaia DR3 AIP mirror query
         run: |
           python - <<'PY'
-          import urllib.parse,urllib.request,urllib.error,time
-          endpoint='https://gea.esac.esa.int/tap-server/tap/sync'
-          queries=[
-            "SELECT TOP 1 source_id,ra,dec FROM gaiadr3.gaia_source",
-            "SELECT TOP 5 source_id,ra,dec,l,b,phot_g_mean_mag,bp_rp FROM gaiadr3.gaia_source WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',83.8221,-5.3911,0.02)) ORDER BY phot_g_mean_mag ASC,source_id ASC"
-          ]
-          for idx,query in enumerate(queries):
-            params={'REQUEST':'doQuery','LANG':'ADQL','FORMAT':'csv','QUERY':query}
-            for method in ('GET','POST'):
-              encoded=urllib.parse.urlencode(params)
-              url=endpoint+('?'+encoded if method=='GET' else '')
-              data=None if method=='GET' else encoded.encode()
-              req=urllib.request.Request(url,data=data,headers={'User-Agent':'SPHERALYX-diagnostic/1','Accept':'text/csv','Content-Type':'application/x-www-form-urlencoded'})
-              try:
-                with urllib.request.urlopen(req,timeout=40) as r:
-                  body=r.read(550)
-                  print('REQUEST',idx,method,'HTTP',r.status,'final',r.url,'type',r.headers.get('content-type'),'head',repr(body[:500]),flush=True)
-              except urllib.error.HTTPError as e:
-                print('REQUEST',idx,method,'HTTP ERROR',e.code,'type',e.headers.get('content-type'),'head',repr(e.read(500)),flush=True)
-              except Exception as e:
-                print('REQUEST',idx,method,'EXCEPTION',type(e).__name__,str(e)[:300],flush=True)
+          import urllib.request,urllib.parse,urllib.error
+          q="SELECT TOP 2 source_id,ra,dec,l,b,ref_epoch,phot_g_mean_mag,bp_rp FROM gaiadr3.gaia_source WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',83.8221,-5.3911,0.02))"
+          url='https://gaia.aip.de/tap/sync?'+urllib.parse.urlencode({'REQUEST':'doQuery','LANG':'ADQL','FORMAT':'csv','QUERY':q})
+          req=urllib.request.Request(url,headers={'User-Agent':'SPHERALYX-ScienceCheck/1','Accept':'text/csv'})
+          try:
+            with urllib.request.urlopen(req,timeout=50) as r:
+              body=r.read(1400)
+              print('AIP HTTP:',r.status,'final:',r.url,'type:',r.headers.get('content-type'),'sample:',repr(body[:1200]))
+          except urllib.error.HTTPError as e:
+            print('AIP HTTP ERROR:',e.code,'type:',e.headers.get('content-type'),'sample:',repr(e.read(1100)))
+          except Exception as e:
+            print('AIP EXCEPTION:',type(e).__name__,str(e)[:350])
           PY
