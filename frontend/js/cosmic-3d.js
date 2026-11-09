@@ -264,6 +264,23 @@ export function initCosmic3D() {
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.clip();
 
+    // Nebulosa de iluminación *decorativa*: no representa fuentes Gaia ni imágenes FITS.
+    // Ningún punto estelar se genera aquí; las marcas de fuentes proceden de TAP.
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-0.33);
+    ctx.scale(1, 0.30);
+    const nebula = ctx.createRadialGradient(-r * .18, 0, r * .07, 0, 0, r * 1.03);
+    nebula.addColorStop(0, 'rgba(157,89,241,.13)');
+    nebula.addColorStop(.4, 'rgba(61,95,200,.10)');
+    nebula.addColorStop(.77, 'rgba(63,155,216,.055)');
+    nebula.addColorStop(1, 'rgba(63,155,216,0)');
+    ctx.fillStyle = nebula;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 1.05, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
     if (grid.checked) {
       ctx.lineWidth = 0.7;
       ctx.strokeStyle = 'rgba(130,199,228,.24)';
@@ -298,9 +315,12 @@ export function initCosmic3D() {
         const radiusPx = Math.max(1.8, Math.min(4.2, 4.4 - (mag - 10) * 0.22));
         const warm = typeof s.bp_rp === 'number' && Number.isFinite(s.bp_rp) && s.bp_rp > 1.2;
         ctx.fillStyle = warm ? 'rgba(255,232,196,.92)' : 'rgba(196,238,255,.94)';
+        ctx.shadowBlur = item.key === selectedKey ? 19 : 7;
+        ctx.shadowColor = warm ? 'rgba(255,194,138,.54)' : 'rgba(117,172,255,.55)';
         ctx.beginPath();
         ctx.arc(sx, sy, radiusPx, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
       } else {
         const w1 = typeof s.w1mpro === 'number' && Number.isFinite(s.w1mpro) ? s.w1mpro : 15.0;
         const sizePx = Math.max(2.0, Math.min(4.0, 4.0 - (w1 - 9) * 0.2));
