@@ -190,8 +190,8 @@ export function initCosmic3D() {
   }
   function allCatalogItems() {
     const items = [];
-    for (const s of gaiaSources) items.push({ key: `gaia:${s.source_id}`, kind: 'gaia', raw: s });
-    for (const s of wiseSources) items.push({ key: `wise:${s.source_id}`, kind: 'wise', raw: s });
+    if (matchesCatalogQuery(gaiaMeta)) for (const s of gaiaSources) items.push({ key: `gaia:${s.source_id}`, kind: 'gaia', raw: s });
+    if (matchesCatalogQuery(wiseMeta)) for (const s of wiseSources) items.push({ key: `wise:${s.source_id}`, kind: 'wise', raw: s });
     return items;
   }
 
@@ -252,7 +252,7 @@ export function initCosmic3D() {
     };
     const counterpart = findCandidateCounterpart(item);
     if (item.kind === 'gaia') {
-      addRow('Catálogo', 'Gaia DR3 (ESA TAP)');
+      addRow('Catálogo', `Gaia DR3 · ${gaiaMeta?.source || 'Archivo Gaia'}`);
       addRow('source_id', String(s.source_id));
       addRow('RA / Dec (ICRS)', `${fmt(s.ra, 6, '°')} / ${fmt(s.dec, 6, '°')}`);
       addRow('Época ref.', s.ref_epoch != null ? `J${Number(s.ref_epoch).toFixed(1)}` : 'No disponible (null) · catálogo Gaia DR3: J2016.0');
@@ -546,7 +546,7 @@ export function initCosmic3D() {
   }
 
   async function loadCatalog(kind) {
-    if (offline?.checked && document.body.dataset.catalogMode !== 'real') {
+    if (offline?.checked || document.body.dataset.catalogMode === 'offline') {
       abortCatalogRequests();
       if (catalogStatus) catalogStatus.textContent = 'DEMO OFFLINE · Consultas a Gaia DR3 y AllWISE desactivadas.';
       return;
@@ -562,7 +562,7 @@ export function initCosmic3D() {
     const controller = new AbortController();
     if (isGaia) { gaiaController = controller; if (gaiaBtn) gaiaBtn.disabled = true; }
     else { wiseController = controller; if (wiseBtn) wiseBtn.disabled = true; }
-    if (catalogStatus) catalogStatus.textContent = isGaia ? 'Consultando Gaia DR3 en ESA TAP…' : 'Consultando AllWISE en NASA/IPAC IRSA TAP…';
+    if (catalogStatus) catalogStatus.textContent = isGaia ? 'Consultando Gaia DR3 (ESA / Gaia@AIP)…' : 'Consultando AllWISE en NASA/IPAC IRSA TAP…';
 
     try {
       const data = isGaia
@@ -639,7 +639,7 @@ export function initCosmic3D() {
   }
   if (offline) {
     offline.addEventListener('change', () => {
-      if (offline.checked && document.body.dataset.catalogMode !== 'real') {
+      if (offline.checked) {
         abortCatalogRequests();
         gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = '';
         populateSourceSelect();
@@ -652,6 +652,10 @@ export function initCosmic3D() {
   }
 
   document.querySelector('#cosmic-search').addEventListener('click', () => {
+    if (document.body.dataset.irsaMode === 'offline') {
+      status.textContent = 'SPHEREx está restringido en este servidor. Consulta Gaia DR3 o AllWISE desde los controles del explorador.';
+      return;
+    }
     if (!coords()) {
       status.textContent = 'Introduce coordenadas RA/Dec válidas antes de buscar.';
       return;
