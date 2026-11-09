@@ -36,3 +36,19 @@ El endpoint `/health` informa `catalog_mode` y `data_mode` separadamente. Cuando
 - Revisar funcionamiento en Chrome/Edge con WebGL2 y conectividad, tamaños 375/768/1440 px, respuestas truncadas y fallidas.
 
 El usuario debe distinguir siempre **datos Gaia DR3 reales**, **imagen óptica histórica DSS2** y **observaciones FITS SPHEREx**. La ausencia de Gaia o DSS2 no demuestra que haya descubierto un objeto nuevo.
+
+
+## Disponibilidad de Gaia TAP — ESA y archivo oficial alternativo
+
+En una prueba de producción del 9 de noviembre de 2026, la API pública de SPHERALYX respondió `502` porque ESA Gaia TAP devolvía `HTTP 429` (límite de solicitudes) a una infraestructura de pruebas. La conexión no implicaba que la consulta ADQL ni las coordenadas fueran incorrectas.
+
+Ahora `backend/astronomy/gaia_client.py` intenta primero el TAP oficial de ESA **una sola vez**. Si ESA devuelve limitación `429`, fallo transitorio `502/503/504` o error de conexión/tiempo, usa el TAP oficial **Gaia@AIP** del Leibniz-Institut für Astrophysik Potsdam, centro asociado de distribución de Gaia DR3: https://gaia.aip.de/tap/
+
+Gaia@AIP puede devolver un **VOTable XML** incluso indicando `FORMAT=csv`. Se analiza con `astropy.io.votable` (ya declarado en las dependencias), se convierten las columnas por sus nombres oficiales y se conserva `source_id` como *cadena*. No se fabrican registros ante errores. En cada respuesta aparecen `source` y `service_url`, y la interfaz muestra qué archivo suministró los datos. El fallback no altera las épocas ni la interpretación de magnitudes y paralajes.
+
+La política no reintenta repetidamente contra ESA cuando este impone cuotas, para evitar incrementar la carga sobre sus servidores. Las pruebas Python mockean una respuesta 429 seguida de un VOTable válido, y la auditoría web confirma que la procedencia se mantiene y la interfaz funciona. **Una prueba de extremo a extremo contra la instancia pública sigue siendo necesaria** después del despliegue: el éxito de los tests con respuestas controladas no demuestra disponibilidad permanente de archivos externos.
+
+Fuentes oficiales:
+- [ESA Gaia TAP](https://gea.esac.esa.int/tap-server/tap/)
+- [Gaia@AIP (TAP y acceso programático)](https://gaia.aip.de/cms/services/scripted-access/)
+- [Tabla Gaia DR3 en AIP](https://gaia.aip.de/metadata/gaiadr3/gaia_source/)
