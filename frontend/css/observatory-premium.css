@@ -380,3 +380,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
  .portal-orb .portal-sketchfab-frame{min-height:350px}
  .portal-scene-info .portal-model-credit{max-width:100%}
 }
+
+/* Garantiza que el iframe de Sketchfab no tape los botones de regreso ni la atribución. */
+.portal-stage .portal-orb{z-index:0}
+.portal-stage .portal-intro,.portal-stage .portal-scene-info{z-index:6}
+.portal-stage .portal-mission-panel{z-index:5}
+.portal-stage .portal-scene-info{max-width:min(390px,calc(100% - 38px))}
+.portal-scene-info #portal-sketchfab-toggle{
+ background:linear-gradient(115deg,#8558e8,#493eae);
+ box-shadow:0 4px 20px rgba(116,67,219,.27);
+ min-height:43px;padding:10px 15px;
+}
+.cosmic-3d-stage .cosmic-renderer-toggle{box-shadow:0 4px 25px rgba(133,79,225,.3)}
+.cosmic-3d-stage.webgl-active .cosmic-stage-label{border-color:rgba(166,211,255,.5);color:#d6f2ff}
+.cosmic-3d-stage.webgl-active .cosmic-renderer-status{color:#c8f1ff}
