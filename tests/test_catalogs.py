@@ -162,6 +162,9 @@ def test_wise_parse_and_endpoint(monkeypatch):
     assert resp.status_code == 200
     data = resp.json()
     assert data["mode"] == "real"
+    assert data["reference_epoch"] is None
+    assert "J2000" in data["coordinate_reference"]
+    assert "no es una época de observación" in data["epoch_notice"]
     assert data["association_status"] == "candidata_por_proximidad_no_confirmada"
     assert data["count"] == 2
     first = data["sources"][0]
