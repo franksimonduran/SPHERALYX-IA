@@ -112,6 +112,7 @@ export function initCosmic3D() {
       modeBtn.textContent = 'Volver a vista 2D';
       modeStatus.textContent = 'WebGL 3D activo · fuentes reales solo tras consulta Gaia/WISE';
       draw();
+      publishGaiaViews();
     } catch (error) {
       stage.classList.remove('webgl-active');
       stage.dataset.renderMode = '2d';
@@ -177,6 +178,16 @@ export function initCosmic3D() {
       Math.abs(Number(q.radius_deg) - rr) < 1e-7);
   }
 
+  function publishGaiaViews() {
+    const p = coords(), rr = validRadius();
+    const valid = p && rr !== null && gaiaMeta && matchesCatalogQuery(gaiaMeta);
+    document.dispatchEvent(new CustomEvent('spheralyx:gaia-visualization', { detail: {
+      sources: valid ? gaiaSources : [],
+      selectedKey: valid && selectedKey.startsWith('gaia:') ? selectedKey : '',
+      query: valid ? gaiaMeta.query : p && rr !== null ? { ra:p.ra,dec:p.dec,radius_deg:rr } : null,
+      meta: valid ? {truncated:gaiaMeta.truncated,queried_at_utc:gaiaMeta.queried_at_utc} : null
+    }}));
+  }
   function allCatalogItems() {
     const items = [];
     for (const s of gaiaSources) items.push({ key: `gaia:${s.source_id}`, kind: 'gaia', raw: s });
@@ -287,6 +298,7 @@ export function initCosmic3D() {
     dec.dispatchEvent(new Event('input', { bubbles: true }));
     const label = item.kind === 'gaia' ? `Gaia DR3 ${item.raw.source_id}` : `AllWISE ${item.raw.source_id}`;
     status.textContent = `Coordenadas actualizadas desde ${label}. Pulsa Buscar en IRSA; la búsqueda no se inicia automáticamente.`;
+    publishGaiaViews();
     draw();
   }
 
@@ -295,6 +307,7 @@ export function initCosmic3D() {
     if (sourceSelect && sourceSelect.value !== selectedKey) sourceSelect.value = selectedKey;
     renderSourceDetail();
     const item = allCatalogItems().find(x => x.key === selectedKey);
+    publishGaiaViews();
     if (item && copyCoords) {
       applySelectedSourceToCoords(item);
     } else {
@@ -523,9 +536,11 @@ export function initCosmic3D() {
     }
     if (!parts.length) {
       catalogStatus.textContent = 'Sin catálogos cargados · consulta Gaia DR3 o AllWISE para representar direcciones reales sobre la esfera.';
+      publishGaiaViews();
       return;
     }
     catalogStatus.textContent = `${parts.join(' | ')}. Representación direccional sin distancias físicas.`;
+    publishGaiaViews();
   }
 
   async function loadCatalog(kind) {
@@ -579,6 +594,7 @@ export function initCosmic3D() {
         else { wiseSources = []; wiseMeta = null; }
         populateSourceSelect();
         draw();
+        publishGaiaViews();
         if (catalogStatus) {
           catalogStatus.textContent = `Error al consultar ${isGaia ? 'Gaia DR3' : 'AllWISE'}: ${error.message}. No se muestran fuentes sintéticas.`;
         }
@@ -710,4 +726,5 @@ export function initCosmic3D() {
   else window.addEventListener('resize', draw);
   populateSourceSelect();
   center();
+  publishGaiaViews();
 }
