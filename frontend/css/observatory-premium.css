@@ -409,3 +409,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
  .portal-intro .portal-model-entry{font-size:.63rem;min-height:37px;padding:9px 12px}
  .portal-intro{max-width:78%}
 }
+
+/* Indicador de estado real: demo offline ≠ acceso activo a archivos NASA/ESA. */
+.header-status.status-offline{border-color:rgba(255,191,123,.42);color:#f2d8ad;background:rgba(76,47,32,.34)}
+.header-status.status-offline i{background:#efb46f;box-shadow:0 0 11px rgba(239,180,111,.47)}
