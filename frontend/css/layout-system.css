@@ -301,7 +301,10 @@ main .mission-portal{padding:clamp(12px,1.2vw,20px);margin-top:22px;border-radiu
 }
 .mission-portal .portal-ambient{
   position:absolute;inset:0;z-index:0;overflow:hidden;
-  pointer-events:none;border-radius:17px;
+  pointer-events:none;border:0;border-radius:0;outline:0;box-shadow:none;
+  /* Soft edge hides the iframe's rectangular cutoff against the portal. */
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 10%,#000 90%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0%,#000 10%,#000 90%,transparent 100%);
   background:radial-gradient(ellipse at 58% 45%,#162b53 0%,#070d21 66%,#040715 100%);
 }
 .mission-portal .portal-ambient-fallback{
@@ -312,12 +315,20 @@ main .mission-portal{padding:clamp(12px,1.2vw,20px);margin-top:22px;border-radiu
     radial-gradient(circle at 76% 70%,rgba(81,51,151,.19),transparent 37%);
 }
 .mission-portal .portal-ambient-frame{
-  position:absolute;inset:0;width:100%;height:100%;
-  border:0;display:block;pointer-events:none;
-  /* Acercamiento visual moderado: mayor presencia de los planetas, sin
-     deformar geometría ni cambiar los datos científicos del observatorio. */
-  transform:scale(var(--portal-planets-zoom,1.12));
-  transform-origin:55% 48%;
+  /* Overscan: Sketchfab renders its player chrome at the edges of its iframe.
+     Keep that chrome OUTSIDE the clipped portal viewport rather than
+     adding a decorative border or relying on unsupported CSS inside iframe. */
+  position:absolute;
+  inset:-19% -15%;
+  width:130%;
+  height:138%;
+  border:0;
+  border-radius:0;
+  outline:0;
+  box-shadow:none;
+  display:block;
+  pointer-events:none;
+  transform:none;
   filter:brightness(.94) saturate(1.16);
 }
 .mission-portal .portal-ambient-shade{
@@ -362,8 +373,12 @@ main .mission-portal{padding:clamp(12px,1.2vw,20px);margin-top:22px;border-radiu
   .mission-portal .portal-stage{
     display:flex;flex-direction:column;min-height:0;gap:10px;padding:12px;
   }
-  .mission-portal .portal-ambient{inset:0;border-radius:16px}
-  .mission-portal .portal-ambient-frame{--portal-planets-zoom:1.05;transform-origin:center center}
+  .mission-portal .portal-ambient{
+    inset:0;border-radius:0;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 91%,transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 9%,#000 91%,transparent 100%);
+  }
+  .mission-portal .portal-ambient-frame{inset:-13% -25%;width:150%;height:126%}
   .mission-portal .portal-intro{
     order:0;width:100%;max-width:none;
     padding:22px 15px 10px;align-self:stretch;
