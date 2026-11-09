@@ -394,3 +394,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[t
 .cosmic-3d-stage .cosmic-renderer-toggle{box-shadow:0 4px 25px rgba(133,79,225,.3)}
 .cosmic-3d-stage.webgl-active .cosmic-stage-label{border-color:rgba(166,211,255,.5);color:#d6f2ff}
 .cosmic-3d-stage.webgl-active .cosmic-renderer-status{color:#c8f1ff}
+
+/* Entrada clara y visible al modelo real de Sketchfab; no requiere buscar el botón inferior. */
+.portal-intro .portal-model-entry{
+ pointer-events:auto;display:block;margin-top:12px;min-height:42px;
+ padding:11px 19px;background:rgba(20,24,54,.85);
+ border:1px solid rgba(188,155,255,.7);border-radius:10px;
+ color:#f5edff;font-size:.71rem;font-weight:750;letter-spacing:.055em;
+ text-shadow:0 1px 2px #050914;
+ box-shadow:0 4px 24px rgba(89,60,165,.22);
+}
+.portal-intro .portal-model-entry:hover{background:rgba(97,66,165,.85)}
+@media(max-width:760px){
+ .portal-intro .portal-model-entry{font-size:.63rem;min-height:37px;padding:9px 12px}
+ .portal-intro{max-width:78%}
+}
