@@ -1,0 +1,36 @@
+name: Diagnose ESA TAP transport
+on:
+  push:
+    paths:
+      - '.github/workflows/gaia-transport-diagnostic.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Test ESA TAP in GET and POST modes
+        run: |
+          python - <<'PY'
+          import urllib.parse,urllib.request,urllib.error,time
+          endpoint='https://gea.esac.esa.int/tap-server/tap/sync'
+          queries=[
+            "SELECT TOP 1 source_id,ra,dec FROM gaiadr3.gaia_source",
+            "SELECT TOP 5 source_id,ra,dec,l,b,phot_g_mean_mag,bp_rp FROM gaiadr3.gaia_source WHERE 1=CONTAINS(POINT('ICRS',ra,dec),CIRCLE('ICRS',83.8221,-5.3911,0.02)) ORDER BY phot_g_mean_mag ASC,source_id ASC"
+          ]
+          for idx,query in enumerate(queries):
+            params={'REQUEST':'doQuery','LANG':'ADQL','FORMAT':'csv','QUERY':query}
+            for method in ('GET','POST'):
+              encoded=urllib.parse.urlencode(params)
+              url=endpoint+('?'+encoded if method=='GET' else '')
+              data=None if method=='GET' else encoded.encode()
+              req=urllib.request.Request(url,data=data,headers={'User-Agent':'SPHERALYX-diagnostic/1','Accept':'text/csv','Content-Type':'application/x-www-form-urlencoded'})
+              try:
+                with urllib.request.urlopen(req,timeout=40) as r:
+                  body=r.read(550)
+                  print('REQUEST',idx,method,'HTTP',r.status,'final',r.url,'type',r.headers.get('content-type'),'head',repr(body[:500]),flush=True)
+              except urllib.error.HTTPError as e:
+                print('REQUEST',idx,method,'HTTP ERROR',e.code,'type',e.headers.get('content-type'),'head',repr(e.read(500)),flush=True)
+              except Exception as e:
+                print('REQUEST',idx,method,'EXCEPTION',type(e).__name__,str(e)[:300],flush=True)
+          PY
