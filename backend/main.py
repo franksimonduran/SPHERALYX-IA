@@ -1,6 +1,8 @@
 """API de SPHERALYX: búsquedas reales, sin mezclar con la demostración local."""
 import os
 import threading
+import time
+from collections import deque
 from pathlib import Path
 from typing import Literal
 from pydantic import BaseModel, Field
@@ -18,23 +20,44 @@ origins = [x.strip() for x in os.getenv("SPHERALYX_CORS_ORIGINS", "http://localh
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["GET", "POST"], allow_headers=["*"], expose_headers=["X-Flagged-Pixels", "X-Invalid-Pixels", "X-Preview-Scientific"])
 
 
+_catalog_access = deque()
+_catalog_access_lock = threading.Lock()
+CATALOG_WINDOW_SECONDS = 600
+CATALOG_MAX_REQUESTS = 40  # global per Render worker; protects external ESA/NASA upstream
+
+def _flag(name):
+    return os.getenv(name, '').strip().lower() in ('1', 'true', 'yes')
+
 @app.middleware('http')
 async def offline_guard(request, call_next):
-    """Bloqueo optativo de APIs externas (IRSA, Gaia, WISE); no afecta a experimentos sintéticos locales."""
-    offline = os.getenv('SPHERALYX_OFFLINE', '').lower() in ('1', 'true', 'yes')
+    """SPHEREx permanece offline; permitir catálogos solamente con opt-in explícito."""
+    offline = _flag('SPHERALYX_OFFLINE')
+    catalogs_online = _flag('SPHERALYX_CATALOGS_ONLINE')
     path = request.url.path
-    if offline and (path == '/api/observations' or path.startswith('/api/observations/')
-                    or path == '/api/temporal' or path.startswith('/api/temporal/')
-                    or path == '/api/gaia' or path.startswith('/api/gaia/')
-                    or path == '/api/wise' or path.startswith('/api/wise/')):
-        return JSONResponse(status_code=503, content={'detail': 'Modo offline del servidor: acceso a servicios astronómicos externos (IRSA/Gaia/WISE) desactivado'})
+    is_catalog = path == '/api/gaia' or path.startswith('/api/gaia/') or path == '/api/wise' or path.startswith('/api/wise/')
+    is_irsa = path == '/api/observations' or path.startswith('/api/observations/') or path == '/api/temporal' or path.startswith('/api/temporal/')
+    if offline and (is_irsa or (is_catalog and not catalogs_online)):
+        return JSONResponse(status_code=503, content={'detail':'Modo offline del servidor: servicio solicitado desactivado'})
+    if is_catalog and catalogs_online:
+        # Cuota global: evita exposición sin controles a TAP público.
+        now = time.monotonic()
+        with _catalog_access_lock:
+            while _catalog_access and now - _catalog_access[0] >= CATALOG_WINDOW_SECONDS:
+                _catalog_access.popleft()
+            if len(_catalog_access) >= CATALOG_MAX_REQUESTS:
+                return JSONResponse(status_code=429, content={'detail':'Límite de consultas a Gaia/WISE alcanzado. Vuelve más tarde.'}, headers={'Retry-After':'600'})
+            _catalog_access.append(now)
     return await call_next(request)
 
 
 @app.get("/health")
 def health():
-    offline = os.getenv('SPHERALYX_OFFLINE', '').lower() in ('1', 'true', 'yes')
-    return {"status": "ok", "service": "spheralyx", "data_mode": "offline" if offline else "real", "upstream_checked": False}
+    offline = _flag('SPHERALYX_OFFLINE')
+    catalogs_online = _flag('SPHERALYX_CATALOGS_ONLINE')
+    return {"status":"ok","service":"spheralyx",
+            "data_mode":"offline" if offline else "real",
+            "catalog_mode":"real" if catalogs_online or not offline else "offline",
+            "upstream_checked":False}
 
 
 @app.get("/api/observations")
