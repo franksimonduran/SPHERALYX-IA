@@ -85,6 +85,16 @@ export function initCosmic3D() {
     return Math.min(250, Math.max(1, Math.round((0.68 / s) * 10) / 10));
   }
 
+  // La procedencia de cada capa pertenece al cono consultado, no a los campos
+  // RA/Dec que el usuario pueda editar posteriormente.
+  function matchesCatalogQuery(meta) {
+    const p = coords(), rr = validRadius(), q = meta?.query;
+    return Boolean(p && rr !== null && q &&
+      Math.abs(Number(q.ra) - p.ra) < 1e-7 &&
+      Math.abs(Number(q.dec) - p.dec) < 1e-7 &&
+      Math.abs(Number(q.radius_deg) - rr) < 1e-7);
+  }
+
   function allCatalogItems() {
     const items = [];
     for (const s of gaiaSources) items.push({ key: `gaia:${s.source_id}`, kind: 'gaia', raw: s });
@@ -150,7 +160,7 @@ export function initCosmic3D() {
       addRow('Catálogo', 'Gaia DR3 (ESA TAP)');
       addRow('source_id', String(s.source_id));
       addRow('RA / Dec (ICRS)', `${fmt(s.ra, 6, '°')} / ${fmt(s.dec, 6, '°')}`);
-      addRow('Época ref.', s.ref_epoch != null ? `J${Number(s.ref_epoch).toFixed(1)}` : 'J2016.0');
+      addRow('Época ref.', s.ref_epoch != null ? `J${Number(s.ref_epoch).toFixed(1)}` : 'No disponible (null) · catálogo Gaia DR3: J2016.0');
       addRow('Mag G', fmt(s.phot_g_mean_mag, 3, ' mag'));
       addRow('BP / RP', `${fmt(s.phot_bp_mean_mag, 3)} / ${fmt(s.phot_rp_mean_mag, 3)}`);
       addRow('Color BP−RP', fmt(s.bp_rp, 3, ' mag'));
@@ -226,6 +236,8 @@ export function initCosmic3D() {
     stage.dataset.gaiaCount = String(gaiaSources.length);
     stage.dataset.wiseCount = String(wiseSources.length);
     stage.dataset.selectedSource = selectedKey;
+    stage.dataset.catalogStale = String((gaiaSources.length > 0 && !matchesCatalogQuery(gaiaMeta)) ||
+      (wiseSources.length > 0 && !matchesCatalogQuery(wiseMeta)));
     projectedHits = [];
     if (!ctx) return;
     const box = stage.getBoundingClientRect(), w = box.width, h = box.height;
@@ -272,7 +284,8 @@ export function initCosmic3D() {
     }
 
     // Fuentes reales Gaia DR3 y AllWISE proyectadas sobre la esfera de radio constante (sin distancias físicas).
-    for (const item of allCatalogItems()) {
+    for (const item of allCatalogItems().filter(item =>
+      matchesCatalogQuery(item.kind === 'gaia' ? gaiaMeta : wiseMeta))) {
       const s = item.raw;
       const p = projectEquatorial(s.ra, s.dec, viewRa, viewDec);
       if (p.depth < 0) continue;
@@ -385,10 +398,10 @@ export function initCosmic3D() {
     if (!catalogStatus) return;
     const parts = [];
     if (gaiaMeta) {
-      parts.push(`Gaia DR3 (${gaiaMeta.reference_epoch || 'J2016.0'}): ${gaiaSources.length} fuentes reales${gaiaMeta.truncated ? ' (posible truncamiento)' : ''}`);
+      parts.push(`Gaia DR3 (${gaiaMeta.reference_epoch || 'J2016.0'}): ${gaiaSources.length} fuentes reales${gaiaMeta.truncated ? ' (posible truncamiento)' : ''}${matchesCatalogQuery(gaiaMeta) ? '' : ' · CONSULTA ANTERIOR: fuentes ocultas hasta volver al campo consultado'}`);
     }
     if (wiseMeta) {
-      parts.push(`AllWISE: ${wiseSources.length} fuentes reales${wiseMeta.truncated ? ' (posible truncamiento)' : ''} · asociación candidata no confirmada`);
+      parts.push(`AllWISE: ${wiseSources.length} fuentes reales${wiseMeta.truncated ? ' (posible truncamiento)' : ''}${matchesCatalogQuery(wiseMeta) ? '' : ' · CONSULTA ANTERIOR: fuentes ocultas hasta volver al campo consultado'} · asociación candidata no confirmada`);
     }
     if (!parts.length) {
       catalogStatus.textContent = 'Sin catálogos cargados · consulta Gaia DR3 o AllWISE para representar direcciones reales sobre la esfera.';
@@ -425,10 +438,10 @@ export function initCosmic3D() {
 
       if (isGaia) {
         gaiaSources = data.sources;
-        gaiaMeta = data;
+        gaiaMeta = { ...data, query: { ra: p.ra, dec: p.dec, radius_deg: rr } };
       } else {
         wiseSources = data.sources;
-        wiseMeta = data;
+        wiseMeta = { ...data, query: { ra: p.ra, dec: p.dec, radius_deg: rr } };
       }
       viewRa = p.ra;
       viewDec = p.dec;
@@ -459,8 +472,8 @@ export function initCosmic3D() {
   }
 
   for (const input of [ra, dec, radius, release]) {
-    input.addEventListener('input', () => { abortCatalogRequests(); draw(); });
-    input.addEventListener('change', () => { abortCatalogRequests(); draw(); });
+    input.addEventListener('input', () => { abortCatalogRequests(); updateCatalogSummary(); draw(); });
+    input.addEventListener('change', () => { abortCatalogRequests(); updateCatalogSummary(); draw(); });
   }
   grid.addEventListener('change', draw);
   document.querySelector('#cosmic-center').addEventListener('click', center);
