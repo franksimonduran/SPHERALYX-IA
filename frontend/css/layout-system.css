@@ -265,3 +265,23 @@ main .mission-portal{padding:clamp(12px,1.2vw,20px);margin-top:22px;border-radiu
 @media(prefers-reduced-motion:reduce){
  .header nav a,.mission-rail a{transition:none}
 }
+
+/* One visible entry per action: launch embedded Sketchfab from the hero;
+   the scene note retains reset and attribution but not a duplicate launcher. */
+.mission-portal .portal-scene-info #portal-sketchfab-toggle{display:none!important}
+.mission-portal .portal-intro .portal-model-entry{
+  border:1px solid rgba(170,157,235,.55);
+  background:rgba(19,28,57,.82);color:#e7e1fa;
+  box-shadow:none;
+}
+.mission-portal .portal-intro .portal-model-entry:hover{
+  background:rgba(87,64,143,.85);border-color:#c9a8ff;
+}
+.mission-portal .portal-explore{background:linear-gradient(105deg,#6943b9,#9157eb)}
+.mission-portal .portal-explore:hover{background:linear-gradient(105deg,#8255db,#ad78fb)}
+/* The image supplied by the project is shown prominently without distorting it. */
+.header .brand-logo:not([hidden]){
+  background:rgba(35,30,70,.35);
+  border:1px solid rgba(161,132,227,.22);
+  filter:brightness(1.16) contrast(1.13);
+}
