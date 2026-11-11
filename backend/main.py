@@ -35,6 +35,12 @@ async def offline_guard(request, call_next):
     offline = _flag('SPHERALYX_OFFLINE')
     catalogs_online = _flag('SPHERALYX_CATALOGS_ONLINE')
     path = request.url.path
+    # Los ensayos con datos sinteticos son pruebas internas, nunca parte de la API publica.
+    # Activacion explicita solo en entornos privados de QA (no habilitar en Render).
+    if (path == '/api/experimental' or path.startswith('/api/experimental/')) and not _flag('SPHERALYX_INTERNAL_EXPERIMENTS'):
+        return JSONResponse(status_code=404, content={
+            'detail': 'Los experimentos sintéticos no están disponibles en esta plataforma de observaciones reales.'
+        })
     is_catalog = path == '/api/gaia' or path.startswith('/api/gaia/') or path == '/api/wise' or path.startswith('/api/wise/')
     is_irsa = path == '/api/observations' or path.startswith('/api/observations/') or path == '/api/temporal' or path.startswith('/api/temporal/')
     if offline and (is_irsa or (is_catalog and not catalogs_online)):
