@@ -633,12 +633,12 @@ export function initCosmic3D() {
   }
 
   for (const input of [ra, dec, radius, release]) {
-    input.addEventListener('input', () => { abortCatalogRequests(); if (!copyingCatalogCoords) populateSourceSelect(); updateCatalogSummary(); draw(); });
-    input.addEventListener('change', () => { abortCatalogRequests(); if (!copyingCatalogCoords) populateSourceSelect(); updateCatalogSummary(); draw(); });
+    input.addEventListener('input', () => { abortCatalogRequests(); if (!copyingCatalogCoords) { catalogFocus = null; populateSourceSelect(); } updateCatalogSummary(); draw(); });
+    input.addEventListener('change', () => { abortCatalogRequests(); if (!copyingCatalogCoords) { catalogFocus = null; populateSourceSelect(); } updateCatalogSummary(); draw(); });
   }
   grid.addEventListener('change', draw);
   document.querySelector('#cosmic-center').addEventListener('click', center);
-  if (zoomInBtn) zoomInBtn.addEventListener('click', () => { sphereZoom = Math.min(250, Math.round(sphereZoom * 1.6 * 10) / 10); draw(); });
+  if (zoomInBtn) zoomInBtn.addEventListener('click', () => { sphereZoom = Math.min(8000, Math.round(sphereZoom * 1.6 * 10) / 10); draw(); });
   if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => { sphereZoom = Math.max(1, Math.round((sphereZoom / 1.6) * 10) / 10); draw(); });
   if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => { sphereZoom = 1; draw(); });
   if (gaiaBtn) gaiaBtn.addEventListener('click', () => loadCatalog('gaia'));
@@ -646,7 +646,7 @@ export function initCosmic3D() {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       abortCatalogRequests();
-      gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = '';
+      gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = ''; catalogFocus = null;
       sphereZoom = 1;
       populateSourceSelect();
       updateCatalogSummary();
@@ -666,7 +666,7 @@ export function initCosmic3D() {
     offline.addEventListener('change', () => {
       if (offline.checked) {
         abortCatalogRequests();
-        gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = '';
+        gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = ''; catalogFocus = null;
         populateSourceSelect();
         if (catalogStatus) catalogStatus.textContent = 'CATÁLOGOS NO DISPONIBLES · No se pueden consultar Gaia DR3 ni AllWISE desde este servidor.';
         draw();
@@ -688,6 +688,13 @@ export function initCosmic3D() {
     document.querySelector('#real-search').requestSubmit();
     document.querySelector('#real-title').scrollIntoView({ block: 'start' });
   });
+
+  // Acercamiento continuo sin cambiar las coordenadas ni volver a consultar servicios.
+  stage.addEventListener('wheel', event => {
+    event.preventDefault();
+    sphereZoom = Math.max(1, Math.min(8000, sphereZoom * (event.deltaY < 0 ? 1.22 : 1 / 1.22)));
+    draw();
+  }, { passive: false });
 
   stage.addEventListener('keydown', event => {
     if (event.target !== stage) return;
@@ -743,13 +750,13 @@ export function initCosmic3D() {
       selectSourceByKey(nearest.key, { copyCoords: true });
       return;
     }
-    if (Math.hypot(mx - cx, my - cy) > r) {
-      status.textContent = 'Selecciona un punto dentro de la esfera.';
+    if (!webgl && Math.hypot(mx - cx, my - cy) > r) {
+      status.textContent = 'Selecciona una dirección dentro del visor.';
       return;
     }
     const p = unprojectEquatorial((mx - cx) / (r * sphereZoom), -(my - cy) / (r * sphereZoom), viewRa, viewDec);
     if (p) selected(p);
-    else status.textContent = 'Selecciona un punto dentro de la esfera.';
+    else status.textContent = 'Selecciona una dirección válida del cielo.';
   });
 
   for (const type of ['pointercancel', 'lostpointercapture']) stage.addEventListener(type, () => { drag = null; });
