@@ -41,6 +41,8 @@ if (headerDataStatus) {
     const cosmicSearch = document.querySelector('#cosmic-search');
     const compareSearch = document.querySelector('#compare-real-form button[type="submit"]');
     const pairSearch = document.querySelector('#find-pairs');
+    const temporalStatus = document.querySelector('#temporal-service-status');
+    const temporalEntry = document.querySelector('#temporal-open-search');
     // En un servidor restringido no ofrecemos acciones que inevitablemente fallan.
     // El estado del backend informa restricciones de acceso; no crea datos alternativos.
     for (const button of [irsaSearch, cosmicSearch, compareSearch, pairSearch]) {
@@ -49,6 +51,16 @@ if (headerDataStatus) {
         if (irsaLocked) button.title = 'SPHEREx/IRSA no está habilitado en este servidor. Gaia y WISE pueden consultarse por separado.';
         else button.removeAttribute('title');
       }
+    }
+    if (temporalStatus) {
+      temporalStatus.textContent = irsaLocked
+        ? 'SPHEREx no está habilitado en este servidor. La cronología y los visores se mantendrán vacíos; abre el archivo oficial de NASA/IPAC.'
+        : 'Consulta SPHEREx habilitada en el servidor. La disponibilidad de respuestas NASA/IPAC IRSA aún no se ha verificado.';
+      temporalStatus.dataset.status = irsaLocked ? 'unavailable' : 'ready';
+    }
+    if (temporalEntry && irsaLocked) {
+      temporalEntry.disabled = true;
+      temporalEntry.title = 'La consulta SPHEREx está deshabilitada en este servidor; utiliza el enlace al archivo oficial.';
     }
     if (irsaLocked && irsaNotice) {
       irsaNotice.textContent = 'SPHEREx no disponible en este servidor: búsqueda FITS y comparación temporal desactivadas. Gaia DR3 y AllWISE pueden consultarse desde Cosmic Explorer.';
@@ -66,5 +78,8 @@ if (headerDataStatus) {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> MODO REAL · SERVICIOS NO VERIFICADOS';
       headerDataStatus.setAttribute('title', 'Las consultas están habilitadas; NASA y ESA pueden no responder.');
     }
-  }).catch(() => { /* Estado desconocido: conservar el texto original. */ });
+  }).catch(() => {
+    const status=document.querySelector('#temporal-service-status');
+    if(status)status.textContent='No se pudo comprobar el estado del servidor. Los datos NASA/IPAC no se darán por disponibles sin respuesta.';
+  });
 }
