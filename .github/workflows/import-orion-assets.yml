@@ -1,0 +1,63 @@
+name: Import aligned Webb Orion educational images
+on:
+  push:
+    paths:
+      - '.github/workflows/import-orion-assets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install image optimizer
+        run: python -m pip install 'Pillow>=11,<13'
+      - name: Download ESA aligned channels and optimize as local WebP
+        env:
+          IMAGE_A_URL: "https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2023/09/slider_orion_nebula_in_nircam_short-_versus_long-wavelength_channel_aligned/25105038-1-eng-GB/Slider_Orion_Nebula_in_NIRCam_short-_versus_long-wavelength_channel_aligned.png"
+          IMAGE_B_URL: "https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2023/09/orion_nebula_in_nircam_long-wavelength_channel_aligned/25104993-1-eng-GB/Orion_Nebula_in_NIRCam_long-wavelength_channel_aligned.png"
+        run: |
+          python - <<'PY'
+          import os, urllib.request, io, hashlib
+          from pathlib import Path
+          from PIL import Image, ImageChops, ImageStat
+          dest=Path('frontend/assets/orion')
+          dest.mkdir(parents=True,exist_ok=True)
+          images=[]
+          for suffix,key in (('short','IMAGE_A_URL'),('long','IMAGE_B_URL')):
+              req=urllib.request.Request(os.environ[key],headers={'User-Agent':'Mozilla/5.0 (SPHERALYX educational asset importer)'})
+              with urllib.request.urlopen(req,timeout=65) as r:
+                  raw=r.read(12_000_000)
+              if not raw.startswith(b'\x89PNG\r\n\x1a\n'):
+                  raise ValueError(f'{suffix}: expected ESA PNG image')
+              img=Image.open(io.BytesIO(raw)).convert('RGB')
+              if min(img.size)<600:
+                  raise ValueError(f'{suffix}: image too small {img.size}')
+              images.append(img)
+              print(f'SOURCE {suffix}: size={img.size} bytes={len(raw)} sha256={hashlib.sha256(raw).hexdigest()}',flush=True)
+          if images[0].size!=images[1].size:
+              raise ValueError(f'ESA aligned image dimensions differ: {[a.size for a in images]}')
+          if ImageStat.Stat(ImageChops.difference(images[0],images[1])).mean[0]<2:
+              raise ValueError('Unexpectedly similar images, check source pairing')
+          for image,name in zip(images,('orion-nircam-short.webp','orion-nircam-long.webp')):
+              if image.width>1800:
+                  image.thumbnail((1800,1300), Image.Resampling.LANCZOS)
+              p=dest/name
+              image.save(p,'WEBP',quality=88,method=6)
+              print(f'ASSET {p} resolution={image.size} bytes={p.stat().st_size}',flush=True)
+          PY
+      - name: Commit verified images on main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/assets/orion/orion-nircam-short.webp frontend/assets/orion/orion-nircam-long.webp
+          if git diff --cached --quiet; then echo 'Files already up to date'; exit 0; fi
+          git commit -m "assets: import and optimize aligned JWST NIRCam Orion pair from ESA"
+          git push origin HEAD:main
