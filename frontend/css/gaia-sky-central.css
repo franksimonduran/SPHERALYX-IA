@@ -70,3 +70,29 @@
 @media(prefers-reduced-motion:reduce){
   .cosmic-3d-stage .cosmic-gaia-empty{transition:none}
 }
+
+
+/* Cosmic Explorer: panel central inmersivo sin esfera opaca, con datos reales como protagonistas. */
+.cosmic-3d-layout{grid-template-columns:minmax(205px,23%) minmax(0,1fr) minmax(215px,23%);gap:12px}
+.cosmic-3d-stage.webgl-active{
+  min-height:clamp(510px,50vw,720px);
+  border:1px solid rgba(117,155,237,.42);
+  background:#020713;
+  box-shadow:inset 0 0 100px rgba(1,5,20,.72),0 0 42px rgba(65,65,158,.14);
+}
+.cosmic-3d-stage.webgl-active .cosmic-webgl-canvas{filter:none}
+.cosmic-3d-stage.webgl-active::after{content:'GAIA DR3 / ALLWISE · PROYECCIÓN ICRS · POSICIONES DE CATÁLOGO';opacity:.86}
+.cosmic-3d-stage.webgl-active .cosmic-renderer-status{
+  display:inline-flex;align-items:center;min-height:28px;padding:6px 10px;
+  border:1px solid rgba(124,184,255,.24);border-radius:8px;
+  background:rgba(4,13,33,.82);backdrop-filter:blur(10px);
+  font-variant-numeric:tabular-nums;
+}
+.cosmic-3d-stage.webgl-active .cosmic-stage-label{
+  background:rgba(6,14,34,.88);border-color:rgba(129,174,255,.44);
+}
+.cosmic-3d-stage.webgl-active:focus-visible{outline:3px solid #9deeff;outline-offset:2px}
+.cosmic-3d-panel{backdrop-filter:blur(10px)}
+@media(max-width:1100px){.cosmic-3d-layout{grid-template-columns:minmax(0,1fr) minmax(0,1.65fr)}}
+@media(max-width:760px){.cosmic-3d-layout{grid-template-columns:minmax(0,1fr)}.cosmic-3d-stage.webgl-active{min-height:440px}}
+@media(max-width:490px){.cosmic-3d-stage.webgl-active{min-height:370px}.cosmic-3d-stage.webgl-active::after{top:95px;max-width:85%}}
