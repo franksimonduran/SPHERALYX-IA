@@ -58,3 +58,20 @@
 @media(max-width:1050px){.skyview-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.skyview-controls button{grid-column:1/-1;width:100%}}
 @media(max-width:690px){.integration-head{flex-direction:column;gap:12px}.integration-source{align-self:flex-start}.observatory-wwt{margin:16px 0}.wwt-frame-wrap,.wwt-frame-wrap iframe{min-height:300px}.wwt-intro.wwt-loaded{flex-wrap:wrap}.skyview-controls{grid-template-columns:minmax(0,1fr)}.skyview-controls button{grid-column:auto}.skyview-pair{grid-template-columns:minmax(0,1fr)}.gaia-linked-grid>.gaia-sky-card .integration-toolbar{flex-direction:column;align-items:stretch}.gaia-linked-grid>.gaia-sky-card .integration-toolbar a{text-align:center}}
 @media(prefers-reduced-motion:reduce){.integration-button,.gaia-sky-card .integration-toolbar button{transition:none}}
+
+/* Navegación de los tres atlas: herramientas separadas, campo celeste compartido. */
+.observatory-atlas-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0 12px}
+.observatory-atlas-links a{position:relative;display:grid;align-content:center;gap:7px;min-height:106px;padding:17px 20px;border-radius:14px;border:1px solid rgba(146,166,226,.32);background:linear-gradient(125deg,rgba(19,31,58,.95),rgba(21,24,57,.92));text-decoration:none;color:#f0f3ff;box-shadow:0 12px 27px rgba(4,8,24,.12);transition:border-color .15s,transform .15s,background .15s}
+.observatory-atlas-links a::after{content:"↗";position:absolute;right:16px;top:16px;color:#bdabf5;font-size:1rem}
+.observatory-atlas-links a:hover{border-color:rgba(185,165,246,.75);background:linear-gradient(125deg,#17254a,#222149);transform:translateY(-2px)}
+.observatory-atlas-links a:focus-visible{outline:3px solid #a3dcff;outline-offset:3px}
+.observatory-atlas-links span{color:#b1c3e9;font-size:.62rem;letter-spacing:.12em;font-weight:800}
+.observatory-atlas-links strong{color:#f6f7ff;font-size:1rem;line-height:1.2}
+.observatory-atlas-links small{color:#b7c8e2;font-size:.73rem;line-height:1.45}
+.gaia-sky-card .integration-toolbar button.integration-secondary{border-color:rgba(112,185,212,.5);background:rgba(30,67,101,.48);color:#d8edff}
+.integration-text-button{border:0;background:none;color:#c7b4ff;font:inherit;font-size:.75rem;font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer;padding:5px 0}
+.integration-text-button:hover{color:#f0e9ff}
+.integration-text-button:focus-visible{outline:3px solid #a3dcff;outline-offset:3px}
+@media(max-width:900px){.observatory-atlas-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.observatory-atlas-links{grid-template-columns:minmax(0,1fr)}.observatory-atlas-links a{min-height:88px;padding:14px 17px}}
+@media(prefers-reduced-motion:reduce){.observatory-atlas-links a{transition:none}.observatory-atlas-links a:hover{transform:none}}
