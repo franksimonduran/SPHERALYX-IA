@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050914">
-  <meta name="description" content="SPHERALYX AI: exploración de observaciones reales SPHEREx, comparación temporal y experimentos sintéticos de movimiento.">
+  <meta name="description" content="SPHERALYX AI: exploración de observaciones reales SPHEREx, catálogos Gaia DR3 y AllWISE, cronología temporal y control científico de calibración.">
   <title>SPHERALYX AI — Cosmic Observatory</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/components.css">
@@ -16,7 +16,6 @@
   <link rel="stylesheet" href="css/cosmic-3d.css">
   <link rel="stylesheet" href="css/gaia-visualization.css">
   <link rel="stylesheet" href="css/temporal-explorer.css?v=real-only-1">
-  <link rel="stylesheet" href="css/motion-3d.css">
   <link rel="stylesheet" href="css/observatory-premium.css?v=frontend-qa-20261109">
   <link rel="stylesheet" href="css/layout-system.css?v=nebula-skybox-1">
   <link rel="stylesheet" href="css/spectral-education.css?v=orion-educativo-1">
@@ -69,7 +68,7 @@
         <section class="gaia-linked-views" id="gaia-linked-views" aria-labelledby="gaia-linked-title">
           <div class="gaia-linked-heading">
             <div><span class="kicker">GAIA DR3 · ANÁLISIS VINCULADO</span><h4 id="gaia-linked-title">Visualización científica de Gaia</h4></div>
-            <p id="gaia-linked-status" role="status" aria-live="polite">Sin fuentes Gaia cargadas para el campo actual. No se muestran resultados sintéticos.</p>
+            <p id="gaia-linked-status" role="status" aria-live="polite">Sin fuentes Gaia consultadas para el campo actual. Las gráficas permanecen vacías hasta recibir registros del archivo oficial.</p>
           </div>
           <div class="gaia-linked-grid">
             <article class="gaia-linked-card"><h5>Coordenadas galácticas</h5><canvas id="gaia-galactic-canvas" aria-label="Mapa local de longitud y latitud galácticas de fuentes Gaia"></canvas><p>Solo fuentes del cono consultado. No representa todo el mapa de la Vía Láctea.</p></article>
@@ -83,7 +82,7 @@
         <div class="panel-title"><div><span class="kicker">MODO REAL · NASA/IPAC IRSA</span><h3 id="real-title">Observaciones reales de SPHEREx</h3></div><span class="demo-pill">OBSERVACIÓN REAL · IRSA</span></div>
         <p id="real-intro">Consulta NASA/IPAC IRSA mediante coordenadas reales; cada imagen, fecha e identificador se obtiene del archivo astronómico.</p>
         
-        <details><summary>Consulta real archivada · registro documental</summary><p>Ejemplo documentado QR2: RA 156.09328159°, Dec −41.64466331°, radio 0,01°. En una ejecución anterior se registró una búsqueda y una vista PNG. Este registro no incluye el FITS ni el PNG y no es una consulta en vivo. Fuente: NASA/IPAC IRSA SIA2; ver README y guía de demostración.</p></details>
+        <details><summary>Consulta real archivada · registro documental</summary><p>Ejemplo documentado QR2: RA 156.09328159°, Dec −41.64466331°, radio 0,01°. En una ejecución anterior se registró una búsqueda y una vista PNG. Este registro no incluye el FITS ni el PNG y no es una consulta en vivo. Fuente: NASA/IPAC IRSA SIA2; ver README y documentación del proyecto.</p></details>
         <form id="coordinates-form" class="real-coordinate-form" novalidate><label for="ra">Ascensión recta · RA (grados)<input id="ra" aria-describedby="coordinates-error" type="number" min="0" max="359.999999" step="any" value="83.8221" required></label><label for="dec">Declinación · Dec (grados)<input id="dec" aria-describedby="coordinates-error" type="number" min="-90" max="90" step="any" value="-5.3911" required></label><p id="coordinates-error" class="form-error" role="alert"></p><button class="button primary" type="submit">Actualizar coordenadas <span aria-hidden="true">↗</span></button><p id="coordinates-status" class="control-help" role="status" aria-live="polite">Coordenadas iniciales: Orión (referencia de búsqueda, no un resultado observado).</p></form>
         <form id="real-search" class="real-form"><label for="real-radius">Radio (grados)<input id="real-radius" type="number" min="0.00001" max="0.25" step="any" value="0.01" required></label><label for="real-release">Colección<select id="real-release"><option value="qr3">QR3</option><option value="qr2">QR2</option></select></label><button type="submit" class="button primary">Buscar en IRSA <span>↗</span></button></form>
         <p id="real-status" class="real-status" role="status" aria-live="polite">Sin consulta todavía. La lista mostrará únicamente productos reales devueltos por IRSA.</p>
@@ -102,7 +101,7 @@
                   <span class="temporal-real-icon" aria-hidden="true">⌖</span>
                   <h4 id="temporal-observation-title">Las observaciones comienzan con datos reales</h4>
                   <p>Introduce coordenadas y consulta el archivo SPHEREx. Cuando IRSA devuelva productos, aquí aparecerán sus fechas, bandas, detectores e identificadores.</p>
-                  <button class="button temporal-jump-search" type="button" id="temporal-open-search">Ir a consulta IRSA ↗</button>
+                  <button class="button temporal-jump-search" type="button" id="temporal-open-search">Ir a consulta IRSA ↗</button><a class="temporal-official-source" href="https://irsa.ipac.caltech.edu/Missions/spherex.html" target="_blank" rel="noopener noreferrer">Archivo oficial SPHEREx (NASA/IPAC) ↗</a>
                   <small>Sin datos consultados, no se representan estrellas, trayectorias ni desplazamientos.</small>
                 </div>
                 <div class="temporal-real-record" id="temporal-real-record" hidden>
@@ -146,7 +145,7 @@
         </section>
       </section>
 
-      <!-- Demostración independiente: imágenes Webb reales pero NO dos épocas SPHEREx. -->
+      <!-- Comparación espectral educativa: dos composiciones Webb reales; no son épocas SPHEREx. -->
       <section class="spectral-demo" id="calibracion-educativa" aria-labelledby="spectral-demo-title">
         <header class="spectral-demo-heading">
           <div>
