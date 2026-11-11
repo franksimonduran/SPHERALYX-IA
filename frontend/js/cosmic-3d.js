@@ -86,6 +86,20 @@ export function initCosmic3D() {
   modeStatus.className = 'cosmic-renderer-status';
   modeStatus.textContent = 'Vista 2D · consulta Gaia DR3 para cargar estrellas reales';
   stage.append(modeBtn, modeStatus);
+  const emptyState = document.createElement('div');
+  emptyState.id = 'cosmic-gaia-empty';
+  emptyState.className = 'cosmic-gaia-empty';
+  emptyState.hidden = true;
+  const emptyTitle = document.createElement('strong');
+  emptyTitle.textContent = 'Explora el cielo real en 3D';
+  const emptyText = document.createElement('p');
+  emptyText.textContent = 'Consulta Gaia DR3 para proyectar estrellas auténticas en este visor.';
+  const emptyLoad = document.createElement('button');
+  emptyLoad.type = 'button';
+  emptyLoad.textContent = 'Consultar Gaia DR3';
+  emptyLoad.addEventListener('click', event => { event.stopPropagation(); gaiaBtn?.click(); });
+  emptyState.append(emptyTitle, emptyText, emptyLoad);
+  stage.append(emptyState);
   stage.dataset.renderMode = '2d';
   modeBtn.addEventListener('pointerdown', e => e.stopPropagation());
   modeBtn.addEventListener('click', async e => {
@@ -494,6 +508,17 @@ export function initCosmic3D() {
 
     ctx.restore();
     stage.dataset.renderedSources = String(projectedHits.length);
+    emptyState.hidden = !webgl || projectedHits.length > 0;
+    if (!emptyState.hidden) {
+      const stale = stage.dataset.catalogStale === 'true';
+      emptyTitle.textContent = stale ? 'El campo consultado ha cambiado' : 'Explora el cielo real en 3D';
+      emptyText.textContent = stale
+        ? 'Las fuentes pertenecen al cono anterior. Consulta Gaia DR3 en las nuevas coordenadas o vuelve al campo original.'
+        : gaiaMeta && gaiaSources.length === 0
+          ? 'La consulta devolvió 0 fuentes. Prueba otras coordenadas o un radio mayor.'
+          : 'Consulta Gaia DR3 para proyectar estrellas auténticas en este visor. No se generan estrellas ficticias.';
+      emptyLoad.disabled = Boolean(gaiaBtn?.disabled || document.body.dataset.catalogMode === 'offline');
+    }
     if (webgl) {
       const countGaia = projectedHits.filter(p => p.item.kind === 'gaia').length;
       modeStatus.textContent = projectedHits.length
