@@ -70,19 +70,21 @@ export function initCosmic3D() {
   let gaiaMeta = null, wiseMeta = null;
   let gaiaController = null, wiseController = null;
   let copyingCatalogCoords = false;
+  // Conservar el campo original cuando el usuario copia las coordenadas de una fuente.
+  let catalogFocus = null;
   let webgl = null, webglLoading = false;
   // El modo 3D se carga al solicitarlo: sin dependencia CDN obligatoria para la demo offline.
   const modeBtn = document.createElement('button');
   modeBtn.type = 'button';
   modeBtn.id = 'cosmic-renderer-toggle';
   modeBtn.className = 'cosmic-renderer-toggle';
-  modeBtn.textContent = 'Activar 3D';
+  modeBtn.textContent = 'Activar Gaia 3D';
   modeBtn.setAttribute('aria-pressed', 'false');
-  modeBtn.setAttribute('aria-label', 'Activar esfera 3D WebGL sin biblioteca externa');
+  modeBtn.setAttribute('aria-label', 'Alternar visor Gaia 3D inmersivo y esfera celeste 2D');
   const modeStatus = document.createElement('span');
   modeStatus.id = 'cosmic-renderer-status';
   modeStatus.className = 'cosmic-renderer-status';
-  modeStatus.textContent = 'Vista 2D · fuentes de catálogo bajo consulta';
+  modeStatus.textContent = 'Vista 2D · consulta Gaia DR3 para cargar estrellas reales';
   stage.append(modeBtn, modeStatus);
   stage.dataset.renderMode = '2d';
   modeBtn.addEventListener('pointerdown', e => e.stopPropagation());
@@ -94,8 +96,8 @@ export function initCosmic3D() {
       stage.classList.remove('webgl-active');
       stage.dataset.renderMode = '2d';
       modeBtn.setAttribute('aria-pressed', 'false');
-      modeBtn.textContent = 'Activar vista 3D';
-      modeStatus.textContent = 'Vista 2D · fuentes de catálogo bajo consulta';
+      modeBtn.textContent = 'Activar Gaia 3D';
+      modeStatus.textContent = 'Vista 2D · consulta Gaia DR3 para cargar estrellas reales';
       draw();
       return;
     }
@@ -111,14 +113,14 @@ export function initCosmic3D() {
       stage.dataset.renderMode = '3d';
       modeBtn.setAttribute('aria-pressed', 'true');
       modeBtn.textContent = 'Volver a vista 2D';
-      modeStatus.textContent = 'WebGL 3D activo · fuentes reales solo tras consulta Gaia/WISE';
+      modeStatus.textContent = 'Gaia 3D inmersivo activo · fuentes reales solo tras consulta';
       draw();
       publishGaiaViews();
     } catch (error) {
       stage.classList.remove('webgl-active');
       stage.dataset.renderMode = '2d';
       modeStatus.textContent = '3D no disponible aquí. Vista celeste 2D activa; puedes reintentar.';
-      modeBtn.textContent = 'Reintentar vista 3D';
+      modeBtn.textContent = 'Reintentar Gaia 3D';
     } finally { webglLoading = false; modeBtn.disabled = false; }
   });
   // El usuario no debe descubrir el 3D escondido detrás de un botón:
@@ -149,7 +151,7 @@ export function initCosmic3D() {
   stage.addEventListener('cosmic-webgl-lost', () => {
     webgl = null; stage.classList.remove('webgl-active');
     stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed', 'false');
-    modeBtn.textContent = 'Activar vista 3D';
+    modeBtn.textContent = 'Activar Gaia 3D';
     modeStatus.textContent = 'Contexto WebGL perdido; visor 2D restaurado.';
     draw();
   });
@@ -166,17 +168,23 @@ export function initCosmic3D() {
 
   function fitConeZoom(rr) {
     const s = Math.sin(Math.max(rr, 0.002) * rad);
-    return Math.min(250, Math.max(1, Math.round((0.68 / s) * 10) / 10));
+    return Math.min(8000, Math.max(1, Math.round((0.68 / s) * 10) / 10));
   }
 
   // La procedencia de cada capa pertenece al cono consultado, no a los campos
   // RA/Dec que el usuario pueda editar posteriormente.
   function matchesCatalogQuery(meta) {
     const p = coords(), rr = validRadius(), q = meta?.query;
-    return Boolean(p && rr !== null && q &&
-      Math.abs(Number(q.ra) - p.ra) < 1e-7 &&
-      Math.abs(Number(q.dec) - p.dec) < 1e-7 &&
-      Math.abs(Number(q.radius_deg) - rr) < 1e-7);
+    if (!p || rr === null || !q) return false;
+    const same = (a, b) => Math.abs(Number(a) - Number(b)) < 1e-7;
+    if (same(q.ra, p.ra) && same(q.dec, p.dec) && same(q.radius_deg, rr)) return true;
+    // La consulta sigue siendo el cono original, no un nuevo cono en RA/Dec copiados.
+    return Boolean(catalogFocus && selectedKey === catalogFocus.key &&
+      same(catalogFocus.ra, p.ra) && same(catalogFocus.dec, p.dec) &&
+      same(catalogFocus.radius_deg, rr) &&
+      same(catalogFocus.query.ra, q.ra) &&
+      same(catalogFocus.query.dec, q.dec) &&
+      same(catalogFocus.query.radius_deg, q.radius_deg));
   }
 
   function publishGaiaViews() {
@@ -295,6 +303,12 @@ export function initCosmic3D() {
 
   function applySelectedSourceToCoords(item) {
     if (!item) return;
+    const query = (item.kind === 'gaia' ? gaiaMeta : wiseMeta)?.query;
+    catalogFocus = query ? {
+      key: item.key, ra: wrap(Number(item.raw.ra.toFixed(6))),
+      dec: Number(item.raw.dec.toFixed(6)), radius_deg: validRadius(),
+      query: { ...query }
+    } : null;
     ra.value = wrap(Number(item.raw.ra.toFixed(6))).toFixed(6);
     dec.value = item.raw.dec.toFixed(6);
     copyingCatalogCoords = true;
@@ -303,7 +317,7 @@ export function initCosmic3D() {
       dec.dispatchEvent(new Event('input', { bubbles: true }));
     } finally { copyingCatalogCoords = false; }
     const label = item.kind === 'gaia' ? `Gaia DR3 ${item.raw.source_id}` : `AllWISE ${item.raw.source_id}`;
-    status.textContent = `Coordenadas actualizadas desde ${label}. Pulsa Buscar en IRSA; la búsqueda no se inicia automáticamente.`;
+    status.textContent = `Coordenadas actualizadas desde ${label}. El visor conserva el campo original consultado; pulsa Buscar en IRSA para una nueva consulta (no automática).`;
     publishGaiaViews();
     draw();
   }
@@ -408,7 +422,7 @@ export function initCosmic3D() {
       const p = projectEquatorial(s.ra, s.dec, viewRa, viewDec);
       if (p.depth < 0) continue;
       const sx = cx + p.x * scale, sy = cy - p.y * scale;
-      if (Math.hypot(sx - cx, sy - cy) > r + 4) continue;
+      if (webgl ? (sx < -4 || sy < -4 || sx > w + 4 || sy > h + 4) : Math.hypot(sx - cx, sy - cy) > r + 4) continue;
       projectedHits.push({ key: item.key, item, x: sx, y: sy });
 
       if (item.kind === 'gaia') {
@@ -480,6 +494,12 @@ export function initCosmic3D() {
 
     ctx.restore();
     stage.dataset.renderedSources = String(projectedHits.length);
+    if (webgl) {
+      const countGaia = projectedHits.filter(p => p.item.kind === 'gaia').length;
+      modeStatus.textContent = projectedHits.length
+        ? `Gaia 3D · ${countGaia} Gaia + ${projectedHits.length - countGaia} WISE visibles · campo real`
+        : 'Gaia 3D · sin fuentes visibles · consulta Gaia DR3 o centra el campo';
+    }
 
     ctx.strokeStyle = 'rgba(141,206,241,.42)';
     ctx.lineWidth = 1;
@@ -492,13 +512,13 @@ export function initCosmic3D() {
           viewRa, viewDec, zoom: sphereZoom, showGrid: grid.checked,
           sources: allCatalogItems()
             .filter(item => matchesCatalogQuery(item.kind === 'gaia' ? gaiaMeta : wiseMeta))
-            .map(item => ({ key:item.key,kind:item.kind,ra:item.raw.ra,dec:item.raw.dec })),
+            .map(item => ({ key:item.key,kind:item.kind,ra:item.raw.ra,dec:item.raw.dec,mag:item.raw.phot_g_mean_mag,bp_rp:item.raw.bp_rp,w1mpro:item.raw.w1mpro })),
           selectedKey, target: coords(), radiusDeg: validRadius()
         });
       } catch (_) {
         webgl.dispose(); webgl = null; stage.classList.remove('webgl-active');
         stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed','false');
-        modeBtn.textContent = 'Reintentar vista 3D';
+        modeBtn.textContent = 'Reintentar Gaia 3D';
         modeStatus.textContent = 'Error gráfico; visor 2D restaurado.';
       }
     }
@@ -541,11 +561,11 @@ export function initCosmic3D() {
       parts.push(`AllWISE: ${wiseSources.length} fuentes reales${wiseMeta.truncated ? ' (posible truncamiento)' : ''}${matchesCatalogQuery(wiseMeta) ? '' : ' · CONSULTA ANTERIOR: fuentes ocultas hasta volver al campo consultado'} · asociación candidata no confirmada`);
     }
     if (!parts.length) {
-      catalogStatus.textContent = 'Sin catálogos cargados · consulta Gaia DR3 o AllWISE para representar direcciones reales sobre la esfera.';
+      catalogStatus.textContent = 'Sin catálogos cargados · consulta Gaia DR3 o AllWISE para representar fuentes reales en el visor 3D.';
       publishGaiaViews();
       return;
     }
-    catalogStatus.textContent = `${parts.join(' | ')}. Representación direccional sin distancias físicas.`;
+    catalogStatus.textContent = `${parts.join(' | ')}. ${catalogFocus ? 'Se conserva el campo original consultado al copiar una fuente. ' : ''}Representación direccional sin distancias físicas.`;
     publishGaiaViews();
   }
 
@@ -561,6 +581,7 @@ export function initCosmic3D() {
       return;
     }
     const isGaia = kind === 'gaia';
+    catalogFocus = null;
     if (isGaia && gaiaController) gaiaController.abort();
     if (!isGaia && wiseController) wiseController.abort();
     const controller = new AbortController();
