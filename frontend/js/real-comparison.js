@@ -8,7 +8,7 @@ export function initRealComparison() {
   const panel=document.querySelector('#compare-real-views'), view=document.querySelector('#compare-real-image');
   const overlay=document.querySelector('#compare-real-overlay'), selector=document.querySelector('#compare-view');
   const play=document.querySelector('#compare-play'), pairs=document.querySelector('#pair-results');
-  const find=document.querySelector('#find-pairs'), offline=document.querySelector('#offline-mode');
+  const find=document.querySelector('#find-pairs');
   let result=null, timer=null, request=null, pairRequest=null, index=0;
   const slots = new Map();
   for (const [select, name] of [[a,'A'],[b,'B']]) {
@@ -17,7 +17,10 @@ export function initRealComparison() {
     const description=document.createElement('p'); description.setAttribute('role','status');
     const controls=document.createElement('div'); controls.className='real-viewer-toolbar'; controls.setAttribute('role','group'); controls.setAttribute('aria-label',`Navegación visual ${name}`);
     const viewport=document.createElement('div'); viewport.className='temporal-viewport'; viewport.tabIndex=0; viewport.setAttribute('role','region'); viewport.setAttribute('aria-label',`PNG independiente ${name}; flechas para desplazar`);
-    const image=document.createElement('img'); image.alt=`PNG real independiente ${name}, sin alinear`; image.hidden=true; viewport.append(image);
+    const image=document.createElement('img'); image.alt=`PNG real independiente ${name}, sin alinear`; image.hidden=true;
+    const empty=document.createElement('div'); empty.className='temporal-preview-empty';
+    empty.innerHTML='<span aria-hidden="true">⌖</span><strong>Sin imagen de archivo</strong><p>Selecciona un producto de IRSA para cargar su recorte real.</p>';
+    viewport.append(image,empty);
     section.append(title,description,controls,viewport); document.querySelector('#temporal-individuals').append(section);
     let controller=null, url=null, zoom=1, x=0, y=0;
     const buttons=[];
@@ -27,13 +30,13 @@ export function initRealComparison() {
       const button=document.createElement('button');button.type='button';button.className='real-viewer-button';button.textContent=label;button.setAttribute('aria-label',`${label} observación ${name}`);button.addEventListener('click',()=>{action();render();});controls.append(button);buttons.push(button);
     }
     viewport.addEventListener('keydown',event=>{if(image.hidden||zoom<=1)return;const moves={ArrowLeft:[-20,0],ArrowRight:[20,0],ArrowUp:[0,-20],ArrowDown:[0,20]};if(!moves[event.key])return;event.preventDefault();x+=moves[event.key][0];y+=moves[event.key][1];render();});
-    function clearSlot(){if(controller)controller.abort();controller=null;if(url)URL.revokeObjectURL(url);url=null;image.hidden=true;image.removeAttribute('src');reset();description.textContent='No disponible · selecciona una observación real.';}
-    async function load(){clearSlot();if(!select.value)return;if(offline.checked){description.textContent='No disponible · modo offline.';return;}const id=select.value;const current=new AbortController();controller=current;description.textContent='Descargando PNG real de IRSA…';
-      try{const response=await realApi.preview(id,current.signal);const blob=await response.blob();if(controller!==current||current.signal.aborted)return;url=URL.createObjectURL(blob);image.src=url;image.hidden=false;description.textContent=`${select.selectedOptions[0].textContent} · NASA/IPAC IRSA · PNG independiente sin alinear.`;render();}
+    function clearSlot(){if(controller)controller.abort();controller=null;if(url)URL.revokeObjectURL(url);url=null;image.hidden=true;empty.hidden=false;image.removeAttribute('src');reset();description.textContent='No disponible · selecciona una observación real.';}
+    async function load(){clearSlot();if(!select.value)return;if(document.body.dataset.irsaMode==='offline'){description.textContent='IRSA no habilitado en este servidor.';return;}const id=select.value;const current=new AbortController();controller=current;description.textContent='Descargando PNG real de IRSA…';
+      try{const response=await realApi.preview(id,current.signal);const blob=await response.blob();if(controller!==current||current.signal.aborted)return;url=URL.createObjectURL(blob);image.src=url;image.hidden=false;empty.hidden=true;description.textContent=`${select.selectedOptions[0].textContent} · NASA/IPAC IRSA · PNG independiente sin alinear.`;render();}
       catch(error){if(controller===current&&!current.signal.aborted)description.textContent=`Error · PNG no disponible: ${error.message}`;}
       finally{if(controller===current)controller=null;}
     }
-    image.addEventListener('error',()=>{image.hidden=true;render();description.textContent='Error · PNG no disponible o ilegible.';});
+    image.addEventListener('error',()=>{image.hidden=true;empty.hidden=false;render();description.textContent='Error · PNG no disponible o ilegible.';});
     slots.set(select,{load,clear:clearSlot});clearSlot();
   }
   function stop(){if(timer!==null)clearInterval(timer);timer=null;play.textContent='Reproducir A / B';play.setAttribute('aria-pressed','false');}
@@ -51,9 +54,8 @@ export function initRealComparison() {
     input.addEventListener('change',clearPairs);
   }
   for(const select of [a,b]) select.addEventListener('change',()=>{clear();slots.get(select).load();status.textContent='Selección modificada; ejecuta una comparación nueva.';});
-  offline.addEventListener('change',()=>{if(offline.checked){clear();clearPairs();for(const slot of slots.values())slot.clear();status.textContent='DEMO OFFLINE · Comparación real desactivada.';}});
   find.addEventListener('click',async()=>{
-    if(offline.checked){pairs.textContent='DEMO OFFLINE · Búsqueda de pares desactivada.';return;}
+    if(document.body.dataset.irsaMode==='offline'){pairs.textContent='IRSA no habilitado en este servidor.';return;}
     const raField=document.querySelector('#ra'),decField=document.querySelector('#dec'),radiusField=document.querySelector('#real-radius');
     const ra=Number(raField.value),dec=Number(decField.value),radius=Number(radiusField.value),release=document.querySelector('#real-release').value;
     if(!raField.value||!decField.value||!radiusField.value||!Number.isFinite(ra)||!Number.isFinite(dec)||!Number.isFinite(radius)||ra<0||ra>=360||dec< -90||dec>90||radius<=0||radius>.25){pairs.textContent='Coordenadas o radio no válidos.';return;}
@@ -83,7 +85,7 @@ export function initRealComparison() {
   function show(mode){if((mode==='overlay'||mode==='difference')&&result?.compatible!==true)return;if(mode==='overlay'){view.src=result.views.a;overlay.src=result.views.b;overlay.hidden=false;view.alt='Superposición visual aproximada de A y B sobre rejilla común';}else{if(!result?.views[mode])return;overlay.hidden=true;view.src=result.views[mode];view.alt=`${mode === 'difference' ? 'Diferencia aproximada B menos A' : mode === 'coverage' ? 'Máscara de cobertura válida' : 'Observación real '+mode.toUpperCase()} sobre rejilla común`;}selector.value=mode;}
   form.addEventListener('submit',async event=>{
     event.preventDefault();clear();
-    if(offline.checked){status.textContent='DEMO OFFLINE · Comparación real desactivada.';return;}
+    if(document.body.dataset.irsaMode==='offline'){status.textContent='IRSA no habilitado en este servidor.';return;}
     if(!a.value||!b.value||a.value===b.value){status.textContent='Selecciona dos observaciones distintas.';return;}
     const controller=new AbortController();request=controller;submit.disabled=true;form.setAttribute('aria-busy','true');status.textContent='Descargando y verificando recortes FITS de IRSA…';
     try{
