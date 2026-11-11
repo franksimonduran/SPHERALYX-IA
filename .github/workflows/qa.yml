@@ -10,6 +10,7 @@ jobs:
     env:
       SPHERALYX_OFFLINE: "0"
       SPHERALYX_CATALOGS_ONLINE: "0"
+      SPHERALYX_INTERNAL_EXPERIMENTS: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
