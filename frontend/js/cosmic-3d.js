@@ -96,7 +96,6 @@ export function initCosmic3D() {
   emptyState.append(emptyTitle, emptyText, emptyLoad);
   stage.append(emptyState);
   stage.dataset.renderMode = '3d';
-  let webgl = null, webglLoading = false;
   async function activate3D() {
     if (webgl || webglLoading) return;
     webglLoading = true;
