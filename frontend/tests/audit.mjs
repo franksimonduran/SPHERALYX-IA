@@ -13,7 +13,7 @@ let metadataRequests=0, previewRequests=0;
 let restrictServer = false;
 const browser = [process.env.CHROME_PATH, 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', '/usr/bin/google-chrome', '/usr/bin/chromium'].find(p => p && existsSync(p));
 if (!browser) throw new Error('No se encontró Chrome o Edge. Define CHROME_PATH.');
-const mime = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml' };
+const mime = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.png':'image/png', '.svg':'image/svg+xml', '.webp':'image/webp' };
 const server = createServer(async (req,res) => {
   if(req.url==='/__test/server-restrict') {restrictServer=true;res.writeHead(200);res.end('ok');return;}
   if(req.url==='/health'){res.writeHead(200,{'content-type':'application/json'});res.end(JSON.stringify({status:'ok',data_mode:restrictServer?'offline':'real',catalog_mode:'real',upstream_checked:false}));return;}
@@ -127,6 +127,30 @@ try {
 
   await check('espacio REAL con coordenadas compartidas y controles accesibles',"(()=>{const panel=document.querySelector('.real-workspace-controls');return panel.contains(document.querySelector('#coordinates-form'))&&panel.contains(document.querySelector('#real-search'))&&!!document.querySelector('.real-image-viewport[tabindex=\"0\"]')&&document.querySelector('[aria-label=\"Acercar vista real\"]').disabled})()");
   await check('normalización cronológica y duplicados',`(async()=>{const {normalizeObservations:n}=await import('/js/real-observations.js');const rows=n([{id:'b',time_start_mjd:60001},{id:'none',time_start_mjd:null},{id:'a',time_start_mjd:60000},{id:'b',time_start_mjd:59900},{id:'utc',observation_time_utc:'2023-02-26T00:00:00.000'},{id:'',time_start_mjd:1}]);return rows.map(x=>x.id).join(',')==='a,b,utc,none'&&rows.at(-1).day===null&&rows[0].state==='disponible'})()`);
+  await check('comparación educativa Webb separada del motor temporal científico',`(()=>{
+    const el=document.querySelector('#calibracion-educativa');
+    if(!el||!document.querySelector('.real-compare')||!document.querySelector('#simulacion'))return false;
+    const imgs=[...el.querySelectorAll('.spectral-layer img')];
+    return imgs.length===2&&imgs[0].getAttribute('src')==='assets/orion/orion-nircam-long.webp'&&imgs[1].getAttribute('src')==='assets/orion/orion-nircam-short.webp'&&el.textContent.includes('no son dos épocas de SPHEREx')&&el.textContent.includes('M. McCaughrean')&&el.textContent.includes('CC BY-SA 3.0 IGO')&&!el.querySelector('form[action*="temporal"]');
+  })()`);
+  await check('dos archivos Webb optimizados abren sin depender de ESA',`(async()=>{
+    const images=[...document.querySelectorAll('#calibracion-educativa .spectral-layer img')];
+    await Promise.all(images.map(async img=>{img.loading='eager';try{await img.decode();}catch{}}));
+    return images.every(img=>img.naturalWidth>=1200&&img.naturalHeight>=800)&&images[0].naturalWidth===images[1].naturalWidth&&images[0].naturalHeight===images[1].naturalHeight;
+  })()`);
+  await check('deslizador A/B y zoom sincronizado responden a controles',`(()=>{
+    const root=document.querySelector('#calibracion-educativa'),range=root.querySelector('#spectral-reveal'),viewer=root.querySelector('.spectral-demo-viewer'),out=root.querySelector('#spectral-reveal-value');
+    range.value='73';range.dispatchEvent(new Event('input',{bubbles:true}));
+    const slider=viewer.style.getPropertyValue('--spectral-reveal')==='73%'&&out.textContent==='73%';
+    root.querySelector('#spectral-only-short').click();
+    const short=range.value==='100'&&root.querySelector('#spectral-only-short').getAttribute('aria-pressed')==='true';
+    root.querySelector('#spectral-only-long').click();
+    const long=range.value==='0'&&root.querySelector('#spectral-only-long').getAttribute('aria-pressed')==='true';
+    root.querySelector('#spectral-zoom-in').click();
+    const zoom=viewer.style.getPropertyValue('--spectral-zoom')==='1.2';
+    root.querySelector('#spectral-reset').click();
+    return slider&&short&&long&&zoom&&range.value==='50'&&viewer.style.getPropertyValue('--spectral-zoom')==='1'&&root.querySelector('#spectral-zoom-out').disabled;
+  })()`);
   await check('procedencia y control de calibración visibles',"(()=>{const real=document.querySelector('#real-title').closest('.real-panel'),demo=document.querySelector('#simulacion'),catalog=document.querySelector('#descubrimientos');return real.textContent.includes('OBSERVACIÓN REAL')&&real.querySelector('.calibration-notice').textContent.includes('calibración espectral verificada')&&demo.textContent.includes('SECUENCIA SIMULADA')&&catalog.textContent.includes('CANDIDATOS SIMULADOS')})()");
   await check('imagen de marca o alternativa según dimensiones',"(()=>{const img=document.querySelector('.brand-logo'),fallback=document.querySelector('.brand-symbol'),usable=img.naturalWidth>1&&img.naturalHeight>1;return img.complete && img.hidden===!usable && fallback.hidden===usable})()");
   await check('logo utilizable y error conservan alternativa',"(()=>{const img=document.querySelector('.brand-logo'),fallback=document.querySelector('.brand-symbol');Object.defineProperties(img,{naturalWidth:{configurable:true,value:120},naturalHeight:{configurable:true,value:80}});img.dispatchEvent(new Event('load'));const shown=!img.hidden&&fallback.hidden;Object.defineProperties(img,{naturalWidth:{configurable:true,value:0},naturalHeight:{configurable:true,value:0}});img.dispatchEvent(new Event('error'));const failed=img.hidden&&!fallback.hidden;delete img.naturalWidth;delete img.naturalHeight;img.dispatchEvent(new Event('load'));return shown&&failed})()");
