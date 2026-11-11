@@ -121,6 +121,30 @@ try {
       &&s.querySelectorAll('.skyview-image-well img:not([src])').length===2
       &&s.textContent.includes('no son dos épocas SPHEREx')&&s.textContent.includes('NASA SkyView');
   })()`);
+  await check('tres atlas tienen accesos elegantes y rutas a las secciones correctas',`(()=>{
+    const links=[...document.querySelectorAll('.observatory-atlas-links a')];
+    return links.length===3
+      &&links.map(a=>a.getAttribute('href')).join(',')==='#wwt-observatory,#gaia-linked-views,#skyview-context'
+      &&links.every(a=>document.querySelector(a.getAttribute('href')))
+      &&!!document.querySelector('#skyview-from-aladin')
+      &&!!document.querySelector('#skyview-open-aladin');
+  })()`);
+  await check('SkyView elimina imágenes antiguas al cambiar coordenadas o relevamiento',`(()=>{
+    const image=document.querySelector('#skyview-image-a'),empty=document.querySelector('#skyview-empty-a');
+    const ra=document.querySelector('#ra'),survey=document.querySelector('#skyview-survey-a');
+    const originalRa=ra.value,originalSurvey=survey.value;
+    image.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/aAAAAABJRU5ErkJggg==';
+    image.hidden=false;empty.hidden=true;
+    ra.value='83.823';ra.dispatchEvent(new Event('input',{bubbles:true}));
+    const coordsReset=image.hidden&&!image.hasAttribute('src')&&!empty.hidden
+      &&document.querySelector('#skyview-status').textContent.includes('Coordenadas modificadas');
+    ra.value=originalRa;ra.dispatchEvent(new Event('input',{bubbles:true}));
+    survey.value='2MASS-K';survey.dispatchEvent(new Event('change',{bubbles:true}));
+    const surveyReset=document.querySelector('#skyview-status').textContent.includes('Relevamiento modificado')
+      &&document.querySelector('#skyview-caption-a').textContent.includes('2MASS-K');
+    survey.value=originalSurvey;survey.dispatchEvent(new Event('change',{bubbles:true}));
+    return coordsReset&&surveyReset;
+  })()`);
   await check('SkyView genera enlaces NASA por coordenadas verificadas, sin falsos FITS',`(async()=>{
     const source=await import('/js/observatory-integrations.js');
     if(typeof source.buildSkyViewUrl!=='function')return false;
