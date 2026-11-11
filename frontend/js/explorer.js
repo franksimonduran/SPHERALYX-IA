@@ -1,33 +1,27 @@
-import { candidates, observations, state, events, update, position, realApi } from './api.js';
+import { state, update, realApi } from './api.js';
 import { normalizeObservations, createObservationList } from './real-observations.js';
 
-// El mismo campo determinista se utiliza en el visor y en la comparación temporal.
-export function drawField(canvas, epoch, options = {}) {
-  const rect = canvas.getBoundingClientRect();
-  if (!rect.width || !rect.height) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
-  const ctx = canvas.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const w = rect.width, h = rect.height, zoom = options.zoom || 1;
-  ctx.fillStyle = '#030b19'; ctx.fillRect(0, 0, w, h);
-  const glow = ctx.createRadialGradient(w*.52,h*.47,0,w*.52,h*.47,w*.58); glow.addColorStop(0,'#102840'); glow.addColorStop(.55,'#071629'); glow.addColorStop(1,'#030a16'); ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
-  const project = (x,y) => [(x-.5)*w*zoom+w/2,(y-.5)*h*zoom+h/2];
-  if (options.grid) { ctx.strokeStyle='rgba(115,183,214,.10)';ctx.lineWidth=1;for(let n=0;n<=10;n++){const [x]=project(n/10,0),[,y]=project(0,n/10);ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();} }
-  let seed = (24681357 ^ Math.round(state.ra * 10000) ^ Math.imul(Math.round((state.dec + 90) * 10000), 31)) >>> 0; const random = () => { seed = (Math.imul(seed,1664525)+1013904223)>>>0; return seed/4294967296; };
-  for(let i=0;i<230;i++){const x=random(), y=random(), radius=.35+random()*1.35, alpha=.2+random()*.7;const [px,py]=project(x,y);ctx.beginPath();ctx.fillStyle=`rgba(205,230,255,${alpha})`;ctx.arc(px,py,radius,0,Math.PI*2);ctx.fill();}
-  candidates.forEach((candidate) => { const pos=position(candidate,epoch), [x,y]=project(pos.x,pos.y);const brightness=candidate.type==='variabilidad' ? .45+.5*(.5+.5*Math.sin(epoch*1.1)) : .95;ctx.beginPath();ctx.fillStyle=`rgba(190,235,255,${brightness})`;ctx.shadowBlur=14;ctx.shadowColor='#61d5ff';ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;if(options.markers){ctx.strokeStyle=state.selected===candidate.id?'#fff':'#40cbf5';ctx.lineWidth=1;ctx.beginPath();ctx.arc(x,y,10,0,Math.PI*2);ctx.stroke();if(options.labels){ctx.fillStyle='#a4e9ff';ctx.font='10px monospace';ctx.fillText(candidate.id,x+14,y-10);}} });
-}
-
+// El formulario de coordenadas configura solamente búsquedas a archivos reales.
+// No genera estrellas, épocas, trayectorias o resultados sintéticos.
 export function initExplorer() {
-  const canvas=document.querySelector('#sky'), select=document.querySelector('#observation');
-  observations.forEach(o=>select.add(new Option(o.label,o.index)));
-  const render=()=>{select.value=String(state.epoch);document.querySelector('#viewer-coords').textContent=`RA ${state.ra.toFixed(4)}°  /  DEC ${state.dec.toFixed(4)}°`;document.querySelector('#sky-epoch').textContent=observations[state.epoch].label.toUpperCase();document.querySelector('#zoom-level').textContent=`${Math.round(state.zoom*100)}%`;document.querySelector('#viewer-selection').textContent=state.selected?`Seleccionado: ${state.selected} · consulta sus detalles en el cat?logo de demostraci?n.`:'Selecciona un marcador cian o utiliza la lista de candidatos del cat?logo de demostraci?n con el teclado.';drawField(canvas,state.epoch,{zoom:state.zoom,grid:state.grid,labels:state.labels,markers:state.markers});};
-  document.querySelector('#coordinates-form').addEventListener('submit',e=>{e.preventDefault();const raInput=document.querySelector('#ra'),decInput=document.querySelector('#dec'),ra=Number(raInput.value),dec=Number(decInput.value),error=document.querySelector('#coordinates-error');const invalidRa=!raInput.value.trim()||!Number.isFinite(ra)||ra<0||ra>=360,invalidDec=!decInput.value.trim()||!Number.isFinite(dec)||dec< -90||dec>90;raInput.setAttribute('aria-invalid',String(invalidRa));decInput.setAttribute('aria-invalid',String(invalidDec));if(invalidRa||invalidDec){error.textContent='Introduce RA entre 0 y menos de 360°, y Dec entre −90° y 90°.';(invalidRa?raInput:decInput).focus();return;}error.textContent='';update({ra,dec,selected:null});});
-  select.addEventListener('change',()=>update({epoch:Number(select.value)}));
-  [['#show-grid','grid'],['#show-labels','labels'],['#show-candidates','markers']].forEach(([selector,key])=>document.querySelector(selector).addEventListener('change',e=>update({[key]:e.target.checked})));
-  document.querySelector('#zoom-in').addEventListener('click',()=>update({zoom:Math.min(3,state.zoom+.25)}));document.querySelector('#zoom-out').addEventListener('click',()=>update({zoom:Math.max(.5,state.zoom-.25)}));document.querySelector('#zoom-reset').addEventListener('click',()=>update({zoom:1}));
-  canvas.addEventListener('click',e=>{if(!state.markers)return;const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let nearest=null,distance=18;candidates.forEach(c=>{const p=position(c,state.epoch),px=(p.x-.5)*r.width*state.zoom+r.width/2,py=(p.y-.5)*r.height*state.zoom+r.height/2,d=Math.hypot(x-px,y-py);if(d<distance){nearest=c;distance=d;}});if(nearest)update({selected:nearest.id});});
-  events.addEventListener('change',render);window.addEventListener('resize',render);render();
+  const form=document.querySelector('#coordinates-form');
+  form?.addEventListener('submit',event=>{
+    event.preventDefault();
+    const raInput=document.querySelector('#ra'),decInput=document.querySelector('#dec');
+    const ra=Number(raInput.value),dec=Number(decInput.value);
+    const error=document.querySelector('#coordinates-error'),status=document.querySelector('#coordinates-status');
+    const badRa=!raInput.value.trim()||!Number.isFinite(ra)||ra<0||ra>=360;
+    const badDec=!decInput.value.trim()||!Number.isFinite(dec)||dec< -90||dec>90;
+    raInput.setAttribute('aria-invalid',String(badRa));
+    decInput.setAttribute('aria-invalid',String(badDec));
+    if(badRa||badDec){
+      error.textContent='Introduce RA entre 0 y menos de 360°, y Dec entre −90° y 90°.';
+      (badRa?raInput:decInput).focus();return;
+    }
+    error.textContent='';
+    update({ra,dec,selected:null});
+    if(status)status.textContent='Coordenadas actualizadas. Pulsa «Buscar en IRSA» para consultar observaciones reales.';
+  });
   initRealExplorer();
 }
 
@@ -36,10 +30,8 @@ function initRealExplorer() {
   let searchController=null, previewController=null, imageUrl=null, items=[], selected=null;
   const observationsView=createObservationList(list, selectObservation);
   function clearPreview(){if(previewController)previewController.abort();previewController=null;if(selected?.state==='cargando')observationsView.setState(selected.id,'disponible');selected=null;observationsView.setSelected(null);if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl=null;image.hidden=true;image.removeAttribute('src');metadata.textContent='';}
-  const offline=document.querySelector('#offline-mode');
-  offline.addEventListener('change',()=>{if(searchController)searchController.abort();searchController=null;form.removeAttribute('aria-busy');clearPreview();items=[];observationsView.setItems(items);window.dispatchEvent(new CustomEvent('real-observations',{detail:[]}));window.dispatchEvent(new Event('spheralyx-offline-change'));status.textContent=document.body.dataset.irsaMode==='offline'?'SPHEREx restringido por el servidor; Gaia y AllWISE siguen disponibles en Cosmic Explorer.':offline.checked?'DEMO OFFLINE · Sin consultas a IRSA desde esta interfaz.':'Modo REAL disponible; inicia una búsqueda nueva.';});
   form.addEventListener('submit',async event=>{
-    event.preventDefault();if(searchController)searchController.abort();searchController=null;form.removeAttribute('aria-busy');clearPreview();items=[];observationsView.setItems(items);window.dispatchEvent(new CustomEvent('real-observations', {detail:[]}));if(document.body.dataset.irsaMode==='offline'){status.textContent='SPHEREx no está habilitado en este servidor. Consulta Gaia DR3 o AllWISE, o ejecuta IRSA en un entorno con acceso habilitado.';return;}if(offline.checked){status.textContent='DEMO OFFLINE · Búsqueda real desactivada.';return;}
+    event.preventDefault();if(searchController)searchController.abort();searchController=null;form.removeAttribute('aria-busy');clearPreview();items=[];observationsView.setItems(items);window.dispatchEvent(new CustomEvent('real-observations', {detail:[]}));if(document.body.dataset.irsaMode==='offline'){status.textContent='SPHEREx no está habilitado en este servidor. Consulta Gaia DR3 o AllWISE, o ejecuta IRSA en un entorno con acceso habilitado.';return;}
     const ra=Number(document.querySelector('#ra').value),dec=Number(document.querySelector('#dec').value),radius=Number(document.querySelector('#real-radius').value),release=document.querySelector('#real-release').value;
     if(!document.querySelector('#ra').value||!document.querySelector('#dec').value||!Number.isFinite(ra)||!Number.isFinite(dec)||ra<0||ra>=360||dec< -90||dec>90||!Number.isFinite(radius)||radius<=0||radius>.25){status.textContent='Coordenadas o radio no válidos: RA [0, 360), Dec [−90, 90], radio (0, 0.25] grados.';return;}
     const controller=new AbortController();searchController=controller;status.textContent='Consultando IRSA…';form.setAttribute('aria-busy','true');
@@ -48,7 +40,7 @@ function initRealExplorer() {
     finally{if(searchController===controller){searchController=null;form.removeAttribute('aria-busy');}}
   });
   async function selectObservation(row){if(selected?.id===row.id&&(row.state==='cargando'||row.state==='recuperada'))return;clearPreview();selected=row;observationsView.setSelected(row.id);const controller=new AbortController();previewController=controller;observationsView.setState(row.id,'cargando');status.textContent='Cargando recorte real de IRSA…';
-    try{const item=row.raw;if(item.mode && item.mode!=='real')throw new Error('El recurso no está identificado como real');const response=await realApi.preview(item.id,controller.signal);const blob=await response.blob();if(!blob.type.startsWith('image/png'))throw new Error('La vista previa no es PNG');if(previewController!==controller||controller.signal.aborted)return;imageUrl=URL.createObjectURL(blob);image.src=imageUrl;image.hidden=false;metadata.replaceChildren();const details=document.createElement('p');details.textContent=`${item.observation_id || 'ID no disponible'} · ${row.utc ? row.utc.replace(/Z$/, '')+' UTC' : 'Fecha UTC no disponible'} · MJD ${row.mjd ?? 'no disponible'} · ${row.collection || 'Colección no disponible'} · ${row.band || 'Banda no disponible'} · Detector: ${row.detector || 'no disponible'}. Vista visual normalizada, no fotometría. FLAGS no nulos: ${response.headers.get('X-Flagged-Pixels') || 'desconocido'}.`;metadata.append(details);if(row.coverage){const coverage=document.createElement('p');coverage.textContent=`Cobertura SIA: ${row.coverage}. La intersección no garantiza que el centro esté cubierto.`;metadata.append(coverage);}const reference=document.createElement('a');try{const u=new URL(item.reference_url);if(u.protocol==='https:'&&u.hostname==='irsa.ipac.caltech.edu'){reference.href=u.href;reference.target='_blank';reference.rel='noopener noreferrer';reference.textContent='Archivo original en NASA/IPAC IRSA ↗';metadata.append(reference);}}catch{/* referencia no disponible */}observationsView.setState(row.id,'recuperada');status.textContent='REAL · Recorte de IRSA. No se compara automáticamente con la simulación.';}
+    try{const item=row.raw;if(item.mode && item.mode!=='real')throw new Error('El recurso no está identificado como real');const response=await realApi.preview(item.id,controller.signal);const blob=await response.blob();if(!blob.type.startsWith('image/png'))throw new Error('La vista previa no es PNG');if(previewController!==controller||controller.signal.aborted)return;imageUrl=URL.createObjectURL(blob);image.src=imageUrl;image.hidden=false;metadata.replaceChildren();const details=document.createElement('p');details.textContent=`${item.observation_id || 'ID no disponible'} · ${row.utc ? row.utc.replace(/Z$/, '')+' UTC' : 'Fecha UTC no disponible'} · MJD ${row.mjd ?? 'no disponible'} · ${row.collection || 'Colección no disponible'} · ${row.band || 'Banda no disponible'} · Detector: ${row.detector || 'no disponible'}. Vista visual normalizada, no fotometría. FLAGS no nulos: ${response.headers.get('X-Flagged-Pixels') || 'desconocido'}.`;metadata.append(details);if(row.coverage){const coverage=document.createElement('p');coverage.textContent=`Cobertura SIA: ${row.coverage}. La intersección no garantiza que el centro esté cubierto.`;metadata.append(coverage);}const reference=document.createElement('a');try{const u=new URL(item.reference_url);if(u.protocol==='https:'&&u.hostname==='irsa.ipac.caltech.edu'){reference.href=u.href;reference.target='_blank';reference.rel='noopener noreferrer';reference.textContent='Archivo original en NASA/IPAC IRSA ↗';metadata.append(reference);}}catch{/* referencia no disponible */}observationsView.setState(row.id,'recuperada');status.textContent='REAL · Recorte de IRSA. No se afirma detección de movimiento sin validación.';}
     catch(error){if(previewController===controller&&!controller.signal.aborted&&error.name!=='AbortError'){observationsView.setState(row.id,'error');status.textContent=`No se pudo mostrar el recorte: ${error.message}`;}}
     finally{if(previewController===controller)previewController=null;}
   }
