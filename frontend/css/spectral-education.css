@@ -1,0 +1,124 @@
+/* SPHERALYX / Comparación espectral educativa — Webb NIRCam, ESA 2023.
+   Scoped styles prevent interference with real SPHEREx temporal analysis. */
+.spectral-demo{
+  position:relative;isolation:isolate;overflow:hidden;min-width:0;
+  margin:24px 0 30px;padding:clamp(18px,2.4vw,32px);
+  border:1px solid rgba(160,150,230,.32);border-radius:20px;
+  background:linear-gradient(133deg,#0a1228 0%,#0b1025 45%,#100e2a 100%);
+  box-shadow:0 20px 55px rgba(1,4,14,.24);
+  color:#eff2ff;
+}
+.spectral-demo::before{
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  inset:-130px -20% auto 25%;height:300px;
+  background:radial-gradient(ellipse,rgba(123,68,185,.24),transparent 69%);
+}
+.spectral-demo *{box-sizing:border-box}
+.spectral-demo-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:23px}
+.spectral-demo-heading .kicker{display:block;margin:0 0 10px;font-size:.64rem;letter-spacing:.12em;color:#9edff5}
+.spectral-demo-heading h3{font-size:clamp(1.55rem,2.3vw,2.35rem);letter-spacing:-.035em;line-height:1.13;margin:0 0 12px;color:#f8f5ff}
+.spectral-demo-heading p{max-width:750px;margin:0;color:#c9d3ec;font-size:.91rem;line-height:1.7}
+.spectral-demo-tag{align-self:flex-start;flex-shrink:0;padding:10px 13px;border-radius:999px;font-size:.62rem;font-weight:700;letter-spacing:.08em;color:#bce5f5;background:rgba(57,131,176,.16);border:1px solid rgba(87,175,205,.32)}
+.spectral-demo-grid{display:grid;grid-template-columns:minmax(0,1.48fr) minmax(260px,.8fr);gap:18px;align-items:start}
+.spectral-demo-primary,.spectral-demo-info{min-width:0}
+.spectral-demo-viewer{
+  --spectral-reveal:50%;--spectral-zoom:1;
+  position:relative;width:100%;aspect-ratio:1000/679;overflow:hidden;isolation:isolate;
+  border:1px solid rgba(175,169,235,.35);border-radius:16px;
+  background:#09101f;box-shadow:0 15px 34px rgba(0,0,0,.3);
+}
+.spectral-demo .spectral-layer{position:absolute;inset:0;overflow:hidden}
+.spectral-demo .spectral-layer img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform:scale(var(--spectral-zoom));transform-origin:50% 50%;transition:transform .18s ease-out;user-select:none;pointer-events:none}
+.spectral-demo .spectral-layer--short{z-index:2;clip-path:inset(0 calc(100% - var(--spectral-reveal)) 0 0)}
+.spectral-demo .spectral-label{
+  position:absolute;z-index:4;top:12px;max-width:48%;padding:8px 10px;border-radius:8px;
+  background:rgba(6,10,24,.79);backdrop-filter:blur(8px);
+  color:#f4f1ff;font-weight:800;font-size:.65rem;letter-spacing:.06em;
+  box-shadow:0 4px 13px rgba(0,0,0,.26);pointer-events:none
+}
+.spectral-demo .spectral-label--short{left:12px;border:1px solid rgba(131,195,230,.4)}
+.spectral-demo .spectral-label--long{right:12px;border:1px solid rgba(191,148,237,.42)}
+.spectral-demo .spectral-divider-line{
+  position:absolute;z-index:3;left:var(--spectral-reveal);top:0;bottom:0;
+  width:2px;background:rgba(247,245,255,.94);transform:translateX(-50%);
+  box-shadow:0 0 13px rgba(2,5,16,.85);pointer-events:none
+}
+.spectral-demo .spectral-divider-line::after{
+  content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:grid;place-items:center;width:43px;height:43px;border-radius:50%;
+  color:#fff;background:rgba(39,30,91,.94);border:2px solid #e4d8ff;
+  font-size:1.45rem;box-shadow:0 7px 24px rgba(0,0,0,.5);
+}
+.spectral-demo .spectral-image-error{
+  position:absolute;z-index:6;inset:auto 18px 18px;
+  padding:12px 14px;border-radius:10px;background:#141326;
+  color:#ffe2c5;border:1px solid rgba(243,171,117,.6);
+  font-size:.79rem;line-height:1.5;
+}
+.spectral-demo .spectral-image-error[hidden]{display:none}
+.spectral-demo a{color:#c4b4ff;text-underline-offset:3px}
+.spectral-demo-controls{margin-top:16px;padding:13px 15px 14px;border-radius:13px;background:rgba(14,21,46,.92);border:1px solid rgba(152,168,226,.24)}
+.spectral-demo-range-label{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;color:#d5dcf4;font-size:.76rem;font-weight:700}
+.spectral-demo-range-label output{color:#bfa5ff;font-variant-numeric:tabular-nums}
+.spectral-demo #spectral-reveal{display:block;width:100%;margin:0;min-height:26px;accent-color:#b28eff;cursor:ew-resize;touch-action:pan-y}
+.spectral-demo-range-ends{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.65rem;font-weight:600;color:#aebcda}
+.spectral-demo-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:14px}
+.spectral-demo button{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:40px;padding:9px 12px;border-radius:9px;
+  background:rgba(37,43,79,.9);color:#e6e7fa;
+  font:inherit;font-size:.75rem;font-weight:700;line-height:1.3;
+  border:1px solid rgba(155,154,222,.36);cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.spectral-demo button:hover{background:rgba(92,71,156,.58);border-color:rgba(203,178,255,.7)}
+.spectral-demo button[aria-pressed="true"]{background:rgba(119,85,194,.38);border-color:#bda3ff;color:#fff}
+.spectral-demo button:focus-visible,.spectral-demo input:focus-visible,.spectral-demo a:focus-visible{
+  outline:3px solid #90ddf7;outline-offset:3px
+}
+.spectral-demo button:disabled{opacity:.42;cursor:not-allowed}
+.spectral-demo .spectral-zoom-group{margin-left:auto;display:flex;align-items:center;gap:7px}
+.spectral-demo .spectral-zoom-group button{padding-inline:12px;min-width:40px}
+.spectral-demo #spectral-zoom-value{font-size:.72rem;min-width:32px;color:#e8e0ff;font-variant-numeric:tabular-nums;text-align:center}
+.spectral-demo-info{border:1px solid rgba(156,167,235,.23);border-radius:15px;background:rgba(11,16,36,.79);padding:15px;min-height:100%}
+.spectral-demo-info h4{font-size:1.07rem;color:#fff;line-height:1.4;margin:0 0 10px}
+.spectral-demo-info>p{font-size:.78rem;line-height:1.6;color:#c3cce4;margin:0 0 13px}
+.spectral-demo-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.spectral-demo-pair figure{margin:0;min-width:0;overflow:hidden;border-radius:11px;background:#10182e;border:1px solid rgba(152,158,217,.24)}
+.spectral-demo-pair img{display:block;width:100%;aspect-ratio:1000/679;object-fit:cover}
+.spectral-demo-pair figcaption{padding:9px 10px}
+.spectral-demo-pair figcaption strong{display:block;color:#f1eaff;font-size:.74rem;line-height:1.3}
+.spectral-demo-pair figcaption small{display:block;color:#b8c8df;font-size:.66rem;line-height:1.5}
+.spectral-demo-explain{margin-top:16px;padding:13px 14px;border-radius:11px;background:rgba(47,62,104,.24);border-left:3px solid #ac90ee}
+.spectral-demo-explain strong{color:#f2edff;font-size:.79rem}
+.spectral-demo-explain p{margin:7px 0 0;color:#d0d7ee;font-size:.76rem;line-height:1.6}
+.spectral-demo-warning{margin-top:14px;padding:12px;border-radius:9px;border:1px solid rgba(241,177,113,.36);color:#f4d9bc;background:rgba(110,62,32,.16);font-size:.73rem;line-height:1.55}
+.spectral-demo-credit{margin:16px 0 0;color:#afbcd5;font-size:.7rem;line-height:1.65}
+@media(max-width:1080px){
+ .spectral-demo-heading{flex-direction:column;gap:12px}
+ .spectral-demo-grid{grid-template-columns:minmax(0,1.23fr) minmax(230px,.84fr)}
+ .spectral-demo-tag{font-size:.58rem}
+}
+@media(max-width:850px){
+ .spectral-demo-grid{grid-template-columns:minmax(0,1fr)}
+ .spectral-demo-info{min-height:0}
+ .spectral-demo-pair{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:550px){
+ .spectral-demo{padding:14px;border-radius:16px;margin-block:18px 24px}
+ .spectral-demo-heading{margin-bottom:16px}
+ .spectral-demo-heading h3{font-size:1.45rem}
+ .spectral-demo-heading p{font-size:.8rem}
+ .spectral-demo .spectral-label{top:7px;padding:6px;font-size:.52rem}
+ .spectral-demo .spectral-label--short{left:7px}
+ .spectral-demo .spectral-label--long{right:7px}
+ .spectral-demo .spectral-divider-line::after{width:34px;height:34px;font-size:1.1rem}
+ .spectral-demo-actions{gap:7px}
+ .spectral-demo button{font-size:.69rem;flex:1 1 auto}
+ .spectral-demo .spectral-zoom-group{margin-left:0;width:100%;justify-content:flex-end}
+ .spectral-demo-range-ends{font-size:.58rem}
+ .spectral-demo-credit{font-size:.66rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .spectral-demo .spectral-layer img,.spectral-demo button{transition:none}
+}
