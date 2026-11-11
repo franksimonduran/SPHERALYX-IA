@@ -1,159 +1,228 @@
-/* Renderer direccional WebGL sin CDN, alternativa a Three.js.
-   Solo transforma direcciones RA/Dec; no inventa estrellas ni distancias. */
+/* SPHERALYX AI · visor celeste WebGL inmersivo inspirado en Gaia Sky.
+ * No incrusta la aplicación Gaia Sky. Solo dibuja puntos Gaia DR3/AllWISE
+ * suministrados por el backend, sin estrellas sintéticas ni distancias ficticias.
+ */
 export function createNativeCelestialWebGL(stage) {
   const canvas = document.createElement('canvas');
   canvas.className = 'cosmic-webgl-canvas';
-  canvas.setAttribute('aria-hidden','true');
+  canvas.setAttribute('aria-hidden', 'true');
   canvas.style.pointerEvents = 'none';
-  const gl = canvas.getContext('webgl', { alpha:true, antialias:true, premultipliedAlpha:false });
+  const gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false });
   if (!gl) throw new Error('WebGL no disponible');
   stage.append(canvas);
-  const shaders = [];
-  const program = (vs,fs) => {
-    function shader(kind,source) {
-      const s=gl.createShader(kind);shaders.push(s);gl.shaderSource(s,source);gl.compileShader(s);
-      if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)||'Error shader');
-      return s;
+  const shaders = [], programs = [], buffers = [];
+  let destroyed = false;
+  function program(vertexSource, fragmentSource) {
+    function compile(kind, source) {
+      const shader = gl.createShader(kind);
+      if (!shader) throw new Error('No se pudo crear shader');
+      shaders.push(shader);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader) || 'Error shader');
+      return shader;
     }
-    const p=gl.createProgram();
-    gl.attachShader(p,shader(gl.VERTEX_SHADER,vs));gl.attachShader(p,shader(gl.FRAGMENT_SHADER,fs));
-    gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p)||'Error WebGL');
+    const p = gl.createProgram();
+    if (!p) throw new Error('No se pudo crear programa WebGL');
+    programs.push(p);
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fragmentSource));
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'Error de enlace WebGL');
     return p;
-  };
-  const orb=program(
-    'attribute vec2 position;void main(){gl_Position=vec4(position,0.,1.);}',
+  }
+  const background = program(
+    'attribute vec2 aPosition;void main(){gl_Position=vec4(aPosition,0.,1.);}',
     `precision mediump float;
-    uniform vec2 resolution;
+    uniform vec2 uResolution;
     void main(){
-      vec2 p=(gl_FragCoord.xy-resolution*.5)/(min(resolution.x,resolution.y)*.43);
-      float d=length(p);
-      float disk=1.-smoothstep(.986,1.008,d);
-      float rim=exp(-pow((d-1.)*115.,2.));
-      float halo=exp(-pow((d-1.04)*10.,2.));
-      vec3 dark=vec3(.025,.045,.12);
-      vec3 blue=vec3(.11,.19,.41);
-      vec3 violet=vec3(.22,.12,.42);
-      vec3 shade=mix(dark,blue*(.75+.30*(-p.x+p.y)),smoothstep(1.,0.,d));
-      shade+=violet*exp(-length((p-vec2(-.3,.2))*2.4))*0.50;
-      vec3 rgb=shade*disk+vec3(.28,.56,.95)*rim*.46+vec3(.13,.15,.36)*halo*.22;
-      float alpha=clamp(disk*.96+rim*.4+halo*.13,0.,1.);
-      gl_FragColor=vec4(rgb,alpha);
+      vec2 uv=gl_FragCoord.xy/uResolution;
+      vec2 p=(gl_FragCoord.xy-uResolution*.5)/min(uResolution.x,uResolution.y);
+      float glow=exp(-length((p-vec2(-.15,.07))*vec2(1.2,2.1))*2.4);
+      float dust=exp(-pow((p.y+.18*p.x+.13)*2.9,2.))*exp(-pow(p.x*.85,2.));
+      float vignette=1.-.42*smoothstep(.15,.95,length(p));
+      vec3 color=vec3(.007,.016,.043)+vec3(.022,.036,.105)*glow+vec3(.043,.020,.084)*dust*.54;
+      color*=vignette;
+      gl_FragColor=vec4(color,1.);
     }`
   );
-  const marker=program(
-    'attribute vec3 position;uniform float size;void main(){gl_Position=vec4(position.xy,0.,1.);gl_PointSize=size;}',
-    `precision mediump float; uniform vec4 color; uniform float roundPoint;
-    void main(){if(roundPoint>.5 && length(gl_PointCoord-vec2(.5))>.48)discard;gl_FragColor=color;}`
+  const lines = program(
+    'attribute vec2 aPosition;void main(){gl_Position=vec4(aPosition,0.,1.);}',
+    'precision mediump float;uniform vec4 uColor;void main(){gl_FragColor=uColor;}'
   );
-  const rect=gl.createBuffer(),buf=gl.createBuffer();
-  let destroyed=false;
-  const sphereVerts=new Float32Array([-1,-1,1,-1,-1,1,1,-1,1,1,-1,1]);
-  const degrees=Math.PI/180;
-  function project(ra,dec,vra,vdec) {
-    const a=ra*degrees,d=dec*degrees,ca=vra*degrees,cd=vdec*degrees;
-    const vx=Math.cos(d)*Math.cos(a),vy=Math.cos(d)*Math.sin(a),vz=Math.sin(d);
-    return [-Math.sin(ca)*vx+Math.cos(ca)*vy,-Math.sin(cd)*Math.cos(ca)*vx-Math.sin(cd)*Math.sin(ca)*vy+Math.cos(cd)*vz,Math.cos(cd)*Math.cos(ca)*vx+Math.cos(cd)*Math.sin(ca)*vy+Math.sin(cd)*vz];
+  const stars = program(
+    `attribute vec2 aPosition;
+    attribute vec3 aColor;
+    attribute float aSize;
+    attribute float aSelected;
+    uniform float uDpr;
+    varying vec3 vColor;
+    varying float vSelected;
+    void main(){
+      gl_Position=vec4(aPosition,0.,1.);
+      gl_PointSize=min(32.,aSize*uDpr);
+      vColor=aColor;
+      vSelected=aSelected;
+    }`,
+    `precision mediump float;
+    varying vec3 vColor;
+    varying float vSelected;
+    void main(){
+      float r=length(gl_PointCoord-vec2(.5))*2.;
+      if(r>1.)discard;
+      float core=exp(-13.*r*r);
+      float halo=exp(-3.*r*r);
+      float ring=vSelected>.5 ? exp(-pow((r-.66)*18.,2.))*.82 : 0.;
+      float alpha=min(1.,core*.94+halo*.32+ring);
+      vec3 color=mix(vColor,vec3(1.,.89,.64),step(.5,vSelected)*.42);
+      gl_FragColor=vec4(color,alpha);
+    }`
+  );
+  function makeBuffer() {
+    const buffer = gl.createBuffer();
+    if (!buffer) throw new Error('No se pudo crear búfer WebGL');
+    buffers.push(buffer);
+    return buffer;
   }
-  const cap=x=>Math.max(-1,Math.min(1,x));
+  const quad = makeBuffer(), lineBuffer = makeBuffer(), starBuffer = makeBuffer();
+  const quadData = new Float32Array([-1,-1,1,-1,-1,1,1,-1,1,1,-1,1]);
+  gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+  gl.bufferData(gl.ARRAY_BUFFER, quadData, gl.STATIC_DRAW);
+  const rad = Math.PI / 180;
+  const clamp = x => Math.max(-1, Math.min(1, x));
+  function project(ra, dec, viewRa, viewDec) {
+    const a=ra*rad,d=dec*rad,ca=viewRa*rad,cd=viewDec*rad;
+    const x=Math.cos(d)*Math.cos(a),y=Math.cos(d)*Math.sin(a),z=Math.sin(d);
+    return [-Math.sin(ca)*x+Math.cos(ca)*y,
+      -Math.sin(cd)*Math.cos(ca)*x-Math.sin(cd)*Math.sin(ca)*y+Math.cos(cd)*z,
+      Math.cos(cd)*Math.cos(ca)*x+Math.cos(cd)*Math.sin(ca)*y+Math.sin(cd)*z];
+  }
+  function colorFor(source) {
+    if (source.kind === 'wise') return [1, .72, .43];
+    if (!Number.isFinite(source.bp_rp)) return [.72, .87, 1];
+    if (source.bp_rp > 1.5) return [1, .74, .56];
+    if (source.bp_rp < .5) return [.60, .80, 1];
+    return [.95, .94, .88];
+  }
   function render(state) {
-    if(destroyed)return;
-    const b=stage.getBoundingClientRect();
-    if(!b.width||!b.height)return;
-    const dpr=Math.min(devicePixelRatio||1,1.5);
-    const width=Math.max(1,Math.round(b.width*dpr)),height=Math.max(1,Math.round(b.height*dpr));
-    if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+    if (destroyed) return;
+    const rect=stage.getBoundingClientRect();
+    if (rect.width<2 || rect.height<2) return;
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const width=Math.round(rect.width*dpr),height=Math.round(rect.height*dpr);
+    if (canvas.width!==width) canvas.width=width;
+    if (canvas.height!==height) canvas.height=height;
     gl.viewport(0,0,width,height);
-    gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
     gl.disable(gl.DEPTH_TEST);
-    gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-    gl.useProgram(orb);
-    gl.bindBuffer(gl.ARRAY_BUFFER,rect);
-    gl.bufferData(gl.ARRAY_BUFFER,sphereVerts,gl.STATIC_DRAW);
-    const orbPos=gl.getAttribLocation(orb,'position');
-    gl.enableVertexAttribArray(orbPos);gl.vertexAttribPointer(orbPos,2,gl.FLOAT,false,0,0);
-    gl.uniform2f(gl.getUniformLocation(orb,'resolution'),width,height);
+    gl.clearColor(0,0,0,1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(background);
+    gl.bindBuffer(gl.ARRAY_BUFFER,quad);
+    const bgPos=gl.getAttribLocation(background,'aPosition');
+    gl.enableVertexAttribArray(bgPos);
+    gl.vertexAttribPointer(bgPos,2,gl.FLOAT,false,0,0);
+    gl.uniform2f(gl.getUniformLocation(background,'uResolution'),width,height);
     gl.drawArrays(gl.TRIANGLES,0,6);
-    gl.disableVertexAttribArray(orbPos);
-    gl.useProgram(marker);
-    const posLoc=gl.getAttribLocation(marker,'position');
-    gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-    gl.enableVertexAttribArray(posLoc);
-    gl.vertexAttribPointer(posLoc,3,gl.FLOAT,false,0,0);
+    gl.disableVertexAttribArray(bgPos);
+
     const radius=Math.min(width,height)*.43;
     const sx=radius*2/width*state.zoom,sy=radius*2/height*state.zoom;
-    const convert=p=>[p[0]*sx,p[1]*sy,p[2]];
-    const draw=(points,primitive,color,size=2,circular=false)=>{
-      if(points.length===0)return;
-      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(points.flat()),gl.DYNAMIC_DRAW);
-      gl.uniform1f(gl.getUniformLocation(marker,'size'),size*dpr);
-      gl.uniform1f(gl.getUniformLocation(marker,'roundPoint'),circular?1:0);
-      gl.uniform4f(gl.getUniformLocation(marker,'color'),...color);
-      gl.drawArrays(primitive,0,points.length);
-    };
-    if(state.showGrid){
-      const seg=[];
-      const line=arr=>{
-        let prev=null;
-        for(const p of arr){
-          if(p[2]<0){prev=null;continue;}
-          const q=convert(p);
-          if(prev)seg.push(prev,q);
-          prev=q;
+    const convert=p=>[p[0]*sx,p[1]*sy];
+    function drawLines(vertices,color) {
+      if (!vertices.length) return;
+      gl.useProgram(lines);
+      gl.bindBuffer(gl.ARRAY_BUFFER,lineBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(vertices.flat()),gl.DYNAMIC_DRAW);
+      const loc=gl.getAttribLocation(lines,'aPosition');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+      gl.uniform4f(gl.getUniformLocation(lines,'uColor'),...color);
+      gl.drawArrays(gl.LINES,0,vertices.length);
+      gl.disableVertexAttribArray(loc);
+    }
+    if (state.showGrid) {
+      const segments=[];
+      function curve(samples) {
+        let previous=null;
+        for (const sample of samples) {
+          const p=project(sample[0],sample[1],state.viewRa,state.viewDec);
+          if(p[2]<=0){previous=null;continue;}
+          const v=convert(p);
+          if(previous)segments.push(previous,v);
+          previous=v;
         }
-      };
-      for(let d=-60;d<=60;d+=30)line(Array.from({length:181},(_,i)=>project(i*2,d,state.viewRa,state.viewDec)));
-      for(let a=0;a<360;a+=30)line(Array.from({length:91},(_,i)=>project(a,-90+i*2,state.viewRa,state.viewDec)));
-      draw(seg,gl.LINES,[.39,.66,1,.31],1);
+      }
+      for(let d=-60;d<=60;d+=30)curve(Array.from({length:181},(_,i)=>[i*2,d]));
+      for(let a=0;a<360;a+=30)curve(Array.from({length:91},(_,i)=>[a,-90+i*2]));
+      drawLines(segments,[.24,.46,.69,.22]);
     }
-    const sources=(state.sources||[]).slice(0,250);
-    const gaia=[],wise=[],selected=[];
-    for(const s of sources){
-      if(!Number.isFinite(s.ra)||!Number.isFinite(s.dec))continue;
-      const p=project(s.ra,s.dec,state.viewRa,state.viewDec);
-      if(p[2]<0)continue;
+    const records=[];
+    for(const source of (state.sources||[]).slice(0,500)){
+      if(!Number.isFinite(source.ra)||!Number.isFinite(source.dec))continue;
+      const p=project(source.ra,source.dec,state.viewRa,state.viewDec);
+      if(p[2]<=0)continue;
       const v=convert(p);
-      if(s.key===state.selectedKey)selected.push(v);
-      else if(s.kind==='gaia')gaia.push(v);
-      else wise.push(v);
+      if(Math.abs(v[0])>1.04||Math.abs(v[1])>1.04)continue;
+      const selected=source.key===state.selectedKey;
+      const magnitude=source.kind==='gaia'?source.mag:source.w1mpro;
+      const size=selected?19:Number.isFinite(magnitude)?Math.max(5,Math.min(13,12.5-(magnitude-8)*.55)):7;
+      records.push(...v,...colorFor(source),size,selected?1:0);
     }
-    draw(gaia,gl.POINTS,[.76,.91,1,1],4,true);
-    draw(wise,gl.POINTS,[1,.75,.42,1],6,true);
-    draw(selected,gl.POINTS,[1,1,1,1],12,true);
+    if(records.length){
+      gl.useProgram(stars);
+      gl.bindBuffer(gl.ARRAY_BUFFER,starBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(records),gl.DYNAMIC_DRAW);
+      for(const [name,count,offset] of [['aPosition',2,0],['aColor',3,8],['aSize',1,20],['aSelected',1,24]]){
+        const loc=gl.getAttribLocation(stars,name);
+        if(loc<0)continue;
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc,count,gl.FLOAT,false,28,offset);
+      }
+      gl.uniform1f(gl.getUniformLocation(stars,'uDpr'),dpr);
+      gl.drawArrays(gl.POINTS,0,records.length/7);
+      for(const name of ['aPosition','aColor','aSize','aSelected']){
+        const loc=gl.getAttribLocation(stars,name);
+        if(loc>=0)gl.disableVertexAttribArray(loc);
+      }
+    }
     if(state.target){
       const p=project(state.target.ra,state.target.dec,state.viewRa,state.viewDec);
-      if(p[2]>=0){
-        const v=convert(p),r=.025;
-        draw([[v[0]-r,v[1],0],[v[0]+r,v[1],0],[v[0],v[1]-r,0],[v[0],v[1]+r,0]],gl.LINES,[.61,.94,1,.95],2);
+      if(p[2]>0){
+        const v=convert(p),r=.022;
+        drawLines([[v[0]-r,v[1]],[v[0]+r,v[1]],[v[0],v[1]-r],[v[0],v[1]+r]],[.57,.91,1,.90]);
       }
-      const rr=state.radiusDeg;
-      if(rr>0){
-        const a=state.target.ra*degrees,d=state.target.dec*degrees,t=rr*degrees;
-        const center=[Math.cos(d)*Math.cos(a),Math.cos(d)*Math.sin(a),Math.sin(d)];
+      if(state.radiusDeg>0){
+        const a=state.target.ra*rad,d=state.target.dec*rad,t=state.radiusDeg*rad;
+        const c=[Math.cos(d)*Math.cos(a),Math.cos(d)*Math.sin(a),Math.sin(d)];
         const east=[-Math.sin(a),Math.cos(a),0],north=[-Math.sin(d)*Math.cos(a),-Math.sin(d)*Math.sin(a),Math.cos(d)];
-        const pts=[];
+        const seg=[];let previous=null;
         for(let i=0;i<=96;i++){
-          const f=i*2*Math.PI/96;
-          const v=center.map((x,j)=>x*Math.cos(t)+Math.sin(t)*(east[j]*Math.cos(f)+north[j]*Math.sin(f)));
-          const p=project((Math.atan2(v[1],v[0])*180/Math.PI+360)%360,Math.asin(cap(v[2]))*180/Math.PI,state.viewRa,state.viewDec);
-          pts.push(p);
+          const angle=i*2*Math.PI/96;
+          const v=c.map((x,j)=>x*Math.cos(t)+Math.sin(t)*(east[j]*Math.cos(angle)+north[j]*Math.sin(angle)));
+          const p=project((Math.atan2(v[1],v[0])/rad+360)%360,Math.asin(clamp(v[2]))/rad,state.viewRa,state.viewDec);
+          if(p[2]<=0){previous=null;continue;}
+          const q=convert(p);
+          if(previous)seg.push(previous,q);
+          previous=q;
         }
-        const segments=[];let previous=null;
-        for(const p of pts){
-          if(p[2]<0){previous=null;continue;}
-          const v=convert(p);if(previous)segments.push(previous,v);previous=v;
-        }
-        draw(segments,gl.LINES,[.53,.92,1,.84],1);
+        drawLines(seg,[.48,.84,1,.50]);
       }
     }
-    gl.disableVertexAttribArray(posLoc);
   }
   function dispose(){
-    if(destroyed)return;destroyed=true;
-    gl.deleteBuffer(rect);gl.deleteBuffer(buf);
-    gl.deleteProgram(orb);gl.deleteProgram(marker);
+    if(destroyed)return;
+    destroyed=true;
+    for(const buffer of buffers)gl.deleteBuffer(buffer);
+    for(const p of programs)gl.deleteProgram(p);
     for(const shader of shaders)gl.deleteShader(shader);
     canvas.remove();
   }
-  canvas.addEventListener('webglcontextlost', e=>{e.preventDefault();dispose();stage.dispatchEvent(new CustomEvent('cosmic-webgl-lost'));},{once:true});
+  canvas.addEventListener('webglcontextlost',event=>{
+    event.preventDefault();
+    dispose();
+    stage.dispatchEvent(new CustomEvent('cosmic-webgl-lost'));
+  },{once:true});
   return {render,dispose};
 }
