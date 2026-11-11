@@ -1,4 +1,4 @@
-// Transformación visual del PNG, independiente de WCS, análisis y visor simulado.
+// Transformación visual del PNG, independiente de WCS y análisis científico.
 export function initRealViewer({viewport, image, column, status, coordinates}) {
   const toolbar=document.createElement('div'); toolbar.className='real-viewer-toolbar';
   toolbar.setAttribute('role','group'); toolbar.setAttribute('aria-label','Controles visuales del recorte real');
