@@ -207,7 +207,7 @@ class SyntheticRequest(BaseModel):
     threshold: float = Field(default=5, ge=3, le=12, allow_inf_nan=False)
 
 
-@app.post('/api/experimental/motion')
+@app.post('/api/experimental/motion', include_in_schema=False)
 def synthetic_motion(request: SyntheticRequest):
     return motion_detection.run_experiment(request.seed, request.tolerance, request.threshold)
 
@@ -228,7 +228,7 @@ class ValidationRequest(BaseModel):
 _validation_lock = threading.BoundedSemaphore(1)
 
 
-@app.post('/api/experimental/validation')
+@app.post('/api/experimental/validation', include_in_schema=False)
 def synthetic_validation(request: ValidationRequest):
     if not _validation_lock.acquire(blocking=False):
         raise HTTPException(503, 'Ya hay una evaluación sintética en curso en este proceso')
@@ -256,7 +256,7 @@ class ClassificationRequest(BaseModel):
     max_residual: float = Field(default=3, ge=.5, le=20, allow_inf_nan=False)
 
 
-@app.post('/api/experimental/classification')
+@app.post('/api/experimental/classification', include_in_schema=False)
 def synthetic_classification(request: ClassificationRequest):
     if not _validation_lock.acquire(blocking=False):
         raise HTTPException(503, 'Ya hay una evaluación sintética en curso en este proceso')
