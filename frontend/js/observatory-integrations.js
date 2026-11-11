@@ -2,6 +2,16 @@
    WorldWide Telescope: https://docs.worldwidetelescope.org/research-app/latest/embedding/
    SkyView CGI: https://skyview.gsfc.nasa.gov/current/docs/batchpage.html
    Los datos de contexto NO son dos épocas SPHEREx ni mediciones de movimiento. */
+export function buildSkyViewUrl(ra,dec,survey) {
+  if(!Number.isFinite(ra)||!Number.isFinite(dec)||ra<0||ra>=360||dec< -90||dec>90||!['DSS2 Red','2MASS-K'].includes(survey)) throw new Error('Parámetros SkyView no válidos');
+  const q=new URLSearchParams({
+    Position:ra.toFixed(6)+','+dec.toFixed(6),
+    Survey:survey, Coordinates:'J2000', Projection:'Tan',
+    Size:'0.2',Pixels:'600', Scaling:'Sqrt', Return:'JPEG'
+  });
+  return 'https://skyview.gsfc.nasa.gov/cgi-bin/images?'+q.toString();
+}
+
 export function initObservatoryIntegrations() {
   initWorldWideTelescope();
   initSkyView();
@@ -41,14 +51,6 @@ function initSkyView() {
   const button=root.querySelector('#skyview-load'),status=root.querySelector('#skyview-status');
   const allowed={ 'DSS2 Red':'Óptico · DSS2 Red','2MASS-K':'Infrarrojo cercano · 2MASS-K' };
   let batch=0;
-  const buildUrl=(ra,dec,survey)=>{
-    const q=new URLSearchParams({
-      Position:ra.toFixed(6)+','+dec.toFixed(6),
-      Survey:survey, Coordinates:'J2000', Projection:'Tan',
-      Size:'0.2',Pixels:'600', Scaling:'Sqrt', Return:'JPEG'
-    });
-    return 'https://skyview.gsfc.nasa.gov/cgi-bin/images?'+q.toString();
-  };
   const official='https://skyview.gsfc.nasa.gov/current/cgi/query.pl';
   button.addEventListener('click',()=>{
     const raField=document.querySelector('#ra'),decField=document.querySelector('#dec');
@@ -84,7 +86,7 @@ function initSkyView() {
       const caption=root.querySelector('#skyview-caption-'+key);
       const coords=root.querySelector('#skyview-coords-'+key);
       const link=root.querySelector('#skyview-link-'+key);
-      const url=buildUrl(ra,dec,survey);
+      const url=buildSkyViewUrl(ra,dec,survey);
       image.hidden=true;image.removeAttribute('src');
       empty.hidden=false;
       empty.querySelector('strong').textContent='Consultando NASA SkyView…';
