@@ -507,9 +507,8 @@ export function initCosmic3D() {
         });
       } catch (_) {
         webgl.dispose(); webgl = null; stage.classList.remove('webgl-active');
-        stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed','false');
-        modeBtn.textContent = 'Reintentar Gaia 3D';
-        modeStatus.textContent = 'Error gráfico; visor 2D restaurado.';
+        stage.dataset.renderMode = 'unavailable';
+        modeStatus.textContent = 'Error gráfico WebGL. Recarga la página para reintentar el explorador 3D.';
       }
     }
   }
