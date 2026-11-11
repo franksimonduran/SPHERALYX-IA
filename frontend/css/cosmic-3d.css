@@ -17,3 +17,9 @@
 .cosmic-3d-stage{position:relative;min-width:0;min-height:460px;overflow:hidden;border:1px solid rgba(120,183,226,.23);border-radius:12px;background:radial-gradient(ellipse at 50% 55%,#172b48,#060b1a 65%,#02050d);cursor:crosshair;touch-action:none}.cosmic-3d-stage canvas{position:absolute;inset:0;width:100%;height:100%}.cosmic-3d-stage:focus-visible{outline:3px solid #a4efff;outline-offset:2px}.cosmic-stage-label{position:absolute;top:14px;left:15px;color:#a4c4da;font-size:.62rem;letter-spacing:.12em;pointer-events:none}.cosmic-3d-stage>p{position:absolute;bottom:12px;left:14px;right:14px;color:#cadce8;font-size:.68rem;pointer-events:none;text-align:center;text-shadow:0 2px 5px #000}
 @media(max-width:1100px){.cosmic-3d-layout{grid-template-columns:minmax(0,1fr) minmax(0,2fr)}.cosmic-3d-info{grid-column:1/-1}.cosmic-3d-stage{min-height:400px}}
 @media(max-width:760px){.cosmic-3d-heading{align-items:flex-start;flex-direction:column}.cosmic-3d-tag{text-align:left}.cosmic-3d-layout{grid-template-columns:minmax(0,1fr)}.cosmic-3d-stage{min-height:330px}.cosmic-3d-info{grid-column:auto}}
+
+/* Acceso directo a la cartografía Gaia DR3 WebGL ya existente. */
+.cosmic-gaia-3d-link{display:flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border:1px solid rgba(167,139,250,.65);border-radius:10px;background:linear-gradient(110deg,rgba(92,53,153,.85),rgba(45,73,137,.85));color:#f5efff;font-size:.82rem;font-weight:750;text-decoration:none;text-align:center;transition:filter .2s ease,transform .2s ease}
+.cosmic-gaia-3d-link:hover{filter:brightness(1.18);transform:translateY(-1px)}
+.cosmic-gaia-3d-link:focus-visible{outline:3px solid #9ce6ff;outline-offset:3px}
+#gaia-volume{scroll-margin-top:100px}
