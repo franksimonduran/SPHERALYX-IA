@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="css/motion-3d.css">
   <link rel="stylesheet" href="css/observatory-premium.css?v=frontend-qa-20261109">
   <link rel="stylesheet" href="css/layout-system.css?v=nebula-skybox-1">
-  <script type="module" src="js/app.js?v=nebula-skybox-1"></script>
+  <link rel="stylesheet" href="css/spectral-education.css?v=orion-educativo-1">
+  <script type="module" src="js/app.js?v=orion-educativo-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -97,6 +98,56 @@
           <div class="temporal-individuals" id="temporal-individuals"></div>
           <div id="compare-real-views" hidden><p id="compare-real-meta"></p><div class="real-form"><label for="compare-view">Visualización<select id="compare-view"></select></label><button id="compare-play" type="button" class="button" aria-pressed="false">Reproducir A / B</button></div><div class="real-image-stack"><img id="compare-real-image" alt="Observación real alineada"><img id="compare-real-overlay" alt="" aria-hidden="true" hidden></div></div>
         </section>
+      </section>
+
+      <!-- Demostración independiente: imágenes Webb reales pero NO dos épocas SPHEREx. -->
+      <section class="spectral-demo" id="calibracion-educativa" aria-labelledby="spectral-demo-title">
+        <header class="spectral-demo-heading">
+          <div>
+            <span class="kicker">WEBB · NIRCAM / COMPARACIÓN ESPECTRAL EDUCATIVA</span>
+            <h3 id="spectral-demo-title">¿Por qué necesitamos controlar la calibración?</h3>
+            <p>Observa la misma región de la Nebulosa de Orión en dos canales infrarrojos del telescopio James Webb. Las imágenes están alineadas para una <strong>comparación visual</strong>, pero sus colores y estructuras son diferentes porque representan distintas longitudes de onda.</p>
+          </div>
+          <span class="spectral-demo-tag">IMÁGENES REALES · NO TEMPORAL</span>
+        </header>
+        <div class="spectral-demo-grid">
+          <div class="spectral-demo-primary">
+            <div class="spectral-demo-viewer" role="group" aria-label="Comparador visual de imágenes alineadas NIRCam, canal A de onda corta y canal B de onda larga">
+              <div class="spectral-layer spectral-layer--long"><img src="assets/orion/orion-nircam-long.webp" width="1800" height="1222" loading="lazy" decoding="async" alt="Nebulosa de Orión en composición infrarroja NIRCam de longitud de onda larga: gas y polvo en tonos violeta y verde"></div>
+              <div class="spectral-layer spectral-layer--short"><img src="assets/orion/orion-nircam-short.webp" width="1800" height="1222" loading="lazy" decoding="async" alt="Nebulosa de Orión en composición infrarroja NIRCam de longitud de onda corta: estrellas y detalles en tonos azulados"></div>
+              <span class="spectral-label spectral-label--short" aria-hidden="true">A · ONDA CORTA</span>
+              <span class="spectral-label spectral-label--long" aria-hidden="true">B · ONDA LARGA</span>
+              <span class="spectral-divider-line" aria-hidden="true"></span>
+              <p class="spectral-image-error" id="spectral-image-error" role="alert" hidden>No se pudo cargar una imagen local. Consulta <a href="https://www.esa.int/ESA_Multimedia/Images/2023/09/Slider_Orion_Nebula_in_NIRCam_short-_versus_long-wavelength_channel_aligned" target="_blank" rel="noopener noreferrer">la fuente oficial en ESA</a>.</p>
+            </div>
+            <div class="spectral-demo-controls">
+              <label class="spectral-demo-range-label" for="spectral-reveal">Desliza para comparar los canales <output id="spectral-reveal-value" for="spectral-reveal">50%</output></label>
+              <input type="range" id="spectral-reveal" min="0" max="100" step="1" value="50" aria-label="Porcentaje visible del canal A de onda corta" aria-controls="calibracion-educativa">
+              <div class="spectral-demo-range-ends"><span>0% · Solo B (onda larga)</span><span>100% · Solo A (onda corta)</span></div>
+              <div class="spectral-demo-actions" role="group" aria-label="Controles del comparador espectral">
+                <button id="spectral-only-short" type="button" aria-pressed="false">Ver canal A</button>
+                <button id="spectral-only-long" type="button" aria-pressed="false">Ver canal B</button>
+                <button id="spectral-reset" type="button">Restablecer</button>
+                <div class="spectral-zoom-group" role="group" aria-label="Zoom sincronizado de ambos canales">
+                  <button id="spectral-zoom-out" type="button" aria-label="Alejar ambas imágenes">−</button>
+                  <span id="spectral-zoom-value" aria-live="polite">1.0×</span>
+                  <button id="spectral-zoom-in" type="button" aria-label="Acercar ambas imágenes">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <aside class="spectral-demo-info" aria-labelledby="spectral-explain-title">
+            <h4 id="spectral-explain-title">Un mismo cielo, distinta información</h4>
+            <p>Dos composiciones de color del mismo campo, producidas con distintos filtros de NIRCam. Las imágenes son mosaicos astronómicos procesados, no archivos FITS científicos originales.</p>
+            <div class="spectral-demo-pair">
+              <figure><img src="assets/orion/orion-nircam-short.webp" width="1800" height="1222" loading="lazy" decoding="async" alt=""><figcaption><strong>Canal A</strong><small>Infrarrojo de onda corta · 5 filtros</small></figcaption></figure>
+              <figure><img src="assets/orion/orion-nircam-long.webp" width="1800" height="1222" loading="lazy" decoding="async" alt=""><figcaption><strong>Canal B</strong><small>Infrarrojo de onda larga · 6 filtros</small></figcaption></figure>
+            </div>
+            <div class="spectral-demo-explain"><strong>¿Qué demuestra?</strong><p>Una diferencia entre dos imágenes puede deberse a su respuesta espectral y al procesamiento, incluso cuando las estrellas pertenecen al mismo campo. La calibración y los metadatos son indispensables antes de interpretar cambios.</p></div>
+            <p class="spectral-demo-warning"><strong>Importante:</strong> no son dos épocas de SPHEREx. Este visor no calcula diferencias fotométricas ni demuestra movimiento. La comparación temporal científica permanece en el módulo IRSA, con sus controles de calibración.</p>
+          </aside>
+        </div>
+        <p class="spectral-demo-credit">Fuente: <a href="https://www.esa.int/ESA_Multimedia/Images/2023/09/Slider_Orion_Nebula_in_NIRCam_short-_versus_long-wavelength_channel_aligned" target="_blank" rel="noopener noreferrer">ESA · Orión, NIRCam (02/10/2023)</a>. Crédito: NASA, ESA, CSA / M. McCaughrean y S. Pearson. Imágenes optimizadas para la web a partir del par alineado; licencia <a href="https://creativecommons.org/licenses/by-sa/3.0/igo/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0 IGO</a> o ESA Standard Licence.</p>
       </section>
       <div class="explorer-layout"><aside class="panel controls"><div class="panel-title"><div><span class="kicker">CONFIGURACIÓN</span><h3>Campo de observación</h3></div><span class="panel-icon">⌖</span></div><form id="coordinates-form" novalidate><label for="ra">Ascensión recta <span>RA · grados</span></label><input id="ra" aria-describedby="coordinates-error" type="number" min="0" max="360" step="any" value="83.8221" required><label for="dec">Declinación <span>Dec · grados</span></label><input id="dec" aria-describedby="coordinates-error" type="number" min="-90" max="90" step="any" value="-5.3911" required><p id="coordinates-error" class="form-error" role="alert"></p><button class="button primary full" type="submit">Actualizar campo <span>↗</span></button></form><div class="control-divider"></div><label for="observation">Observación <span>ÉPOCA</span></label><select id="observation"></select><p class="control-help">Cada época muestra una representación generada localmente, no una imagen de SPHEREx.</p><div class="control-divider"></div><p class="control-label">VISUALIZACIÓN</p><label class="check"><input id="show-grid" type="checkbox" checked> Cuadrícula celeste</label><label class="check"><input id="show-labels" type="checkbox" checked> Identificadores</label><label class="check"><input id="show-candidates" type="checkbox" checked> Marcar candidatos</label></aside>
       <div class="panel viewer-panel"><div class="viewer-heading"><div><span class="kicker">VISOR ASTRONÓMICO</span><h3>Campo celeste <span class="sim-tag">SIMULADO</span></h3></div><span class="viewer-coords" id="viewer-coords"></span></div><div class="sky-wrap"><canvas id="sky" aria-label="Representación simulada del campo celeste"></canvas><div class="sky-overlay top-left"><span>CAMPO SINTÉTICO / ICRS</span><strong id="sky-epoch"></strong></div><div class="sky-overlay bottom-left">N ↑ <span> E ←</span></div><div class="zoom-controls" aria-label="Controles de zoom"><button id="zoom-in" type="button" aria-label="Acercar">+</button><button id="zoom-out" type="button" aria-label="Alejar">−</button><button id="zoom-reset" type="button" aria-label="Restablecer zoom">⌂</button></div><div class="sky-overlay bottom-right" id="zoom-level">100%</div></div><div class="viewer-footer"><span><i></i> CAMPO GENERADO LOCALMENTE</span><span>Selecciona un marcador para ver el candidato</span></div><p id="viewer-selection" class="selection-message" aria-live="polite">Selecciona un marcador cian para inspeccionarlo o utiliza la lista de <a href="#descubrimientos">candidatos</a> con el teclado.</p></div></div>
