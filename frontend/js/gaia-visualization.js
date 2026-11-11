@@ -192,7 +192,7 @@ export function initGaiaVisualization() {
     if (manualOffline.checked) {
       aladinHost.hidden=true;
       skyBtn.disabled=true;
-      caption.textContent='DEMO OFFLINE · Imagen de archivo CDS desactivada por elección del usuario.';
+      caption.textContent='VISOR CDS NO DISPONIBLE · Acceso externo desactivado.';
     } else {
       skyBtn.disabled=false;
       if (aladin) aladinHost.hidden=false;
