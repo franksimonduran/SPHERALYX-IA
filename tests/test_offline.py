@@ -22,6 +22,19 @@ def test_server_offline_blocks_real_not_synthetic(monkeypatch):
     assert client.get('/').status_code == 200
 
 
+
+def test_synthetic_experiments_are_hidden_and_blocked_in_public_mode(monkeypatch):
+    """El despliegue público solo ofrece observaciones y catálogos reales."""
+    monkeypatch.delenv('SPHERALYX_INTERNAL_EXPERIMENTS', raising=False)
+    client = TestClient(app)
+    paths = ('/api/experimental/motion', '/api/experimental/validation', '/api/experimental/classification')
+    for path in paths:
+        response = client.post(path, json={})
+        assert response.status_code == 404
+        assert 'no están disponibles' in response.json()['detail']
+    schema = client.get('/openapi.json').json()
+    assert all(path not in schema['paths'] for path in paths)
+
 def test_offline_disabled_by_default(monkeypatch):
     monkeypatch.delenv('SPHERALYX_OFFLINE', raising=False)
     monkeypatch.setattr(spherex_client, 'search', lambda *args: [])
