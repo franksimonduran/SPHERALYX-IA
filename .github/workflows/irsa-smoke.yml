@@ -1,0 +1,58 @@
+name: IRSA production connectivity smoke
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/irsa-smoke.yml
+
+jobs:
+  live-irsa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Confirm Render is in real-data mode and IRSA responds
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          base = "https://spheralyx-ai.onrender.com"
+          def get(path, timeout=55):
+              request = urllib.request.Request(base + path, headers={"User-Agent": "SPHERALYX-IRSA-Smoke/1.0", "Accept": "application/json"})
+              with urllib.request.urlopen(request, timeout=timeout) as response:
+                  return response.status, json.load(response)
+
+          # La publicación en Render puede tardar más que el inicio del job.
+          deadline = time.monotonic() + 230
+          while True:
+              try:
+                  code, health = get("/health", timeout=25)
+                  print("Health:", code, "data_mode:", health.get("data_mode"), "upstream_checked:", health.get("upstream_checked"), flush=True)
+                  if code == 200 and health.get("data_mode") == "real":
+                      break
+              except (urllib.error.URLError, TimeoutError, ValueError) as exc:
+                  print("Esperando Render:", type(exc).__name__, flush=True)
+              if time.monotonic() >= deadline:
+                  raise SystemExit("Render no informó data_mode=real en el plazo de verificación.")
+              time.sleep(12)
+
+          params = urllib.parse.urlencode({"ra": "156.09328159", "dec": "-41.64466331", "radius": "0.01", "release": "qr2"})
+          try:
+              status, result = get("/api/observations?" + params, timeout=90)
+          except urllib.error.HTTPError as exc:
+              detail = exc.read(1024).decode("utf-8", errors="replace")
+              raise SystemExit(f"Consulta IRSA no disponible: HTTP {exc.code} {detail[:350]}") from exc
+          assert status == 200, f"HTTP {status}"
+          assert result.get("mode") == "real" and result.get("source") == "NASA/IPAC IRSA SIA2", "Respuesta sin procedencia IRSA"
+          observations = result.get("observations")
+          assert isinstance(observations, list), "Lista de observaciones no reconocida"
+          assert result.get("count") == len(observations), "Conteo incoherente"
+          assert all(item.get("mode") == "real" for item in observations), "Producto no real"
+          print("IRSA SIA2 real: HTTP 200, release:", result.get("release"), "productos:", len(observations), flush=True)
+          if not observations:
+              print("La consulta fue exitosa, pero este campo no devolvió productos seleccionables. No se fabrican datos.")
+          PY
