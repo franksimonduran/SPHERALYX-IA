@@ -4,11 +4,12 @@ import { initMissionWorkspace } from './mission-workspace.js';
 import { initMissionPortal } from './mission-portal.js';
 import { initCosmic3D } from './cosmic-3d.js';
 import { initGaiaVisualization } from './gaia-visualization.js';
+import { initGaiaVolume } from './gaia-volume.js';
 import { initTemporalExplorer } from './temporal-explorer.js';
 import { initSpectralEducation } from './spectral-education.js';
 import { initObservatoryIntegrations } from './observatory-integrations.js';
 
-initExplorer(); initRealComparison(); initTemporalExplorer(); initMissionWorkspace(); initMissionPortal(); initGaiaVisualization(); initCosmic3D(); initSpectralEducation(); initObservatoryIntegrations();
+initExplorer(); initRealComparison(); initTemporalExplorer(); initMissionWorkspace(); initMissionPortal(); initGaiaVisualization(); initGaiaVolume(); initCosmic3D(); initSpectralEducation(); initObservatoryIntegrations();
 // El logotipo oficial se muestra únicamente si la imagen cargada es válida.
 const logo=document.querySelector('.brand-logo'),symbol=document.querySelector('.brand-symbol');
 const updateLogo=()=>{const usable=logo.naturalWidth>1&&logo.naturalHeight>1;logo.hidden=!usable;symbol.hidden=usable;};
