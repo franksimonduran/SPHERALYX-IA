@@ -73,19 +73,14 @@ export function initCosmic3D() {
   // Conservar el campo original cuando el usuario copia las coordenadas de una fuente.
   let catalogFocus = null;
   let webgl = null, webglLoading = false;
-  // El modo 3D se carga al solicitarlo: sin dependencia CDN obligatoria para la demo offline.
-  const modeBtn = document.createElement('button');
-  modeBtn.type = 'button';
-  modeBtn.id = 'cosmic-renderer-toggle';
-  modeBtn.className = 'cosmic-renderer-toggle';
-  modeBtn.textContent = 'Activar Gaia 3D';
-  modeBtn.setAttribute('aria-pressed', 'false');
-  modeBtn.setAttribute('aria-label', 'Alternar visor Gaia 3D inmersivo y esfera celeste 2D');
+  // Cosmic Explorer: WebGL como experiencia principal, sin alternador 2D.
+  // La geometría del cielo utiliza posiciones angulares reales de los catálogos.
   const modeStatus = document.createElement('span');
   modeStatus.id = 'cosmic-renderer-status';
   modeStatus.className = 'cosmic-renderer-status';
-  modeStatus.textContent = 'Vista 2D · consulta Gaia DR3 para cargar estrellas reales';
-  stage.append(modeBtn, modeStatus);
+  modeStatus.setAttribute('role', 'status');
+  modeStatus.textContent = 'Preparando explorador cósmico 3D…';
+  stage.append(modeStatus);
   const emptyState = document.createElement('div');
   emptyState.id = 'cosmic-gaia-empty';
   emptyState.className = 'cosmic-gaia-empty';
@@ -93,81 +88,52 @@ export function initCosmic3D() {
   const emptyTitle = document.createElement('strong');
   emptyTitle.textContent = 'Explora el cielo real en 3D';
   const emptyText = document.createElement('p');
-  emptyText.textContent = 'Consulta Gaia DR3 para proyectar estrellas auténticas en este visor.';
+  emptyText.textContent = 'Consulta Gaia DR3 para visualizar estrellas auténticas. Sin datos no se inventan fuentes.';
   const emptyLoad = document.createElement('button');
   emptyLoad.type = 'button';
   emptyLoad.textContent = 'Consultar Gaia DR3';
   emptyLoad.addEventListener('click', event => { event.stopPropagation(); gaiaBtn?.click(); });
   emptyState.append(emptyTitle, emptyText, emptyLoad);
   stage.append(emptyState);
-  stage.dataset.renderMode = '2d';
-  modeBtn.addEventListener('pointerdown', e => e.stopPropagation());
-  modeBtn.addEventListener('click', async e => {
-    e.stopPropagation();
-    if (webglLoading) return;
-    if (webgl) {
-      webgl.dispose(); webgl = null;
-      stage.classList.remove('webgl-active');
-      stage.dataset.renderMode = '2d';
-      modeBtn.setAttribute('aria-pressed', 'false');
-      modeBtn.textContent = 'Activar Gaia 3D';
-      modeStatus.textContent = 'Vista 2D · consulta Gaia DR3 para cargar estrellas reales';
-      draw();
-      return;
-    }
+  stage.dataset.renderMode = '3d';
+  let webgl = null, webglLoading = false;
+  async function activate3D() {
+    if (webgl || webglLoading) return;
     webglLoading = true;
-    modeBtn.disabled = true;
-    modeStatus.textContent = 'Preparando escena 3D…';
+    modeStatus.textContent = 'Inicializando escena WebGL…';
     try {
-      // Renderizador local, independiente de CDN. Three.js queda como motor opcional
-      // para futuras escenas; este modo es WebGL real y conserva la misma astronomía.
       const { createNativeCelestialWebGL } = await import('./cosmic-native-webgl.js');
       webgl = createNativeCelestialWebGL(stage);
       stage.classList.add('webgl-active');
       stage.dataset.renderMode = '3d';
-      modeBtn.setAttribute('aria-pressed', 'true');
-      modeBtn.textContent = 'Volver a vista 2D';
-      modeStatus.textContent = 'Gaia 3D inmersivo activo · fuentes reales solo tras consulta';
+      modeStatus.textContent = 'Explorador 3D activo · carga Gaia DR3 para mostrar fuentes reales';
       draw();
       publishGaiaViews();
     } catch (error) {
+      stage.dataset.renderMode = 'unavailable';
       stage.classList.remove('webgl-active');
-      stage.dataset.renderMode = '2d';
-      modeStatus.textContent = '3D no disponible aquí. Vista celeste 2D activa; puedes reintentar.';
-      modeBtn.textContent = 'Reintentar Gaia 3D';
-    } finally { webglLoading = false; modeBtn.disabled = false; }
-  });
-  // El usuario no debe descubrir el 3D escondido detrás de un botón:
-  // se inicia automáticamente cuando el explorador entra en pantalla.
-  // Si falta WebGL o la biblioteca no carga, conserva el Canvas original.
-  let auto3dAttempted = false;
-  function activateVisible3D() {
-    if (auto3dAttempted || webgl || webglLoading || document.visibilityState === 'hidden') return;
-    auto3dAttempted = true;
-    if (typeof IntersectionObserver === 'undefined') {
-      modeBtn.click();
-    } else {
-      modeBtn.click();
+      modeStatus.textContent = 'El explorador 3D requiere WebGL. Activa la aceleración gráfica o utiliza un navegador compatible.';
+    } finally {
+      webglLoading = false;
     }
   }
+  // Activación automática sin botón ni cambio a vista 2D.
   if (typeof IntersectionObserver !== 'undefined') {
-    const auto3dObserver = new IntersectionObserver(entries => {
+    const observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting)) {
-        auto3dObserver.disconnect();
-        activateVisible3D();
+        observer.disconnect();
+        activate3D();
       }
-    }, { rootMargin: '80px 0px', threshold: 0.05 });
-    auto3dObserver.observe(stage);
+    }, { rootMargin: '100px 0px', threshold: 0.05 });
+    observer.observe(stage);
   } else {
-    // Evita una dependencia adicional en navegadores antiguos.
-    activateVisible3D();
+    activate3D();
   }
   stage.addEventListener('cosmic-webgl-lost', () => {
-    webgl = null; stage.classList.remove('webgl-active');
-    stage.dataset.renderMode = '2d'; modeBtn.setAttribute('aria-pressed', 'false');
-    modeBtn.textContent = 'Activar Gaia 3D';
-    modeStatus.textContent = 'Contexto WebGL perdido; visor 2D restaurado.';
-    draw();
+    webgl = null;
+    stage.classList.remove('webgl-active');
+    stage.dataset.renderMode = 'unavailable';
+    modeStatus.textContent = 'Se perdió el contexto WebGL. Recarga la página para restaurar el explorador 3D.';
   });
 
   const coords = () => {
