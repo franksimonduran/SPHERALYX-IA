@@ -1,7 +1,4 @@
 import { initExplorer } from './explorer.js';
-import { initTimeline } from './timeline.js';
-import { initSimulation } from './simulation.js';
-import { initAnalysis } from './ai-analysis.js';
 import { initRealComparison } from './real-comparison.js';
 import { initMissionWorkspace } from './mission-workspace.js';
 import { initMissionPortal } from './mission-portal.js';
@@ -10,7 +7,7 @@ import { initGaiaVisualization } from './gaia-visualization.js';
 import { initTemporalExplorer } from './temporal-explorer.js';
 import { initSpectralEducation } from './spectral-education.js';
 
-initExplorer(); initTimeline(); initSimulation(); initAnalysis(); initRealComparison(); initTemporalExplorer(); initMissionWorkspace(); initMissionPortal(); initGaiaVisualization(); initCosmic3D(); initSpectralEducation();
+initExplorer(); initRealComparison(); initTemporalExplorer(); initMissionWorkspace(); initMissionPortal(); initGaiaVisualization(); initCosmic3D(); initSpectralEducation();
 // El logotipo oficial se muestra únicamente si la imagen cargada es válida.
 const logo=document.querySelector('.brand-logo'),symbol=document.querySelector('.brand-symbol');
 const updateLogo=()=>{const usable=logo.naturalWidth>1&&logo.naturalHeight>1;logo.hidden=!usable;symbol.hidden=usable;};
@@ -45,8 +42,7 @@ if (headerDataStatus) {
     const compareSearch = document.querySelector('#compare-real-form button[type="submit"]');
     const pairSearch = document.querySelector('#find-pairs');
     // En un servidor restringido no ofrecemos acciones que inevitablemente fallan.
-    // La casilla offline es una decisión manual y NUNCA representa automáticamente
-    // el estado de SPHEREx en el backend (Gaia/WISE pueden seguir online).
+    // El estado del backend informa restricciones de acceso; no crea datos alternativos.
     for (const button of [irsaSearch, cosmicSearch, compareSearch, pairSearch]) {
       if (button) {
         button.disabled = irsaLocked;
@@ -63,9 +59,9 @@ if (headerDataStatus) {
       headerDataStatus.classList.add('status-offline');
       headerDataStatus.setAttribute('title', 'Los catálogos reales están disponibles con cuota. Las consultas FITS y temporales de IRSA siguen offline.');
     } else if (data?.data_mode === 'offline') {
-      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> DEMO OFFLINE · GAIA / WISE / IRSA DESACTIVADOS';
+      headerDataStatus.innerHTML = '<i aria-hidden="true"></i> SERVICIOS EXTERNOS NO DISPONIBLES';
       headerDataStatus.classList.add('status-offline');
-      headerDataStatus.setAttribute('title', 'El 3D funciona; las consultas astronómicas externas están bloqueadas por el servidor.');
+      headerDataStatus.setAttribute('title', 'Las consultas astronómicas externas están bloqueadas por este servidor.');
     } else if (data?.data_mode === 'real') {
       headerDataStatus.innerHTML = '<i aria-hidden="true"></i> MODO REAL · SERVICIOS NO VERIFICADOS';
       headerDataStatus.setAttribute('title', 'Las consultas están habilitadas; NASA y ESA pueden no responder.');
