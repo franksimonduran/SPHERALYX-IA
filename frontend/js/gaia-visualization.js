@@ -133,8 +133,18 @@ export function initGaiaVisualization() {
       return;
     }
     if(aladin||aladinLoading)return;
+    // Permitir abrir Aladin con las coordenadas actuales aunque no se haya consultado Gaia.
+    // Las capas de fuentes solo se añaden después de recibir registros reales del catálogo.
+    if(!query){
+      const raField=document.querySelector('#ra'),decField=document.querySelector('#dec');
+      const ra=Number(raField?.value),dec=Number(decField?.value);
+      const radius=Number(document.querySelector('#real-radius')?.value);
+      if(raField?.value&&decField?.value&&finite(ra)&&finite(dec)&&ra>=0&&ra<360&&dec>=-90&&dec<=90){
+        query={ra,dec,radius_deg:Number.isFinite(radius)&&radius>0?radius:0.05};
+      }
+    }
     if(!query||!finite(query.ra)||!finite(query.dec)){
-      caption.textContent='Selecciona un campo con RA/Dec válidas antes de abrir la imagen.';return;
+      caption.textContent='Indica coordenadas RA y Dec válidas antes de abrir Aladin Lite.';return;
     }
     aladinLoading=true;skyBtn.disabled=true;
     caption.textContent='Cargando visor CDS y estudio de cielo DSS2…';
@@ -159,7 +169,7 @@ export function initGaiaVisualization() {
       aladin.on('objectClicked', object => {
         if (object?.data?.source_id != null) pickSource(String(object.data.source_id));
       });
-      skyBtn.textContent='Actualizar vista de archivo';
+      skyBtn.textContent='Actualizar vista Aladin';
       caption.textContent='CDS Aladin Lite · DSS2 color (archivo, NO SPHEREx). Selecciona una estrella en los gráficos para localizarla.';
       updateAladin();
     }catch(error){
@@ -198,7 +208,7 @@ export function initGaiaVisualization() {
       if (aladin) aladinHost.hidden=false;
       caption.textContent=aladin
         ? 'CDS Aladin Lite · DSS2 color (archivo óptico, NO SPHEREx).'
-        : 'Visor óptico opcional. Pulsa para cargar el archivo CDS.';
+        : 'Pulsa para abrir Aladin Lite con las coordenadas del campo actual.';
     }
   });
   document.addEventListener('spheralyx:gaia-visualization',event=>{
@@ -209,7 +219,7 @@ export function initGaiaVisualization() {
     const trunc=meta?.truncated?' · muestra limitada (posible truncamiento)':'';
     status.textContent=sources.length
       ? 'Gaia DR3 · '+(meta?.source || 'Archivo Gaia')+' · '+sources.length+' fuentes del cono consultado'+trunc+' · '+(meta?.queried_at_utc||'fecha de consulta no disponible')
-      : 'Sin fuentes Gaia cargadas para el campo actual. No se muestran resultados sintéticos.';
+      : 'Sin fuentes Gaia consultadas para este campo. El atlas puede mostrar DSS2 sin añadir fuentes ficticias.';
     requestDraw();
     if(aladin)updateAladin();
   });
