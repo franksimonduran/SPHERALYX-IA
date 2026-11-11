@@ -552,7 +552,7 @@ export function initCosmic3D() {
   async function loadCatalog(kind) {
     if (offline?.checked || document.body.dataset.catalogMode === 'offline') {
       abortCatalogRequests();
-      if (catalogStatus) catalogStatus.textContent = 'DEMO OFFLINE · Consultas a Gaia DR3 y AllWISE desactivadas.';
+      if (catalogStatus) catalogStatus.textContent = 'CATÁLOGOS NO DISPONIBLES · No se pueden consultar Gaia DR3 ni AllWISE desde este servidor.';
       return;
     }
     const p = coords(), rr = validRadius();
@@ -647,7 +647,7 @@ export function initCosmic3D() {
         abortCatalogRequests();
         gaiaSources = []; wiseSources = []; gaiaMeta = null; wiseMeta = null; selectedKey = '';
         populateSourceSelect();
-        if (catalogStatus) catalogStatus.textContent = 'DEMO OFFLINE · Consultas a Gaia DR3 y AllWISE desactivadas.';
+        if (catalogStatus) catalogStatus.textContent = 'CATÁLOGOS NO DISPONIBLES · No se pueden consultar Gaia DR3 ni AllWISE desde este servidor.';
         draw();
       } else {
         updateCatalogSummary();
