@@ -113,18 +113,17 @@ try {
   async function check(name, expression){if(!await evaluate(expression))throw Error(`FALLO: ${name}`);console.log('OK:',name);}
   await check('solo módulos de archivos reales, sin candidatos o simulaciones públicas',"(()=>{const ids=['inicio','explorador','real-title','compare-real-title','calibracion-educativa','gaia-linked-views'];return ids.every(id=>!!document.getElementById(id))&&['simulacion','analisis','descubrimientos','classification-lab','validation-lab'].every(id=>!document.getElementById(id))&&!document.querySelector('#sky')&&!document.querySelector('#offline-mode')&&!document.querySelector('[id^=run-analysis]')})()");
   await check('iconos locales de navegación y nombres accesibles',`(async()=>{const links=[...document.querySelectorAll('.mission-rail-nav a')],icons=links.map(a=>a.querySelector('.nav-icon'));if(links.length!==6||icons.some(i=>!i||i.getAttribute('aria-hidden')!=='true'||getComputedStyle(i).maskImage==='none')||links.some(a=>!a.textContent.trim()))return false;return (await Promise.all(['house','telescope','clock-3','orbit','flask-conical','book-open'].map(async name=>{const r=await fetch('/assets/lucide/'+name+'.svg');return r.ok&&(r.headers.get('content-type')||'').includes('image/svg+xml')&&(await r.text()).includes('<svg')}))).every(Boolean)})()`);
-  await check('tres atlas oficiales visibles en sus apartados y sin petición externa inicial',`(()=>{
-    const w=document.querySelector('#wwt-observatory'),s=document.querySelector('#skyview-context'),a=document.querySelector('.gaia-linked-grid>.gaia-sky-card');
-    return !!w&&!!s&&!!a&&w.closest('#inicio')&&s.closest('.real-panel')!==null
-      &&!!a.querySelector('#gaia-sky-open')&&!!a.querySelector('#gaia-aladin[hidden]')
-      &&!!w.querySelector('#wwt-load')&&w.querySelector('#wwt-frame-wrap[hidden]')&&!w.querySelector('iframe')
+  await check('atlas conservados y sección WWT eliminada',`(()=>{
+    const s=document.querySelector('#skyview-context'),a=document.querySelector('.gaia-linked-grid>.gaia-sky-card');
+    return !document.querySelector('#wwt-observatory')&&!document.querySelector('#wwt-load')
+      &&!!s&&!!a&&!!a.querySelector('#gaia-sky-open')&&!!a.querySelector('#gaia-aladin[hidden]')
       &&s.querySelectorAll('.skyview-image-well img:not([src])').length===2
       &&s.textContent.includes('no son dos épocas SPHEREx')&&s.textContent.includes('NASA SkyView');
   })()`);
-  await check('tres atlas tienen accesos elegantes y rutas a las secciones correctas',`(()=>{
+  await check('dos atlas conservan enlaces internos válidos',`(()=>{
     const links=[...document.querySelectorAll('.observatory-atlas-links a')];
-    return links.length===3
-      &&links.map(a=>a.getAttribute('href')).join(',')==='#wwt-observatory,#gaia-linked-views,#skyview-context'
+    return links.length===2
+      &&links.map(a=>a.getAttribute('href')).join(',')==='#gaia-linked-views,#skyview-context'
       &&links.every(a=>document.querySelector(a.getAttribute('href')))
       &&!!document.querySelector('#skyview-from-aladin')
       &&!!document.querySelector('#skyview-open-aladin');
