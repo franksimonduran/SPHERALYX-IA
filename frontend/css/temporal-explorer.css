@@ -77,3 +77,8 @@
  .temporal-science-panel{padding:14px}
 }
 @media(prefers-reduced-motion:reduce){.temporal-jump-search{transition:none}}
+
+.temporal-official-source{display:inline-flex;align-items:center;margin:10px 0 0 12px;min-height:40px;color:#bad3ff;font-size:.74rem;font-weight:700;text-decoration:underline;text-underline-offset:4px}
+.temporal-official-source:hover{color:#e5ecff}
+.temporal-official-source:focus-visible{outline:3px solid #a5e8ff;outline-offset:3px}
+@media(max-width:550px){.temporal-official-source{margin:12px 0 0;display:flex}}
