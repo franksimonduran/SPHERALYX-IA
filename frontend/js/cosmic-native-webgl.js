@@ -60,7 +60,7 @@ export function createNativeCelestialWebGL(stage) {
     varying float vSelected;
     void main(){
       gl_Position=vec4(aPosition,0.,1.);
-      gl_PointSize=min(32.,aSize*uDpr);
+      gl_PointSize=min(40.,aSize*uDpr);
       vColor=aColor;
       vSelected=aSelected;
     }`,
@@ -70,10 +70,10 @@ export function createNativeCelestialWebGL(stage) {
     void main(){
       float r=length(gl_PointCoord-vec2(.5))*2.;
       if(r>1.)discard;
-      float core=exp(-13.*r*r);
-      float halo=exp(-3.*r*r);
+      float core=exp(-18.*r*r);
+      float halo=exp(-4.*r*r);
       float ring=vSelected>.5 ? exp(-pow((r-.66)*18.,2.))*.82 : 0.;
-      float alpha=min(1.,core*.94+halo*.32+ring);
+      float alpha=min(1.,core*.98+halo*.46+ring);
       vec3 color=mix(vColor,vec3(1.,.89,.64),step(.5,vSelected)*.42);
       gl_FragColor=vec4(color,alpha);
     }`
@@ -167,7 +167,7 @@ export function createNativeCelestialWebGL(stage) {
       if(Math.abs(v[0])>1.04||Math.abs(v[1])>1.04)continue;
       const selected=source.key===state.selectedKey;
       const magnitude=source.kind==='gaia'?source.mag:source.w1mpro;
-      const size=selected?19:Number.isFinite(magnitude)?Math.max(5,Math.min(13,12.5-(magnitude-8)*.55)):7;
+      const size=selected?23:Number.isFinite(magnitude)?Math.max(7,Math.min(17,16-(magnitude-8)*.68)):9;
       records.push(...v,...colorFor(source),size,selected?1:0);
     }
     if(records.length){
