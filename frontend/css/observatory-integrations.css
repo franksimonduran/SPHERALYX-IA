@@ -1,0 +1,60 @@
+/* SPHERALYX integrations: 3 real-world external astronomy atlases.
+   No fictitious observations, trajectories, or astronomical claim based on these views. */
+.observatory-integration{position:relative;min-width:0;overflow:hidden;border-radius:20px;border:1px solid rgba(144,161,218,.31);background:linear-gradient(125deg,#0c182d 0%,#11152c 60%,#0c132a 100%);color:#eaf0fc;padding:clamp(17px,2.4vw,30px);box-shadow:0 18px 43px rgba(3,6,22,.2)}
+.observatory-integration *, .gaia-sky-card *{box-sizing:border-box}
+.integration-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin:0 0 19px}
+.integration-head>div{flex:1;min-width:0}
+.integration-kicker{display:block;font-size:.64rem;letter-spacing:.125em;font-weight:800;color:#a9c7ed;margin:0 0 10px}
+.integration-head h2,.integration-head h4,.integration-head h5{font-size:clamp(1.25rem,2.2vw,1.95rem);line-height:1.2;letter-spacing:-.02em;color:#fafbff;margin:0 0 11px}
+.integration-head p{max-width:730px;font-size:.85rem;line-height:1.65;color:#c2cce2;margin:0}
+.integration-source{flex:0 0 auto;padding:9px 12px;border:1px solid rgba(123,203,214,.36);border-radius:99px;background:rgba(59,111,146,.1);color:#bce8eb;font-size:.61rem;letter-spacing:.05em;font-weight:800}
+.integration-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:15px;color:#afbfdc;font-size:.75rem;line-height:1.6}
+.integration-footer a,.gaia-sky-card .integration-toolbar a{color:#c7b4ff;font-weight:700;text-underline-offset:4px}
+.integration-button,.gaia-sky-card .integration-toolbar button{display:inline-flex;justify-content:center;align-items:center;gap:7px;min-height:43px;padding:11px 17px;border-radius:10px;border:1px solid rgba(179,161,238,.58);background:linear-gradient(110deg,#59418e,#245a7a);color:#fff;font-family:inherit;font-size:.8rem;font-weight:800;cursor:pointer;transition:filter .15s}
+.integration-button:hover:not(:disabled),.gaia-sky-card .integration-toolbar button:hover:not(:disabled){filter:brightness(1.2)}
+.integration-button:disabled{opacity:.52;cursor:wait}
+.observatory-integration a:focus-visible,.observatory-integration button:focus-visible,.observatory-integration select:focus-visible,.gaia-sky-card .integration-toolbar a:focus-visible,.gaia-sky-card button:focus-visible{outline:3px solid #a3dcff;outline-offset:3px}
+.observatory-wwt{margin:24px 0 0}
+.observatory-wwt::before{position:absolute;content:"";pointer-events:none;inset:-120px -15% auto 42%;height:290px;background:radial-gradient(ellipse,rgba(119,78,194,.18),transparent 66%)}
+.wwt-stage{display:grid;min-height:225px;border-radius:15px;overflow:hidden;border:1px solid rgba(135,150,213,.32);background:linear-gradient(115deg,rgba(8,16,39,.94),rgba(15,20,48,.94))}
+.wwt-intro{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center;padding:28px 16px}
+.wwt-intro>span{font-size:2.65rem;color:#baabfa;line-height:1}
+.wwt-intro strong{font-size:1.15rem;color:#f3efff}
+.wwt-intro p{font-size:.78rem;color:#bcc9e0;max-width:560px;line-height:1.7;margin:0}
+.wwt-intro small{font-size:.67rem;color:#a2b1d0}
+.wwt-intro.wwt-loaded{min-height:0;flex-direction:row;justify-content:space-between;text-align:left;padding:12px 16px;gap:12px;background:#131b35}
+.wwt-intro.wwt-loaded>span,.wwt-intro.wwt-loaded>strong,.wwt-intro.wwt-loaded>p,.wwt-intro.wwt-loaded>small{display:none}
+.wwt-frame-wrap{width:100%;min-height:350px;aspect-ratio:16/9}
+.wwt-frame-wrap[hidden]{display:none}
+.wwt-frame-wrap iframe{display:block;width:100%;height:100%;min-height:350px;border:0;background:#080f20}
+.gaia-linked-grid>.gaia-sky-card{grid-column:1/-1;order:-1;width:100%;padding:clamp(16px,2vw,26px)!important;border:1px solid rgba(145,147,229,.35)!important;background:linear-gradient(115deg,#0e1a35,#111932)!important}
+.gaia-linked-grid>.gaia-sky-card .integration-head h5{font-size:clamp(1.3rem,2.1vw,1.8rem)}
+.gaia-linked-grid>.gaia-sky-card .gaia-sky-shell{border-radius:12px;overflow:hidden;min-height:70px;background:#050c1e}
+.gaia-linked-grid>.gaia-sky-card #gaia-aladin:not([hidden]){width:100%;height:clamp(315px,42vw,510px)!important;min-height:315px;border-radius:12px;overflow:hidden}
+.gaia-linked-grid>.gaia-sky-card .integration-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:13px}
+.gaia-linked-grid>.gaia-sky-card .integration-toolbar button{width:auto}
+.gaia-linked-grid>.gaia-sky-card small{color:#a7b8d1;line-height:1.6}
+.gaia-linked-grid>.gaia-sky-card>p[role="status"]{color:#c4d4eb;margin:11px 0}
+.skyview-integration{margin-top:25px;margin-bottom:20px}
+.skyview-integration .integration-head h4{font-size:clamp(1.2rem,2vw,1.75rem)}
+.skyview-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) auto;gap:13px;align-items:end;padding:16px;border:1px solid rgba(129,156,209,.24);border-radius:13px;background:rgba(14,29,55,.75);margin-bottom:16px}
+.skyview-controls label{display:grid;gap:8px;min-width:0;font-size:.7rem;font-weight:800;color:#c5d6f2}
+.skyview-controls select{display:block;min-width:0;width:100%;padding:12px 11px;border:1px solid rgba(128,170,211,.43);background:#0b162b;border-radius:9px;color:#e6efff;font:inherit;font-size:.76rem;cursor:pointer}
+.skyview-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.skyview-pair figure{margin:0;min-width:0;overflow:hidden;border-radius:13px;border:1px solid rgba(123,155,210,.32);background:#0c1730}
+.skyview-image-well{display:flex;align-items:center;justify-content:center;position:relative;aspect-ratio:5/4;min-height:185px;background:#070e1e;overflow:hidden}
+.skyview-image-well img:not([hidden]){display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}
+.skyview-image-well img[hidden]{display:none}
+.skyview-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:180px;padding:18px;text-align:center}
+.skyview-empty[hidden]{display:none}
+.skyview-empty span{font-size:1.9rem;line-height:1;color:#9387c8}
+.skyview-empty strong{font-size:.82rem;color:#deebff}
+.skyview-empty small{font-size:.69rem;color:#a0b3d0}
+.skyview-pair figcaption{padding:12px 14px;display:grid;gap:8px}
+.skyview-pair figcaption strong{font-size:.82rem;color:#f4f5ff}
+.skyview-pair figcaption small{color:#b9cbe3;font-size:.67rem;line-height:1.5}
+.skyview-pair figcaption a{font-size:.73rem;color:#c4b7ff;text-underline-offset:3px}
+.integration-caution{margin:14px 0 0;border-left:3px solid #bd9de9;padding:10px 12px;background:rgba(67,51,111,.21);font-size:.73rem;line-height:1.65;color:#d8cfef}
+@media(max-width:1050px){.skyview-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.skyview-controls button{grid-column:1/-1;width:100%}}
+@media(max-width:690px){.integration-head{flex-direction:column;gap:12px}.integration-source{align-self:flex-start}.observatory-wwt{margin:16px 0}.wwt-frame-wrap,.wwt-frame-wrap iframe{min-height:300px}.wwt-intro.wwt-loaded{flex-wrap:wrap}.skyview-controls{grid-template-columns:minmax(0,1fr)}.skyview-controls button{grid-column:auto}.skyview-pair{grid-template-columns:minmax(0,1fr)}.gaia-linked-grid>.gaia-sky-card .integration-toolbar{flex-direction:column;align-items:stretch}.gaia-linked-grid>.gaia-sky-card .integration-toolbar a{text-align:center}}
+@media(prefers-reduced-motion:reduce){.integration-button,.gaia-sky-card .integration-toolbar button{transition:none}}
