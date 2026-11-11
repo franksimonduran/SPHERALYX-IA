@@ -52,6 +52,44 @@ function initSkyView() {
   const allowed={ 'DSS2 Red':'Óptico · DSS2 Red','2MASS-K':'Infrarrojo cercano · 2MASS-K' };
   let batch=0;
   const official='https://skyview.gsfc.nasa.gov/current/cgi/query.pl';
+  // Cada imagen pertenece a la consulta de coordenadas y relevamiento que la produjo.
+  // Al modificar un parámetro, se retira la vista anterior para evitar atribuciones erróneas.
+  function resetViews(message) {
+    ++batch;
+    button.disabled=false;
+    for (const key of ['a','b']) {
+      const image=root.querySelector('#skyview-image-'+key);
+      const empty=root.querySelector('#skyview-empty-'+key);
+      const caption=root.querySelector('#skyview-caption-'+key);
+      const coords=root.querySelector('#skyview-coords-'+key);
+      const link=root.querySelector('#skyview-link-'+key);
+      image.onload=null;image.onerror=null;image.hidden=true;image.removeAttribute('src');
+      empty.hidden=false;
+      empty.querySelector('strong').textContent='Vista '+key.toUpperCase()+' sin consultar';
+      empty.querySelector('small').textContent='No se insertan fotografías de relleno.';
+      coords.textContent='Campo pendiente de consulta';
+      caption.textContent=root.querySelector('#skyview-survey-'+key).selectedOptions[0]?.textContent||'Relevamiento';
+      link.href=official;
+    }
+    status.textContent=message;
+  }
+  for (const id of ['#ra','#dec']) {
+    document.querySelector(id)?.addEventListener('input',()=>resetViews('Coordenadas modificadas. Consulta SkyView de nuevo para mostrar el campo actualizado.'));
+  }
+  for (const key of ['a','b']) {
+    root.querySelector('#skyview-survey-'+key)?.addEventListener('change',()=>resetViews('Relevamiento modificado. Consulta SkyView para obtener las nuevas imágenes.'));
+  }
+  root.querySelector('#skyview-open-aladin')?.addEventListener('click',()=>{
+    const card=document.querySelector('.gaia-sky-card');
+    if(!card)return;
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    const open=document.querySelector('#gaia-sky-open');
+    if(open){open.focus({preventScroll:true});if(document.querySelector('#gaia-aladin')?.hidden)open.click();}
+  });
+  document.querySelector('#skyview-from-aladin')?.addEventListener('click',()=>{
+    root.scrollIntoView({behavior:'smooth',block:'start'});
+    root.querySelector('#skyview-load')?.focus({preventScroll:true});
+  });
   button.addEventListener('click',()=>{
     const raField=document.querySelector('#ra'),decField=document.querySelector('#dec');
     const ra=Number(raField?.value),dec=Number(decField?.value);
