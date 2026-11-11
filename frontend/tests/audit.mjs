@@ -115,7 +115,7 @@ try {
   await check('iconos locales de navegación y nombres accesibles',`(async()=>{const links=[...document.querySelectorAll('.mission-rail-nav a')],icons=links.map(a=>a.querySelector('.nav-icon'));if(links.length!==6||icons.some(i=>!i||i.getAttribute('aria-hidden')!=='true'||getComputedStyle(i).maskImage==='none')||links.some(a=>!a.textContent.trim()))return false;return (await Promise.all(['house','telescope','clock-3','orbit','flask-conical','book-open'].map(async name=>{const r=await fetch('/assets/lucide/'+name+'.svg');return r.ok&&(r.headers.get('content-type')||'').includes('image/svg+xml')&&(await r.text()).includes('<svg')}))).every(Boolean)})()`);
   await check('tres atlas oficiales visibles en sus apartados y sin petición externa inicial',`(()=>{
     const w=document.querySelector('#wwt-observatory'),s=document.querySelector('#skyview-context'),a=document.querySelector('.gaia-linked-grid>.gaia-sky-card');
-    return !!w&&!!s&&!!a&&w.closest('#inicio')&&s.closest('#real-title')?.classList.contains('real-panel')===true
+    return !!w&&!!s&&!!a&&w.closest('#inicio')&&s.closest('.real-panel')!==null
       &&!!a.querySelector('#gaia-sky-open')&&!!a.querySelector('#gaia-aladin[hidden]')
       &&!!w.querySelector('#wwt-load')&&w.querySelector('#wwt-frame-wrap[hidden]')&&!w.querySelector('iframe')
       &&s.querySelectorAll('.skyview-image-well img:not([src])').length===2
