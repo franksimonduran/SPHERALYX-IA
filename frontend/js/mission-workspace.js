@@ -5,7 +5,6 @@ export function initMissionWorkspace(){
   if(!panel || panel.querySelector('.real-workspace-grid'))return;
   const heading=panel.querySelector(':scope > .panel-title');
   const intro=panel.querySelector('#real-intro');
-  const offline=panel.querySelector('#offline-mode')?.closest('label');
   const documentary=panel.querySelector(':scope > details');
   const form=panel.querySelector('#real-search');
   const status=panel.querySelector('#real-status');
@@ -27,15 +26,13 @@ export function initMissionWorkspace(){
   const controls=makeColumn('real-workspace-controls','01 / CONFIGURACIÓN','Consulta científica');
   const image=makeColumn('real-workspace-image','02 / VISUALIZACIÓN','Visor FITS / PNG');
   const results=makeColumn('real-workspace-results','03 / RESULTADOS','Observaciones IRSA');
-  [intro,coordinates,form,offline,status,documentary].filter(Boolean).forEach(el=>controls.append(el));
+  [intro,coordinates,form,status,documentary].filter(Boolean).forEach(el=>controls.append(el));
   coordinates.classList.add('real-coordinate-form');
-  const updateDemo=coordinates.querySelector('button[type="submit"]');
-  if(updateDemo?.firstChild)updateDemo.firstChild.textContent='Actualizar campo simulado ';
   const viewport=document.createElement('div');viewport.className='real-image-viewport';
   const label=document.createElement('div');label.className='real-image-empty';
   const graphic=document.createElement('span');graphic.setAttribute('aria-hidden','true');graphic.className='image-empty-graphic';graphic.textContent='⊕';
   const emptyTitle=document.createElement('strong');emptyTitle.textContent='Esperando una observación real';
-  const emptyText=document.createElement('p');emptyText.textContent='Busca en IRSA y selecciona un producto para visualizar su recorte FITS. No se muestra una imagen sintética en este panel.';
+  const emptyText=document.createElement('p');emptyText.textContent='Busca en IRSA y selecciona un producto para visualizar su recorte FITS. Sin observaciones reales disponibles, este visor permanece vacío.';
   label.append(graphic,emptyTitle,emptyText);
   viewport.append(preview,label);image.append(viewport);
   if(metadata)image.append(metadata);
@@ -46,7 +43,7 @@ export function initMissionWorkspace(){
   heading.insertAdjacentElement('afterend',grid);
   initRealViewer({viewport, image:preview, column:image, status, coordinates});
   compare.classList.add('mission-compare-workspace');
-  // Navigation closes over existing anchors, including Validation Lab injected by initAnalysis.
+  // Actualiza la navegación sin crear módulos adicionales.
   const nav=document.querySelector('.mission-rail-nav');
   if(nav){
     const links=[...nav.querySelectorAll('a[href^="#"]')];
@@ -61,5 +58,5 @@ export function initMissionWorkspace(){
     }
     window.addEventListener('hashchange',update);update();
   }
-  // Background image is conceptual and must remain distinguished from IRSA data.
+  // El fondo decorativo de la portada nunca sustituye imágenes del archivo.
 }
