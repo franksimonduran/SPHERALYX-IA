@@ -1,0 +1,72 @@
+/* Gaia-inspired immersive WebGL directly inside Cosmic Explorer.
+   Gaia Sky is a separate desktop application; this is a native web renderer. */
+.cosmic-3d-stage.webgl-active{
+  background:#020815;
+  box-shadow:inset 0 0 80px rgba(1,6,24,.65),0 0 38px rgba(58,60,157,.16);
+}
+.cosmic-3d-stage.webgl-active::before{display:none}
+.cosmic-3d-stage.webgl-active::after{
+  content:'CIELO ICRS · FUENTES REALES DE CATÁLOGO · SIN ESTRELLAS SINTÉTICAS';
+  top:47px;left:15px;max-width:calc(100% - 30px);
+  color:rgba(190,204,240,.65);font-size:.54rem;letter-spacing:.09em;
+}
+.cosmic-3d-stage.webgl-active .cosmic-webgl-canvas{
+  display:block;position:absolute;inset:0;width:100%;height:100%;
+  z-index:1;filter:none;pointer-events:none;
+}
+.cosmic-3d-stage.webgl-active #cosmic-canvas{opacity:0;pointer-events:none}
+.cosmic-3d-stage .cosmic-stage-label{
+  max-width:calc(100% - 175px);font-size:.59rem;letter-spacing:.06em;
+  border:1px solid rgba(105,159,225,.42);
+  background:rgba(5,12,35,.84);
+}
+.cosmic-3d-stage .cosmic-renderer-toggle{
+  min-height:37px;max-width:165px;
+  border:1px solid rgba(154,191,255,.65);
+  background:linear-gradient(120deg,#3c357e,#1e477d);
+}
+.cosmic-3d-stage .cosmic-renderer-status{
+  left:15px;right:15px;bottom:63px;max-width:calc(100% - 30px);
+  text-align:left;color:#c7defb;font-size:.68rem;font-weight:650;
+}
+.cosmic-3d-stage .cosmic-gaia-empty[hidden]{display:none}
+.cosmic-3d-stage .cosmic-gaia-empty{
+  position:absolute;z-index:4;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:min(330px,calc(100% - 40px));
+  padding:24px 20px;
+  text-align:center;
+  border:1px solid rgba(137,172,238,.42);
+  border-radius:18px;
+  background:linear-gradient(140deg,rgba(13,25,55,.94),rgba(17,15,50,.94));
+  box-shadow:0 20px 60px rgba(0,0,0,.48),0 0 45px rgba(97,71,197,.13);
+  backdrop-filter:blur(12px);
+  cursor:default;
+}
+.cosmic-3d-stage .cosmic-gaia-empty strong{
+  display:block;color:#f0f5ff;font-size:1.02rem;letter-spacing:-.01em;
+}
+.cosmic-3d-stage .cosmic-gaia-empty p{
+  position:static;pointer-events:auto;margin:12px 0 16px;padding:0;
+  color:#b8c9e9;font-size:.78rem;line-height:1.55;
+  border:0;background:none;box-shadow:none;text-shadow:none;
+}
+.cosmic-3d-stage .cosmic-gaia-empty button{
+  cursor:pointer;min-height:40px;padding:10px 18px;
+  border:1px solid rgba(202,177,255,.7);border-radius:10px;
+  background:linear-gradient(110deg,#6142b8,#8a55dd);
+  color:white;font-size:.77rem;font-weight:750;
+}
+.cosmic-3d-stage .cosmic-gaia-empty button:hover:not(:disabled){filter:brightness(1.13)}
+.cosmic-3d-stage .cosmic-gaia-empty button:focus-visible{outline:3px solid #9be5ff;outline-offset:3px}
+.cosmic-3d-stage .cosmic-gaia-empty button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:600px){
+  .cosmic-3d-stage .cosmic-stage-label{max-width:calc(100% - 25px);font-size:.52rem;top:11px}
+  .cosmic-3d-stage .cosmic-renderer-toggle{top:44px;right:11px;max-width:180px;font-size:.63rem}
+  .cosmic-3d-stage.webgl-active::after{top:91px;font-size:.49rem}
+  .cosmic-3d-stage .cosmic-renderer-status{bottom:72px;font-size:.58rem}
+  .cosmic-3d-stage .cosmic-gaia-empty{padding:18px 14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .cosmic-3d-stage .cosmic-gaia-empty{transition:none}
+}
