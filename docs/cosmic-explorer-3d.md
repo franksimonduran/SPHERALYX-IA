@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-El visualizador usa **Canvas 2D** con proyección ortográfica de una esfera celeste ICRS y controles que simulan rotación, acercamiento y selección direccional. **No utiliza Three.js/WebGL todavía**, por lo que llamarlo una escena Three.js nativa sería incorrecto. Esta proyección no asigna distancias ni convierte paralajes en profundidad física.
+El explorador central incorpora ahora un **visor WebGL inmersivo inspirado en Gaia Sky**, activado progresivamente cuando el usuario ve el panel, y conserva una **esfera Canvas 2D** accesible como alternativa. No incrusta la aplicación de escritorio Gaia Sky ni depende de Three.js: usa WebGL nativo local y proyección direccional ICRS. Esta vista 3D es angular, no una reconstrucción de distancias físicas. Para posiciones volumétricas por paralaje existe el módulo separado «Ver volumen 3D por paralaje», limitado a fuentes Gaia DR3 con paralaje positiva y S/N ≥ 10.
 
 La escena no genera fuentes estelares de sustitución. Inicialmente no hay estrellas de catálogo: el usuario debe cargar Gaia DR3 o AllWISE desde los botones del mismo explorador. Las fuentes se dibujan solamente desde las respuestas **reales** de los endpoints propios `/api/gaia/sources` y `/api/wise/sources`; si una consulta devuelve cero o falla no se generan estrellas ficticias.
 
@@ -26,6 +26,10 @@ El modo offline desactiva las consultas de catálogos tanto en el navegador como
 
 La auditoría frontend con API simulada verifica carga de catálogos, valores nulos, selección sin consulta IRSA automática, selección direccional, conmutación de campo, errores, estados vacíos, modo offline y resoluciones. Las pruebas de Python comprueban serialización y validaciones de entradas. **Estas pruebas con mocks no certifican disponibilidad real en este momento.**
 
-### Pendiente para cumplir íntegramente el requisito de Three.js
+### Integración Gaia Sky en el visor central (noviembre 2026)
 
-La esfera actual es una visualización Canvas 2D con proyección matemática 3D, no WebGL. La incorporación de un renderizador Three.js debe hacerse como mejora progresiva del **mismo visor** (no como panel adicional), con versión y licencia documentadas y un fallback 2D. Debe preservar la selección de RA/Dec y nunca añadir fuentes ni profundidades inventadas. Antes de considerar terminada esa mejora hay que verificar su rendimiento, origen de dependencias y funcionamiento offline.
+El visor central muestra un cielo WebGL de pantalla completa en lugar de una esfera opaca. Los puntos de Gaia DR3 se colorean según BP−RP cuando el dato existe y se dimensionan de forma ilustrativa según la magnitud G; AllWISE se diferencia en ámbar. **No se generan estrellas artificiales**: si el archivo no devuelve fuentes, aparece un mensaje y un botón de consulta, no un catálogo falso. El fondo degradado es decorativo y no se presenta como imagen científica.
+
+La consulta ajusta el zoom a conos pequeños sin el límite anterior de 250×; el usuario puede arrastrar para cambiar RA/Dec de vista, usar rueda y botones para zoom, seleccionar fuentes, navegar con teclado y regresar a Canvas 2D. Cuando copia las coordenadas de una fuente, se conserva en pantalla el **cono original consultado**, claramente identificado como tal; cambiar manualmente RA/Dec o radio invalida ese campo y oculta sus fuentes hasta volver o consultar de nuevo.
+
+La aplicación Gaia Sky oficial sigue siendo software independiente: https://gaiasky.space/. Este visor web no implementa todas sus capacidades, su catálogo global ni sus distancias tridimensionales. La calidad científica y la disponibilidad del backend dependen de los datos reales recibidos del servicio de archivo; los tests con mocks no certifican la conectividad en vivo.
