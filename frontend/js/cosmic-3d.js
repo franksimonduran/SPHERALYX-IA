@@ -67,6 +67,7 @@ export function initCosmic3D() {
 
   let viewRa = 83.8221, viewDec = -5.3911, sphereZoom = 1, drag = null;
   let gaiaSources = [], wiseSources = [], selectedKey = '', projectedHits = [];
+  let catalogLoading = false;
   let gaiaMeta = null, wiseMeta = null;
   let gaiaController = null, wiseController = null;
   let copyingCatalogCoords = false;
@@ -146,8 +147,9 @@ export function initCosmic3D() {
   };
 
   function fitConeZoom(rr) {
+    // La proyección ocupa el 43 % del lado menor: encuadrar el cono con margen.
     const s = Math.sin(Math.max(rr, 0.002) * rad);
-    return Math.min(8000, Math.max(1, Math.round((0.68 / s) * 10) / 10));
+    return Math.min(8000, Math.max(1, Math.round((0.48 / s) * 10) / 10));
   }
 
   // La procedencia de cada capa pertenece al cono consultado, no a los campos
@@ -473,7 +475,9 @@ export function initCosmic3D() {
 
     ctx.restore();
     stage.dataset.renderedSources = String(projectedHits.length);
-    emptyState.hidden = !webgl || projectedHits.length > 0;
+    const activeCatalogs = allCatalogItems();
+    // No ocultar la invitación cuando solo hay una fuente aislada o la consulta sigue pendiente.
+    emptyState.hidden = !webgl || projectedHits.length > 0 || catalogLoading;
     if (!emptyState.hidden) {
       const stale = stage.dataset.catalogStale === 'true';
       emptyTitle.textContent = stale ? 'El campo consultado ha cambiado' : 'Explora el cielo real en 3D';
@@ -486,7 +490,7 @@ export function initCosmic3D() {
     }
     if (webgl) {
       const countGaia = projectedHits.filter(p => p.item.kind === 'gaia').length;
-      modeStatus.textContent = projectedHits.length
+      modeStatus.textContent = catalogLoading ? 'Consultando catálogo oficial…' : projectedHits.length
         ? `Gaia 3D · ${countGaia} Gaia + ${projectedHits.length - countGaia} WISE visibles · campo real`
         : 'Gaia 3D · sin fuentes visibles · consulta Gaia DR3 o centra el campo';
     }
@@ -576,7 +580,9 @@ export function initCosmic3D() {
     const controller = new AbortController();
     if (isGaia) { gaiaController = controller; if (gaiaBtn) gaiaBtn.disabled = true; }
     else { wiseController = controller; if (wiseBtn) wiseBtn.disabled = true; }
+    catalogLoading = true;
     if (catalogStatus) catalogStatus.textContent = isGaia ? 'Consultando Gaia DR3 (ESA / Gaia@AIP)…' : 'Consultando AllWISE en NASA/IPAC IRSA TAP…';
+    draw();
 
     try {
       const data = isGaia
@@ -618,6 +624,8 @@ export function initCosmic3D() {
     } finally {
       if (isGaia && gaiaController === controller) { gaiaController = null; if (gaiaBtn) gaiaBtn.disabled = false; }
       if (!isGaia && wiseController === controller) { wiseController = null; if (wiseBtn) wiseBtn.disabled = false; }
+      catalogLoading = Boolean(gaiaController || wiseController);
+      draw();
     }
   }
 
@@ -629,7 +637,12 @@ export function initCosmic3D() {
   document.querySelector('#cosmic-center').addEventListener('click', center);
   if (zoomInBtn) zoomInBtn.addEventListener('click', () => { sphereZoom = Math.min(8000, Math.round(sphereZoom * 1.6 * 10) / 10); draw(); });
   if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => { sphereZoom = Math.max(1, Math.round((sphereZoom / 1.6) * 10) / 10); draw(); });
-  if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => { sphereZoom = 1; draw(); });
+  if (zoomResetBtn) zoomResetBtn.addEventListener('click', () => {
+    const meta = matchesCatalogQuery(gaiaMeta) ? gaiaMeta : matchesCatalogQuery(wiseMeta) ? wiseMeta : null;
+    if (meta?.query) { viewRa = meta.query.ra; viewDec = meta.query.dec; sphereZoom = fitConeZoom(meta.query.radius_deg); }
+    else sphereZoom = 1;
+    draw();
+  });
   if (gaiaBtn) gaiaBtn.addEventListener('click', () => loadCatalog('gaia'));
   if (wiseBtn) wiseBtn.addEventListener('click', () => loadCatalog('wise'));
   if (clearBtn) {
